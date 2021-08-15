@@ -4,25 +4,16 @@
 // import 文を使ってstyle.cssファイルを読み込む。参照：https://webpack.js.org/plugins/mini-css-extract-plugin/
 //import './style.scss';
 
-document.addEventListener('mouseup', function(evt) {
 
-    var selObj = window.getSelection();
-    const searchForm = document.querySelector('#booqs-dict-search-form');
-    if (searchForm != null && selObj != '') {
-        searchForm.value = selObj;
-        searchWord(selObj);
-        //イベントの予期せぬ伝播を防ぐための記述
-        evt.stopPropagation();
-    }
 
-}, false);
-
+// アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     if (request == "Action") {
         toggleFloatingWindow();
     }
 });
 
+// 辞書ウィンドウの表示/非表示を切り替える。
 function toggleFloatingWindow() {
 
     let floadtingWindow = document.getElementsByClassName('jsframe-titlebar-focused');
@@ -33,7 +24,7 @@ function toggleFloatingWindow() {
             horizontalAlign: 'right'
         })
 
-        const form_html = '<div id="booqs-dict-extension-wrapper"><form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form><div id ="search-booqs-dict-results"></div></div>'
+        const form_html = '<div id="booqs-dict-extension-wrapper"><form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form><div id="booqs-dict-search-status">"<span id="booqs-dict-search-keyword"></span>"<span id="booqs-dict-search-status-text">の検索結果</span></div><div id="search-booqs-dict-results"></div></div>'
 
         let frame = jsFrame.create({
             name: 'booqs-dict-window',
@@ -48,10 +39,17 @@ function toggleFloatingWindow() {
             html: form_html
         });
         console.log(frame);
-        frame.setPosition(-20, 20, ['RIGHT_TOP']);
+        frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
-        frame.requestFocus();
-        console.log("show");
+        let searchForm = document.querySelector('#booqs-dict-search-form');
+        // ドラッグしたテキストを辞書で検索できるようにする。
+        searchSelectedText(searchForm);
+        // フォーム経由の検索できるようにする。
+        searchViaForm(searchForm);
+        // 検索フォームへのエンターを効かないようにする。
+        preventEnter(searchForm);
+
+
 
     } else {
         floadtingWindow[0].parentNode.parentNode.remove()
@@ -59,8 +57,57 @@ function toggleFloatingWindow() {
 
 }
 
-function searchWord(keyword) {
 
+
+// ドラッグしたテキストを辞書で検索する
+function searchSelectedText(form) {
+    document.addEventListener('mouseup', function(evt) {
+        const selTxt = window.getSelection().toString();
+        const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+        // 検索フォーム
+        if (selTxt != '' && previousKeyword != selTxt) {
+            form.value = selTxt;
+            searchWord(selTxt);
+            //イベントの予期せぬ伝播を防ぐための記述
+            evt.stopPropagation();
+        }
+    }, false);
+}
+
+
+// 検索フォームの変化に応じて検索する。
+function searchViaForm(form) {
+    form.addEventListener('keyup', function() {
+        let keyword = form.value
+        let previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+        const search = () => {
+            let currentKeyword = document.querySelector('#booqs-dict-search-form').value;
+            if (keyword == currentKeyword && keyword != previousKeyword) {
+                searchWord(keyword);
+            }
+        }
+        setTimeout(search, 500);
+    });
+}
+
+
+// 検索フォームへのエンターを効かないようにする。
+function preventEnter(form) {
+    form.addEventListener('keydown', function(e) {
+        if (e.key == 'Enter') {
+            e.preventDefault();
+        }
+    });
+}
+
+
+// 連続して入力したときに、前回のリクエストを中断する。
+
+// keywordをBooQsの辞書で検索する
+function searchWord(keyword) {
+    // 検索キーワードを更新する
+    let searchKeyword = document.querySelector('#booqs-dict-search-keyword');
+    searchKeyword.textContent = keyword;
     let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodeURIComponent(keyword)
 
     fetch(url, {
@@ -75,21 +122,22 @@ function searchWord(keyword) {
         .catch(error => { console.log(error); });
 }
 
+// 検索結果を表示する
 function searchSuccess(data) {
     console.log(data['data']);
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
     data['data'].forEach(function(item, index, array) {
-            console.log(item, index)
-            let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
-            let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
-            let explanation = '<div class="booqs-dict-explanation">' + item['explanation'] + '</div>'
-            let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
-            let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
-            let dict = entry + meaning + explanation + reviewBtn
+        console.log(item, index)
+        let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
+        let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
+        let explanation = '<div class="booqs-dict-explanation">' + item['explanation'] + '</div>'
+        let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
+        let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
+        let dict = entry + meaning + explanation + reviewBtn
 
-            resultForm.insertAdjacentHTML('afterbegin', dict);
-        })
-        // 通信成功時の処理を記述
-    console.log('success');
+        resultForm.insertAdjacentHTML('afterbegin', dict);
+    })
 }
+
+// エラー時の処理。単語の追加のリコメンド。ヘッダをブランドブラックに合わせる。
