@@ -131,7 +131,7 @@ function searchSuccess(data) {
         console.log(item, index)
         let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
         let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
-        let explanation = '<div class="booqs-dict-explanation">' + item['explanation'] + '</div>'
+        let explanation = '<div class="booqs-dict-explanation">' + item['explanation'].replace(/\r?\n/g, '<br>'); + '</div>'
         let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
         let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
         let dict = entry + meaning + explanation + reviewBtn
@@ -140,4 +140,4 @@ function searchSuccess(data) {
     })
 }
 
-// エラー時の処理。単語の追加のリコメンド。ヘッダをブランドブラックに合わせる。
+// エラー時の処理。単語の追加のリコメンドリンク。ヘッダをブランドブラックに合わせる。
