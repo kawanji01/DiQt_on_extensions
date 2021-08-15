@@ -22,7 +22,7 @@
             
             #booqs-dict-extension-wrapper .booqs-dict-entry {
                 color: #27ae60;
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: bold;
                 margin: 8px 0;
             }
@@ -55,6 +55,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                margin-top: 8px;
+                margin-bottom: 24px;
             }
             
             #booqs-dict-extension-wrapper .booqs-dict-review-btn:before {
@@ -75,6 +77,7 @@
             #booqs-dict-extension-wrapper .booqs-dict-review-btn:hover {
                 color: #fff;
                 font-weight: bold;
+                text-decoration: none;
             }
             
             #booqs-dict-extension-wrapper .booqs-dict-review-btn:hover:before {
