@@ -1,0 +1,34 @@
+{
+    "name": "Sample",
+    "version": "1.5.3",
+    "manifest_version": 2,
+    "description": "Sample Chrome Extension",
+    "content_scripts": [{
+        "matches": [
+            "<all_urls>"
+        ],
+        "js": [
+            "/js/jsframe.js",
+            "/js/main.js"
+        ],
+        "css": [
+            "/style.css"
+        ]
+
+    }],
+    "permissions": ["contextMenus", "storage", "unlimitedStorage", "activeTab"],
+    "background": {
+        "scripts": ["/js/background.js"],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_icon": "/icon_144.png",
+        "default_title": "Ext title"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "description": "Activate the extension"
+        }
+    },
+    "content_security_policy": "script-src 'self' https://riversun.github.io/jsframe/jsframe.js; object-src 'self'"
+}

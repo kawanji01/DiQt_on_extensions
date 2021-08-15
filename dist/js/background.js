@@ -1,0 +1,1 @@
+chrome.browserAction.onClicked.addListener((function(e){chrome.tabs.sendMessage(e.id,"Action")}));
