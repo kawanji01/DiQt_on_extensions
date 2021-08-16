@@ -23,10 +23,9 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 // 辞書ウィンドウの表示/非表示を切り替える。
 function toggleFloatingWindow() {
 
-    let floadtingWindow = document.getElementsByClassName('jsframe-titlebar-focused');
+    let extensionWrapper = document.getElementById('booqs-dict-extension-wrapper');
 
-
-    if (floadtingWindow.length == 0) {
+    if (extensionWrapper == null) {
         jsFrame = new JSFrame({
             horizontalAlign: 'right'
         })
@@ -48,6 +47,7 @@ function toggleFloatingWindow() {
                     radius: 6,
                 },
                 titleBar: {
+                    name: 'booqs-dict-window-bar',
                     color: 'white',
                     // Brand color
                     background: '#273132',
@@ -75,6 +75,7 @@ function toggleFloatingWindow() {
         console.log(frame);
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
+        frame.requestFocus();
         let searchForm = document.querySelector('#booqs-dict-search-form');
         // ドラッグしたテキストを辞書で検索できるようにする。
         searchSelectedText(searchForm);
@@ -83,10 +84,8 @@ function toggleFloatingWindow() {
         // 検索フォームへのエンターを効かないようにする。
         preventEnter(searchForm);
 
-
-
     } else {
-        floadtingWindow[0].parentNode.parentNode.remove()
+        extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode.remove()
     }
 
 }

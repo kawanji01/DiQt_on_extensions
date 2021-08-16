@@ -1,87 +1,104 @@
-            #booqs-dict-extension-wrapper {
-                padding: 8px;
-            }
-            /* 検索ボックスのデザイン */
-            
-            #booqs-dict-search-form {
-                width: 100%;
-                /*親要素いっぱい広げる*/
-                padding: 6px 6px;
-                /*ボックスを大きくする*/
-                font-size: 12px;
-                border-radius: 3px;
-                /*ボックス角の丸み*/
-                border: 1px solid #ddd;
-                /*枠線*/
-                box-sizing: border-box;
-                /*横幅の解釈をpadding, borderまでとする*/
-                margin-top: 8px;
-                margin-bottom: 16px;
-            }
-            /* 見出し */
-            
-            #booqs-dict-extension-wrapper .booqs-dict-entry {
-                color: #27ae60;
-                font-size: 15px;
-                font-weight: bold;
-                margin: 8px 0;
-            }
-            /* 意味 */
-            
-            #booqs-dict-extension-wrapper .booqs-dict-meaning {
-                color: #6E6E6E;
-                font-size: 13px;
-                font-weight: bold;
-                margin: 8px 0;
-            }
-            /* 解説 */
-            
-            #booqs-dict-extension-wrapper .booqs-dict-explanation {
-                color: #6E6E6E;
-                font-size: 12px;
-                margin-top: 8px;
-                margin-bottom: 16px;
-            }
-            /* 復習ボタン */
-            
-            #booqs-dict-extension-wrapper .booqs-dict-review-btn {
-                color: #27ae60;
-                font-size: 12px;
-                position: relative;
-                display: inline-block;
-                padding: 8px;
-                /*color: #614f38; */
-                z-index: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-top: 8px;
-                margin-bottom: 24px;
-            }
-            
-            #booqs-dict-extension-wrapper .booqs-dict-review-btn:before {
-                content: "";
-                position: absolute;
-                z-index: -1;
-                right: 0;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 100%;
-                height: 100%;
-                border-radius: 25px;
-                border: 1px solid;
-                transition: all .3s;
-            }
-            
-            #booqs-dict-extension-wrapper .booqs-dict-review-btn:hover {
-                color: #fff;
-                font-weight: bold;
-                text-decoration: none;
-            }
-            
-            #booqs-dict-extension-wrapper .booqs-dict-review-btn:hover:before {
-                right: 0;
-                transform: scale(1.2);
-                background: #27ae60;
-            }
+#booqs-dict-window-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background-color:
+}
+
+#booqs-dict-extension-wrapper {
+    padding: 8px;
+}
+
+
+/* 検索ボックスのデザイン */
+
+#booqs-dict-search-form {
+    width: 100%;
+    /*親要素いっぱい広げる*/
+    padding: 6px 6px;
+    /*ボックスを大きくする*/
+    font-size: 12px;
+    border-radius: 3px;
+    /*ボックス角の丸み*/
+    border: 1px solid #ddd;
+    /*枠線*/
+    box-sizing: border-box;
+    /*横幅の解釈をpadding, borderまでとする*/
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+
+/* 見出し */
+
+#booqs-dict-extension-wrapper .booqs-dict-entry {
+    color: #27ae60;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+
+/* 意味 */
+
+#booqs-dict-extension-wrapper .booqs-dict-meaning {
+    color: #6E6E6E;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+
+/* 解説 */
+
+#booqs-dict-extension-wrapper .booqs-dict-explanation {
+    color: #6E6E6E;
+    font-size: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+
+/* 復習ボタン */
+
+#booqs-dict-extension-wrapper .booqs-dict-review-btn {
+    color: #27ae60;
+    font-size: 12px;
+    position: relative;
+    display: inline-block;
+    padding: 8px;
+    /*color: #614f38; */
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 24px;
+}
+
+#booqs-dict-extension-wrapper .booqs-dict-review-btn:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    border: 1px solid;
+    transition: all .3s;
+}
+
+#booqs-dict-extension-wrapper .booqs-dict-review-btn:hover {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#booqs-dict-extension-wrapper .booqs-dict-review-btn:hover:before {
+    right: 0;
+    transform: scale(1.2);
+    background: #27ae60;
+}
