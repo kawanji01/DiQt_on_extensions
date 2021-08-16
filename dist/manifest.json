@@ -32,5 +32,6 @@
             "description": "Activate the extension"
         }
     },
+    // ローカルでfontawesomeを利用する / 参照：https://r17n.page/2020/07/04/chrome-extension-using-fontawesome/
     "web_accessible_resources": ["fonts/*"]
 }
