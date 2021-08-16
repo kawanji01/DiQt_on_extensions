@@ -2,6 +2,11 @@
     padding: 8px;
 }
 
+#booqs-dict-extension-wrapper a.booqs-notation-link {
+    /* Brand Green */
+    color: #27ae60;
+}
+
 
 /* 検索ボックスのデザイン */
 
@@ -21,10 +26,16 @@
     margin-bottom: 16px;
 }
 
+#booqs-dict-search-form:focus {
+    border: 1px solid #2ecc71;
+    outline: 0;
+}
+
 
 /* 見出し */
 
 #booqs-dict-extension-wrapper .booqs-dict-entry {
+    /* Brand Green */
     color: #27ae60;
     font-size: 15px;
     font-weight: bold;

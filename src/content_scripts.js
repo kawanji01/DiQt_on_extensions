@@ -83,6 +83,8 @@ function toggleFloatingWindow() {
         searchViaForm(searchForm);
         // 検索フォームへのエンターを効かないようにする。
         preventEnter(searchForm);
+        // wiki記法をクリックするだけで検索できるようにする。
+        //activateClickSearch(searchForm);
 
     } else {
         extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode.remove()
@@ -158,17 +160,69 @@ function searchSuccess(data) {
     console.log(data['data']);
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
-    data['data'].forEach(function(item, index, array) {
-        console.log(item, index)
-        let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
-        let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
-        let explanation = '<div class="booqs-dict-explanation">' + item['explanation'].replace(/\r?\n/g, '<br>'); + '</div>'
-        let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
-        let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
-        let dict = entry + meaning + explanation + reviewBtn
+    if (data['data'] != null) {
+        data['data'].forEach(function(item, index, array) {
+            console.log(item, index)
+            let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
+            let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
+            let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
+            let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
+            let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
+            let dict = entry + meaning + explanation + reviewBtn
 
-        resultForm.insertAdjacentHTML('afterbegin', dict);
+            resultForm.insertAdjacentHTML('afterbegin', dict);
+            // 解説のクリックサーチを有効にする
+            activateClickSearch(resultForm);
+        })
+    } else {
+        const result = '<div class="booqs-dict-meaning">項目が見つかりませんでした。</div>'
+        resultForm.insertAdjacentHTML('afterbegin', result);
+    }
+
+}
+
+// 記法が使われた解説テキストをマークアップする。
+function markNotation(text) {
+    //const expObj = result.querySelector('booqs-dict-explanation');
+    // 改行コードをすべて<br>にする。
+    let expTxt = text.replace(/\r?\n/g, '<br>');
+    // wiki記法（[[text]]）でテキストを分割する。
+    let expTxtArray = expTxt.split(/(\[{2}.*?\]{2})/);
+    let processedArray = [];
+    expTxtArray.forEach(function(item, index, array) {
+        if (item.match(/\[{2}.+\]{2}/) == null) {
+            processedArray.push(item);
+        } else {
+            item = item.replace(/\[{2}/g, "").replace(/\]{2}/g, "");
+            item = item.split(/\|/, 2);
+            let linkHtml;
+            if (item[1] == undefined) {
+                linkHtml = `<a class="booqs-notation-link" data-value="${item[0]}">${item[0]}</a>`
+            } else {
+                linkHtml = `<a class="booqs-notation-link" data-value="${item[1]}">${item[0]}</a>`
+            }
+            processedArray.push(linkHtml);
+        }
+    })
+    return processedArray.join('')
+}
+
+// wiki記法でリンクになっている単語をクリックすると、自動で辞書を検索するようにする。
+function activateClickSearch(results) {
+    let links = results.querySelectorAll('.booqs-notation-link')
+    let searchForm = document.querySelector('#booqs-dict-search-form');
+    links.forEach(function(target) {
+        target.addEventListener('click', function(event) {
+            let keyword = event.target.dataset["value"];
+            // 検索フォームのvalueとキーワードが異なるなら検索を実行する
+            if (searchForm.value != keyword) {
+                searchForm.value = keyword;
+                searchWord(keyword);
+            }
+            // 画面遷移をキャンセル
+            return false;
+        });
     })
 }
 
-// エラー時の処理。単語の追加のリコメンドリンク。単語の改善のリコメンドリンク。
+// 単語の追加のリコメンドリンク。単語の改善のリコメンドリンク。

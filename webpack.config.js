@@ -28,7 +28,13 @@ module.exports = {
     module: {
         rules: [{
                 test: /\.ts$/,
-                use: "ts-loader",
+                use: [{
+                    loader: "ts-loader",
+                    options: {
+                        // ソースマップの利用有無
+                        sourceMap: enabledSourceMap,
+                    },
+                }],
                 exclude: /node_modules/,
             }, // Sassファイルの読み込みとコンパイル
             {
