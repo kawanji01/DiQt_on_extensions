@@ -6,10 +6,10 @@
 
 
 // fontAwesomeの読み込み / 参照：https://r17n.page/2020/07/04/chrome-extension-using-fontawesome/
-let link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = 'https://use.fontawesome.com/releases/v5.13.1/css/all.css';
-document.head.insertAdjacentElement('beforeEnd', link);
+//let link = document.createElement('link');
+//link.rel = 'stylesheet';
+//link.href = 'https://use.fontawesome.com/releases/v5.13.1/css/all.css';
+//document.head.insertAdjacentElement('beforeEnd', link);
 
 
 
@@ -134,8 +134,6 @@ function preventEnter(form) {
 }
 
 
-// 連続して入力したときに、前回のリクエストを中断する。
-
 // keywordをBooQsの辞書で検索する
 function searchWord(keyword) {
     // 検索キーワードを更新する
@@ -173,4 +171,4 @@ function searchSuccess(data) {
     })
 }
 
-// エラー時の処理。単語の追加のリコメンドリンク。
+// エラー時の処理。単語の追加のリコメンドリンク。単語の改善のリコメンドリンク。

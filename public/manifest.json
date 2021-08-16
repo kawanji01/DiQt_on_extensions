@@ -12,7 +12,9 @@
             "/js/main.js"
         ],
         "css": [
-            "/style.css"
+            "/style.css",
+            "/all.min.css"
+
         ]
 
     }],
@@ -30,5 +32,6 @@
             "description": "Activate the extension"
         }
     },
-    "content_security_policy": "script-src 'self' https://riversun.github.io/jsframe/jsframe.js; object-src 'self'"
+    // ローカルでfontawesomeを利用する / 参照：https://r17n.page/2020/07/04/chrome-extension-using-fontawesome/
+    "web_accessible_resources": ["fonts/*"]
 }

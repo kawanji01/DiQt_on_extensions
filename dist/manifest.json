@@ -12,7 +12,9 @@
             "/js/main.js"
         ],
         "css": [
-            "/style.css"
+            "/style.css",
+            "/all.min.css"
+
         ]
 
     }],
@@ -30,5 +32,5 @@
             "description": "Activate the extension"
         }
     },
-    "content_security_policy": "script-src 'self' https://riversun.github.io/jsframe/jsframe.js; object-src 'self'"
+    "web_accessible_resources": ["fonts/*"]
 }
