@@ -5,6 +5,13 @@
 //import './style.scss';
 
 
+// fontAwesomeの読み込み / 参照：https://r17n.page/2020/07/04/chrome-extension-using-fontawesome/
+let link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = 'https://use.fontawesome.com/releases/v5.13.1/css/all.css';
+document.head.insertAdjacentElement('beforeEnd', link);
+
+
 
 // アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
@@ -33,6 +40,33 @@ function toggleFloatingWindow() {
             height: 480,
             movable: true, //マウスで移動可能
             resizable: true, //マウスでリサイズ可能
+            appearanceName: 'material',
+            appearanceParam: {
+                border: {
+                    shadow: '2px 2px 10px  rgba(0, 0, 0, 0.5)',
+                    width: 0,
+                    radius: 6,
+                },
+                titleBar: {
+                    color: 'white',
+                    // Brand color
+                    background: '#273132',
+                    leftMargin: 16,
+                    height: 30,
+                    fontSize: 14,
+                    buttonWidth: 36,
+                    buttonHeight: 16,
+                    buttonColor: 'white',
+                    buttons: [ // buttons on the right
+                        {
+                            //Set font-awesome fonts(https://fontawesome.com/icons?d=gallery&m=free)
+                            fa: 'fas fa-times', //code of font-awesome
+                            name: 'closeButton',
+                            visible: true // visibility when window is created.
+                        },
+                    ],
+                },
+            },
             style: {
                 overflow: 'auto'
             },
@@ -140,4 +174,4 @@ function searchSuccess(data) {
     })
 }
 
-// エラー時の処理。単語の追加のリコメンドリンク。ヘッダをブランドブラックに合わせる。
+// エラー時の処理。単語の追加のリコメンドリンク。
