@@ -1,6 +1,11 @@
+/* 余白 */
+
 #booqs-dict-extension-wrapper {
     padding: 8px;
 }
+
+
+/* Wiki記法による辞書へのリンク */
 
 #booqs-dict-extension-wrapper a.booqs-notation-link {
     /* Brand Green */
@@ -56,6 +61,7 @@
 /* 解説 */
 
 #booqs-dict-extension-wrapper .booqs-dict-explanation {
+    /* text black */
     color: #6E6E6E;
     font-size: 12px;
     margin-top: 8px;
@@ -77,7 +83,7 @@
     align-items: center;
     justify-content: center;
     margin-top: 8px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 #booqs-dict-extension-wrapper .booqs-dict-review-btn:before {
@@ -105,4 +111,46 @@
     right: 0;
     transform: scale(1.2);
     background: #27ae60;
+}
+
+
+/* 項目の改善リンク */
+
+#booqs-dict-extension-wrapper .booqs-dict-link-to-improve {
+    color: #6E6E6E;
+    font-size: 10px;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+#booqs-dict-extension-wrapper .booqs-dict-link-to-improve:hover {
+    color: #27ae60;
+}
+
+
+/* タグ */
+
+.booqs-dict-word-tags-wrapper {
+    margin-top: 8px;
+    text-align: right;
+}
+
+.booqs-dict-word-tags-wrapper a.booqs-dict-word-tag {
+    color: #6E6E6E;
+    font-size: 9px;
+    border-radius: 8px;
+    border: 1px solid #9b9999;
+    padding: 4px 6px;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.booqs-dict-word-tags-wrapper a.booqs-dict-word-tag:hover {
+    color: #27ae60;
+    border: 1px solid #27ae60;
+    text-decoration: none;
+}
+
+.booqs-dict-word-tags-wrapper a.booqs-dict-word-tag i {
+    margin-right: 2px;
 }

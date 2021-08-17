@@ -3,13 +3,7 @@
 //import './jsframe.js';
 // import 文を使ってstyle.cssファイルを読み込む。参照：https://webpack.js.org/plugins/mini-css-extract-plugin/
 //import './style.scss';
-
-
-// fontAwesomeの読み込み / 参照：https://r17n.page/2020/07/04/chrome-extension-using-fontawesome/
-//let link = document.createElement('link');
-//link.rel = 'stylesheet';
-//link.href = 'https://use.fontawesome.com/releases/v5.13.1/css/all.css';
-//document.head.insertAdjacentElement('beforeEnd', link);
+// 挫折：mini-css-extract-pluginを使って上記の方法でcssをimportしようとすると、JSframeが呼び出せなくなる。
 
 
 
@@ -163,19 +157,22 @@ function searchSuccess(data) {
     if (data['data'] != null) {
         data['data'].forEach(function(item, index, array) {
             console.log(item, index)
+            let tags = createTagsHtml(item['tags']);
             let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
             let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
             let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
-            let reviewURL = `https://www.booqs.net/ja/words/${item['id']}`
-            let reviewBtn = `<a href="${reviewURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
-            let dict = entry + meaning + explanation + reviewBtn
+            let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
+            let reviewBtn = `<a href="${wordURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
+            let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
+            let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove
 
-            resultForm.insertAdjacentHTML('afterbegin', dict);
+            resultForm.insertAdjacentHTML('beforeend', dict);
             // 解説のクリックサーチを有効にする
             activateClickSearch(resultForm);
         })
     } else {
         const result = '<div class="booqs-dict-meaning">項目が見つかりませんでした。</div>'
+
         resultForm.insertAdjacentHTML('afterbegin', result);
     }
 
@@ -225,4 +222,39 @@ function activateClickSearch(results) {
     })
 }
 
-// 単語の追加のリコメンドリンク。単語の改善のリコメンドリンク。
+// タグのhtmlを作成する
+function createTagsHtml(text) {
+    if (text == null) {
+        return `<div class="booqs-dict-word-tags-wrapper"></div>`
+    }
+
+    let tagsArray = text.split(',');
+    let tagsHtmlArray = [];
+    if (tagsArray.includes('ngsl')) {
+        let ngsl = `<a href="https://www.booqs.net/ja/chapters/c63ab6e5" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>基礎英単語</a>`
+        tagsHtmlArray.push(ngsl);
+    }
+    if (tagsArray.includes('nawl')) {
+        let nawl = `<a href="https://www.booqs.net/ja/chapters/5cedf1da" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>学術頻出語</a>`
+        tagsHtmlArray.push(nawl);
+    }
+    if (tagsArray.includes('tsl')) {
+        let tsl = `<a href="https://www.booqs.net/ja/chapters/26c399f0" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>TOEIC頻出語</a>`
+        tagsHtmlArray.push(tsl);
+    }
+    if (tagsArray.includes('bsl')) {
+        let bsl = `<a href="https://www.booqs.net/ja/chapters/4d46ce7f" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>ビジネス頻出語</a>`
+        tagsHtmlArray.push(bsl);
+    }
+    if (tagsArray.includes('phrase')) {
+        let phrase = `<a href="https://www.booqs.net/ja/chapters/c112b566" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>頻出英熟語</a>`
+        tagsHtmlArray.push(phrase);
+    }
+    if (tagsArray.includes('phave')) {
+        let phave = `<a href="https://www.booqs.net/ja/chapters/3623e0d5" target="_blank" rel="noopener" class="booqs-dict-word-tag"><i class="fal fa-tag"></i>頻出句動詞</a>`
+        tagsHtmlArray.push(phave);
+    }
+    return `<div class="booqs-dict-word-tags-wrapper">${tagsHtmlArray.join('')}</div>`
+}
+
+// 単語の追加のリコメンドリンク。
