@@ -23,18 +23,13 @@
         ]
 
     }],
-    "permissions": ["contextMenus", "storage", "unlimitedStorage", "activeTab"],
+    "permissions": ["unlimitedStorage"],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
         "default_icon": "/icon48.png",
         "default_title": "BooQs Dictionary"
-    },
-    "commands": {
-        "_execute_browser_action": {
-            "description": "Activate the extension"
-        }
     },
     "web_accessible_resources": [{
         "resources": ["/fonts/*"],

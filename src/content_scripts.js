@@ -162,7 +162,7 @@ function searchSuccess(data) {
             let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
             let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
             let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
-            let reviewBtn = `<a href="${wordURL}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
+            let reviewBtn = `<a href="${wordURL}?type=review" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
             let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
             let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove
 
