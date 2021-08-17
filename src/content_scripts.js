@@ -94,7 +94,7 @@ function searchSelectedText(form) {
         const selTxt = window.getSelection().toString();
         const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
         // 検索フォーム
-        if (selTxt != '' && previousKeyword != selTxt) {
+        if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 50) {
             form.value = selTxt;
             searchWord(selTxt);
             //イベントの予期せぬ伝播を防ぐための記述
@@ -104,14 +104,14 @@ function searchSelectedText(form) {
 }
 
 
-// 検索フォームの変化に応じて検索する。
+// 検索フォームの入力に応じて検索する。
 function searchViaForm(form) {
     form.addEventListener('keyup', function() {
         let keyword = form.value
         let previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
         const search = () => {
             let currentKeyword = document.querySelector('#booqs-dict-search-form').value;
-            if (keyword == currentKeyword && keyword != previousKeyword) {
+            if (keyword == currentKeyword && keyword != previousKeyword && keyword.length < 50) {
                 searchWord(keyword);
             }
         }
@@ -171,12 +171,15 @@ function searchSuccess(data) {
             activateClickSearch(resultForm);
         })
     } else {
-        const result = '<div class="booqs-dict-meaning">項目が見つかりませんでした。</div>'
-
+        let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+        let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
+        let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
+        let result = notFound + createNewWord
         resultForm.insertAdjacentHTML('afterbegin', result);
     }
 
 }
+
 
 // 記法が使われた解説テキストをマークアップする。
 function markNotation(text) {
