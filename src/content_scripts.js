@@ -7,8 +7,8 @@
 
 
 
-// アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+// アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。/ manifest 3 では書き方に変更があった。参照：https://blog.holyblue.jp/entry/2021/05/03/105010
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request == "Action") {
         toggleFloatingWindow();
     }
@@ -259,5 +259,3 @@ function createTagsHtml(text) {
     }
     return `<div class="booqs-dict-word-tags-wrapper">${tagsHtmlArray.join('')}</div>`
 }
-
-// 単語の追加のリコメンドリンク。
