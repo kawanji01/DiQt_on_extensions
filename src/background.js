@@ -47,6 +47,7 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 */
 
-chrome.browserAction.onClicked.addListener(function(tab) {
+// manifest 3では書き方が変わっている：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
+chrome.action.onClicked.addListener(function(tab) {
     chrome.tabs.sendMessage(tab.id, "Action");
 });
