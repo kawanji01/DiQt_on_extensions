@@ -1,6 +1,6 @@
 {
     "name": "BooQs Dictionary",
-    "version": "1.0.0.0",
+    "version": "1.0.0.1",
     "manifest_version": 3,
     "description": "This is the extension to search unknown words on  through BooQs's Dictionaries.",
     "icons": {
