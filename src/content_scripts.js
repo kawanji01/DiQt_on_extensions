@@ -8,7 +8,7 @@
 
 
 // アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。/ manifest 3 では書き方に変更があった。参照：https://blog.holyblue.jp/entry/2021/05/03/105010
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request == "Action") {
         toggleFloatingWindow();
     }
@@ -77,11 +77,15 @@ function toggleFloatingWindow() {
         searchViaForm(searchForm);
         // 検索フォームへのエンターを効かないようにする。
         preventEnter(searchForm);
-        // wiki記法をクリックするだけで検索できるようにする。
-        //activateClickSearch(searchForm);
+        // ウィンドウをページの最上部に持ってくる。
+        extensionWrapper = frame.$('#booqs-dict-extension-wrapper');
+        let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
+        // z-indexを限界値に設定し、frameを最前面に表示する。
+        frameDom.style.zIndex = '2147483647';
 
     } else {
-        extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode.remove()
+        let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
+        frameDom.remove()
     }
 
 }
@@ -90,7 +94,7 @@ function toggleFloatingWindow() {
 
 // ドラッグしたテキストを辞書で検索する
 function searchSelectedText(form) {
-    document.addEventListener('mouseup', function(evt) {
+    document.addEventListener('mouseup', function (evt) {
         const selTxt = window.getSelection().toString();
         const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
         // 検索フォーム
@@ -106,7 +110,7 @@ function searchSelectedText(form) {
 
 // 検索フォームの入力に応じて検索する。
 function searchViaForm(form) {
-    form.addEventListener('keyup', function() {
+    form.addEventListener('keyup', function () {
         let keyword = form.value
         let previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
         const search = () => {
@@ -122,7 +126,7 @@ function searchViaForm(form) {
 
 // 検索フォームへのエンターを効かないようにする。
 function preventEnter(form) {
-    form.addEventListener('keydown', function(e) {
+    form.addEventListener('keydown', function (e) {
         if (e.key == 'Enter') {
             e.preventDefault();
         }
@@ -138,10 +142,10 @@ function searchWord(keyword) {
     let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodeURIComponent(keyword)
 
     fetch(url, {
-            method: 'GET',
-            //body: JSON.stringify({ number: 18 }),
-            //headers: { 'Content-Type': 'application/json' },
-        })
+        method: 'GET',
+        //body: JSON.stringify({ number: 18 }),
+        //headers: { 'Content-Type': 'application/json' },
+    })
         .then(res => res.json())
         .then(jsonData => {
             searchSuccess(jsonData)
@@ -155,7 +159,7 @@ function searchSuccess(data) {
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
     if (data['data'] != null) {
-        data['data'].forEach(function(item, index, array) {
+        data['data'].forEach(function (item, index, array) {
             console.log(item, index)
             let tags = createTagsHtml(item['tags']);
             let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
@@ -189,7 +193,7 @@ function markNotation(text) {
     // wiki記法（[[text]]）でテキストを分割する。
     let expTxtArray = expTxt.split(/(\[{2}.*?\]{2})/);
     let processedArray = [];
-    expTxtArray.forEach(function(item, index, array) {
+    expTxtArray.forEach(function (item, index, array) {
         if (item.match(/\[{2}.+\]{2}/) == null) {
             processedArray.push(item);
         } else {
@@ -211,8 +215,8 @@ function markNotation(text) {
 function activateClickSearch(results) {
     let links = results.querySelectorAll('.booqs-notation-link')
     let searchForm = document.querySelector('#booqs-dict-search-form');
-    links.forEach(function(target) {
-        target.addEventListener('click', function(event) {
+    links.forEach(function (target) {
+        target.addEventListener('click', function (event) {
             let keyword = event.target.dataset["value"];
             // 検索フォームのvalueとキーワードが異なるなら検索を実行する
             if (searchForm.value != keyword) {
