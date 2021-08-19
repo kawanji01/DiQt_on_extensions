@@ -8,8 +8,14 @@ It can be helped to memorize unknown words to meet on web.
 
 # BooQsのブラウザ拡張辞書
 
-ひどいコードですが、ご容赦を。。。
+BooQsの辞書がWebブラウザで利用できるようになる拡張機能です。
 
-もうすぐリリースできます。
+[Google Chrome Store URL](https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj?hl=ja) 
 
-まだ未完成ですが、このリポジトリをダウンロードして、Chromeの「拡張機能を管理」からdistファイルを読み込めば利用することもできます。
+ご要望・バグなど見つけましたら、ご自由にissue・PullRequestを投げていただければ嬉しいです。
+
+
+# Licence
+- [jsframe v1.6.2 Copyright (c) 2007-2020 Tom Misawa](https://github.com/riversun/JSFrame.js/)
+- [English-Japanese Dictionary data (Public Domain) EJDict-hand](https://github.com/kujirahand/EJDict)
+- [FontAwesome](https://github.com/FortAwesome/Font-Awesome)
