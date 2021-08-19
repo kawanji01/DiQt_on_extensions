@@ -1,8 +1,8 @@
 {
     "name": "BooQs Dictionary",
-    "version": "1.0.0.1",
+    "version": "1.0.0.2",
     "manifest_version": 3,
-    "description": "This is the extension to search unknown words on  through BooQs's Dictionaries.",
+    "description": "BooQsの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",
