@@ -139,8 +139,11 @@ function searchWord(keyword) {
     // 検索キーワードを更新する
     let searchKeyword = document.querySelector('#booqs-dict-search-keyword');
     searchKeyword.textContent = keyword;
+    // 検索結果をLoaderに変更して、検索中であることを示す。
+    let resultForm = document.querySelector('#search-booqs-dict-results');
+    resultForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+    // リクエスト
     let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodeURIComponent(keyword)
-
     fetch(url, {
         method: 'GET',
         //body: JSON.stringify({ number: 18 }),
