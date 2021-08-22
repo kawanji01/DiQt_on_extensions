@@ -12,7 +12,11 @@ BooQsの辞書がWebブラウザで利用できるようになる拡張機能で
 
 [Google Chrome Store URL](https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj?hl=ja) 
 
-ご要望・バグなど見つけましたら、ご自由にissue・PullRequestを投げていただければ嬉しいです。
+ご要望・バグなど見つけましたら、お気軽にIssue・PullRequestを投げていただければ嬉しいです。
+
+今後の国際化のために、自身はIssueとPullRequestを英語で管理していますが、もちろん、日本語で送っていただいても構いません。
+
+ご協力、大変感謝いたします！
 
 
 # Licence
