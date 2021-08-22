@@ -11,6 +11,19 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request == "Action") {
         toggleFloatingWindow();
+        // リクエスト
+        let url = 'https://www.booqs.net/api/v1/extension/user'
+        fetch(url, {
+            method: 'GET',
+            //body: JSON.stringify({ number: 18 }),
+            //headers: { 'Content-Type': 'application/json' },
+        })
+            .then(res => res.json())
+            .then(jsonData => {
+                let resultForm = document.querySelector('#search-booqs-dict-results');
+                resultForm.innerHTML = `<div class="center">${jsonData['data']}</div>`;
+            })
+            .catch(error => { console.log(error); });
     }
 });
 

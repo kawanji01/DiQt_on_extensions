@@ -31,6 +31,7 @@
         "default_icon": "/icon48.png",
         "default_title": "BooQs Dictionary"
     },
+    "options_page": "options.html",
     "web_accessible_resources": [{
         "resources": ["/fonts/*"],
         "matches": ["<all_urls>"]
