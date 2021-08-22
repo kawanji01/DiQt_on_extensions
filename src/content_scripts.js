@@ -192,6 +192,7 @@ function searchSuccess(data) {
         })
     } else {
         let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+        keyword =  keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
         let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
         let result = notFound + createNewWord
