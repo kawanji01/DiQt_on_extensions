@@ -21,8 +21,9 @@ BooQsの辞書がWebブラウザで利用できるようになる拡張機能で
 
 # How to use on local
 
-1.  `npx webpack --mode production`
+1.  Run `npx webpack --mode production` on terminal.
 2. 「拡張機能を管理」より、distファイル以下を読み込む。
+3. 完了
 
 
 
