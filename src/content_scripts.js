@@ -72,8 +72,8 @@ function toggleFloatingWindow() {
         frame.requestFocus();
         let searchForm = document.querySelector('#booqs-dict-search-form');
         // ドラッグしたテキストを辞書で検索できるイベントを付与。
-        mouseupSearch(searchForm);
-        // フォーム経由の検索できるイベントを付与。
+        mouseupSearch();
+        // 検索フォームに、テキスト入力から検索できるイベントを付与。
         searchViaForm(searchForm);
         // 検索フォームへのエンターを無効にする。
         preventEnter(searchForm);
@@ -83,7 +83,7 @@ function toggleFloatingWindow() {
         // z-indexを限界値に設定し、frameを最前面に表示する。
         frameDom.style.zIndex = '2147483647';
         // （開いたこの瞬間に）選択されているテキストを検索する
-        searchSelectedText(searchForm)
+        searchSelectedText()
 
     } else {
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -95,21 +95,23 @@ function toggleFloatingWindow() {
 
 
 // ドラッグした瞬間に、ドラッグしたテキストの検索を走らせるイベントを付与。
-function mouseupSearch(form) {
+function mouseupSearch() {
     document.addEventListener('mouseup', function (evt) {
-        searchSelectedText(form);
+        searchSelectedText();
         // イベントの予期せぬ伝播を防ぐための記述
         evt.stopPropagation();
     }, false);
 }
 
 // ドラッグされているテキストを検索する処理
-function searchSelectedText(form) {
+function searchSelectedText() {
     const selTxt = window.getSelection().toString();
     const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
     // 検索フォーム
     if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 50) {
-        form.value = selTxt;
+        let searchForm = document.querySelector('#booqs-dict-search-form');
+        searchForm.value = selTxt;
+        console.log(searchForm.value);
         searchWord(selTxt);
     }
 }
