@@ -11,19 +11,6 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request == "Action") {
         toggleFloatingWindow();
-        // リクエスト
-        let url = 'https://www.booqs.net/api/v1/extension/user'
-        fetch(url, {
-            method: 'GET',
-            //body: JSON.stringify({ number: 18 }),
-            //headers: { 'Content-Type': 'application/json' },
-        })
-            .then(res => res.json())
-            .then(jsonData => {
-                let resultForm = document.querySelector('#search-booqs-dict-results');
-                resultForm.innerHTML = `<div class="center">${jsonData['data']}</div>`;
-            })
-            .catch(error => { console.log(error); });
     }
 });
 
@@ -84,17 +71,19 @@ function toggleFloatingWindow() {
         frame.show();
         frame.requestFocus();
         let searchForm = document.querySelector('#booqs-dict-search-form');
-        // ドラッグしたテキストを辞書で検索できるようにする。
-        searchSelectedText(searchForm);
-        // フォーム経由の検索できるようにする。
+        // ドラッグしたテキストを辞書で検索できるイベントを付与。
+        mouseupSearch();
+        // 検索フォームに、テキスト入力から検索できるイベントを付与。
         searchViaForm(searchForm);
-        // 検索フォームへのエンターを効かないようにする。
+        // 検索フォームへのエンターを無効にする。
         preventEnter(searchForm);
         // ウィンドウをページの最上部に持ってくる。
         extensionWrapper = frame.$('#booqs-dict-extension-wrapper');
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
         // z-indexを限界値に設定し、frameを最前面に表示する。
         frameDom.style.zIndex = '2147483647';
+        // （開いたこの瞬間に）選択されているテキストを検索する
+        searchSelectedText()
 
     } else {
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -105,23 +94,30 @@ function toggleFloatingWindow() {
 
 
 
-// ドラッグしたテキストを辞書で検索する
-function searchSelectedText(form) {
+// ドラッグした瞬間に、ドラッグしたテキストの検索を走らせるイベントを付与。
+function mouseupSearch() {
     document.addEventListener('mouseup', function (evt) {
-        const selTxt = window.getSelection().toString();
-        const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
-        // 検索フォーム
-        if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 50) {
-            form.value = selTxt;
-            searchWord(selTxt);
-            //イベントの予期せぬ伝播を防ぐための記述
-            evt.stopPropagation();
-        }
+        searchSelectedText();
+        // イベントの予期せぬ伝播を防ぐための記述
+        evt.stopPropagation();
     }, false);
 }
 
+// ドラッグされているテキストを検索する処理
+function searchSelectedText() {
+    const selTxt = window.getSelection().toString();
+    const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+    // 検索フォーム
+    if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 50) {
+        let searchForm = document.querySelector('#booqs-dict-search-form');
+        searchForm.value = selTxt;
+        console.log(searchForm.value);
+        searchWord(selTxt);
+    }
+}
 
-// 検索フォームの入力に応じて検索する。
+
+// 検索フォームの入力に応じて検索するイベントを付与。
 function searchViaForm(form) {
     form.addEventListener('keyup', function () {
         let keyword = form.value
@@ -132,12 +128,13 @@ function searchViaForm(form) {
                 searchWord(keyword);
             }
         }
+        // 0.5秒ずつ、検索を走らせるか検証する。
         setTimeout(search, 500);
     });
 }
 
 
-// 検索フォームへのエンターを効かないようにする。
+// 検索フォームへのエンターを無効にする。
 function preventEnter(form) {
     form.addEventListener('keydown', function (e) {
         if (e.key == 'Enter') {
@@ -156,11 +153,10 @@ function searchWord(keyword) {
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
     // リクエスト
-    let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodeURIComponent(keyword)
+    let encodedKeyword = encodeURIComponent(keyword);
+    let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodedKeyword
     fetch(url, {
         method: 'GET',
-        //body: JSON.stringify({ number: 18 }),
-        //headers: { 'Content-Type': 'application/json' },
     })
         .then(res => res.json())
         .then(jsonData => {
@@ -192,7 +188,7 @@ function searchSuccess(data) {
         })
     } else {
         let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
-        keyword =  keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
         let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
         let result = notFound + createNewWord

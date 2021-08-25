@@ -1,6 +1,6 @@
 {
     "name": "BooQs Dictionary",
-    "version": "1.0.0.3",
+    "version": "1.0.0.4",
     "manifest_version": 3,
     "description": "BooQsの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
     "icons": {
@@ -23,7 +23,7 @@
         ]
 
     }],
-    "permissions": ["unlimitedStorage"],
+    "permissions": ["storage", "unlimitedStorage"],
     "background": {
         "service_worker": "background.js"
     },
@@ -33,7 +33,7 @@
     },
     "options_page": "options.html",
     "web_accessible_resources": [{
-        "resources": ["/fonts/*"],
+        "resources": ["/webfonts/*"],
         "matches": ["<all_urls>"]
     }]
 }
