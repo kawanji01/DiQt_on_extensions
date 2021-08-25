@@ -1,4 +1,3 @@
-<!--
 <!DOCTYPE html>
 <html lang="ja" style="height: 100%">
   <head>
@@ -9,101 +8,14 @@
     <div id="main" class="p-6">
       <div
         class="box container is-max-desktop p-6 mb-6"
-        style="background-color: white"
+        style="background-color: white; min-height: 400px;"
       >
-        <div class="content">
-          <h1
-            class="mb-5 mt-3 has-text-centered is-size-2 has-text-weight-bold"
-          >
-            ログインフォーム
-          </h1>
-          <p>
-            ログインすることで、拡張機能から直接復習を設定できるようになります。
-          </p>
-          <p>
-            まだBooQsにアカウントを登録されていない方は、<a href="">こちら</a
-            >よりご登録ください。
-          </p>
+        <div id="user-page">
+          
         </div>
-
-        <form class="fetchForm">
-            <input
-              class="input is-danger"
-              type="email"
-              placeholder="Email input"
-              value="hello@"
-            />
-            <input
-              class="input is-success"
-              type="password"
-              placeholder="Text input"
-              value="bulma"
-            />
-            <input type="text" name="name" size="30" maxlength="30" class="name">
-            <input type="button" value="送信" class="btn">      
-        </form>
-
-        <div class="field">
-          <label class="label">Email</label>
-          <div class="control has-icons-left has-icons-right">
-            <input
-              class="input is-danger"
-              type="email"
-              placeholder="Email input"
-              value="hello@"
-            />
-            <span class="icon is-small is-left">
-              <i class="fas fa-envelope"></i>
-            </span>
-            <span class="icon is-small is-right">
-              <i class="fas fa-exclamation-triangle"></i>
-            </span>
-          </div>
-          <p class="help is-danger">This email is invalid</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Password</label>
-          <div class="control has-icons-left has-icons-right">
-            <input
-              class="input is-success"
-              type="password"
-              placeholder="Text input"
-              value="bulma"
-            />
-            <span class="icon is-small is-left">
-              <i class="fas fa-user"></i>
-            </span>
-            <span class="icon is-small is-right">
-              <i class="fas fa-check"></i>
-            </span>
-          </div>
-          <p class="help is-success">This username is available</p>
-        </div>
-
-        <div class="field">
-          <div class="control">
-            <label class="checkbox">
-              <input type="checkbox" />
-              ログイン情報を記録する <a href="#">（パスワードを忘れた）</a>
-            </label>
-          </div>
-        </div>
-
-        <button
-          class="button is-primary is-link is-block is-full"
-          style="width: 100%"
-        >
-          ログインする
-        </button>
       </div>
     </div>
 
-    <script>
-      const fetchForm = document.querySelector(".fetchForm");
-      const btn = document.querySelector(".btn");
-      const url = "https://jsonplaceholder.typicode.com/posts/";
-    </script>
+    <script src="options.js"></script>
   </body>
 </html>
--->

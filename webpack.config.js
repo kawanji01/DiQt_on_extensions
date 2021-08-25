@@ -81,8 +81,8 @@ module.exports = {
                 to: "./",
                 context: "public"
             }, {
-                from: "./fonts",
-                to: "./fonts"
+                from: "./webfonts",
+                to: "./webfonts"
             }],
         }),
         // CSSファイルを外だしにするプラグイン

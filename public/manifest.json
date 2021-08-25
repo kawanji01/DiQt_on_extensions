@@ -23,7 +23,7 @@
         ]
 
     }],
-    "permissions": ["unlimitedStorage"],
+    "permissions": ["storage", "unlimitedStorage"],
     "background": {
         "service_worker": "background.js"
     },
@@ -33,7 +33,7 @@
     },
     "options_page": "options.html",
     "web_accessible_resources": [{
-        "resources": ["/fonts/*"],
+        "resources": ["/webfonts/*"],
         "matches": ["<all_urls>"]
     }]
 }
