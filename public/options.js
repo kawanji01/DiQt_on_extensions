@@ -110,7 +110,7 @@ function addEventToProfile() {
                 method: "POST",
                 body: JSON.stringify({ booqs_dict_token: token })
             };
-    
+
             fetch(url, params)
                 .then((response) => {
                     return response.json();
@@ -146,6 +146,8 @@ function renderLoginForm() {
 </div>
 
 <form class="fetchForm">
+<div id="feedback">
+</div>
 <div class="field">
   <label class="label">Email</label>
   <div class="control">
@@ -174,7 +176,7 @@ function renderLoginForm() {
 <input
   type="button"
   value="送信"
-  class="button is-primary is-link is-bloc"
+  class="button is-primary is-link is-block mt-3"
   id="booqs-login-btn"
   style="width: 100%"
 />
@@ -184,7 +186,7 @@ function renderLoginForm() {
     addEventToLoginForm();
 }
 
-// ログインフォームにイベントを追加する
+// ログインフォームに、ログインのためのイベントを追加する
 function addEventToLoginForm() {
     let btn = document.querySelector("#booqs-login-btn");
     const postFetch = () => {
@@ -205,8 +207,17 @@ function addEventToLoginForm() {
             })
             .then((data) => {
                 console.log(data);
-                setUserData(data['data']);
-                renderProfile();
+                if (data['status'] == '200') {
+                    setUserData(data['data']);
+                    renderProfile();
+                } else {
+                    let errorHtml = `
+                    <div class="notification is-danger is-light my-3">
+                    メールアドレスとパスワードの組み合わせが正しくありません。
+                    </div>`
+                    let feedback = document.querySelector('#feedback');
+                    feedback.innerHTML = errorHtml;
+                }
             })
             .catch((error) => {
                 console.log(error);
