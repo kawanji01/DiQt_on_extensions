@@ -1,8 +1,8 @@
 // 動かねえ：参照：https://github.com/riversun/JSFrame.js#using-npm-module-with-webpack
 // import { JSFrame } from './jsframe.js';
-//import './jsframe.js';
+// import './jsframe.js';
 // import 文を使ってstyle.cssファイルを読み込む。参照：https://webpack.js.org/plugins/mini-css-extract-plugin/
-//import './style.scss';
+// import './style.scss';
 // 挫折：mini-css-extract-pluginを使って上記の方法でcssをimportしようとすると、JSframeが呼び出せなくなる。
 
 
@@ -16,15 +16,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 // 辞書ウィンドウの表示/非表示を切り替える。
 function toggleFloatingWindow() {
-
     let extensionWrapper = document.getElementById('booqs-dict-extension-wrapper');
-
     if (extensionWrapper == null) {
         jsFrame = new JSFrame({
             horizontalAlign: 'right'
         })
 
-        const form_html = '<div id="booqs-dict-extension-wrapper"><form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form><div id="booqs-dict-search-status">"<span id="booqs-dict-search-keyword"></span>"<span id="booqs-dict-search-status-text">の検索結果</span></div><div id="search-booqs-dict-results"></div></div>'
+        const form_html = `
+        <div id="booqs-dict-extension-wrapper">
+        <a>
+        <div id="booqs-dict-logged-in-user">　</div>
+        </a>
+        <form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form>
+        <div id="booqs-dict-search-status">
+        "<span id="booqs-dict-search-keyword"></span>"<span id="booqs-dict-search-status-text">の検索結果</span>
+        </div>
+        <div id="search-booqs-dict-results"></div>
+        </div>`
 
         let frame = jsFrame.create({
             name: 'booqs-dict-window',
@@ -66,10 +74,8 @@ function toggleFloatingWindow() {
             },
             html: form_html
         });
-        console.log(frame);
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
-        frame.requestFocus();
         let searchForm = document.querySelector('#booqs-dict-search-form');
         // ドラッグしたテキストを辞書で検索できるイベントを付与。
         mouseupSearch();
@@ -82,8 +88,11 @@ function toggleFloatingWindow() {
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
         // z-indexを限界値に設定し、frameを最前面に表示する。
         frameDom.style.zIndex = '2147483647';
-        // （開いたこの瞬間に）選択されているテキストを検索する
-        searchSelectedText()
+        // （ウィンドウを開いた瞬間に）画面の選択されているテキストを検索する
+        searchSelectedText();
+        // フォーム直上にユーザーステータス（ログイン状態など）を表示する。
+        renderUserStatus();
+        
 
     } else {
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -276,3 +285,33 @@ function createTagsHtml(text) {
     }
     return `<div class="booqs-dict-word-tags-wrapper">${tagsHtmlArray.join('')}</div>`
 }
+
+
+// ユーザーがログインしているか検証し、ログイン済みならユーザー名を、そうでないならログインフォームへのリンクを表示する。
+function renderUserStatus() {
+        // contentScriptからリクエスト送ると、 リクエストのoriginが拡張を実行したサイトのものになるので、PostがCORSに防がれる。
+        // そのため、content_scriptではなくbackgroundの固定originからリクエストを送るために、Message passingを利用する。
+        // またone-time requestでは、レスポンスを受け取る前にportが閉じてしまうため、Long-lived connectionsを利用する。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
+        let port = chrome.runtime.connect({name: "verifyLoggedIn"});
+        port.postMessage({ "action": "isLoggedIn" });
+        port.onMessage.addListener(function(msg) {
+            let userData = document.querySelector('#booqs-dict-logged-in-user');
+            if (msg.state == 'loggedIn') {
+                chrome.storage.local.get(['booqsDictUserName'], function (result) {
+                    userData.innerHTML = `<i class="fal fa-user"></i> ${result.booqsDictUserName}`
+                });
+            } else {
+                userData.innerHTML = '<i class="fal fa-user"></i> ログインする'
+            }
+        });
+
+        // ユーザーのステータス情報にoptions.htmlへのリンクを設定する。
+        document.querySelector('#booqs-dict-logged-in-user').addEventListener('click', function () {
+            // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        });
+
+}
+
+
+

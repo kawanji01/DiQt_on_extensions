@@ -11,6 +11,11 @@
   color: #27ae60;
 }
 
+/* ログインボタン・ログインユーザー名の表示 */
+a #booqs-dict-logged-in-user {
+  color: #27ae60;
+}
+
 /* 検索ボックスのデザイン */
 
 #booqs-dict-search-form {

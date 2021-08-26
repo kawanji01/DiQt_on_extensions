@@ -3,9 +3,7 @@ function inspectState() {
     return new Promise(resolve => {
         chrome.storage.local.get(['booqsDictToken'], function (result) {
             let token = result.booqsDictToken;
-            console.log(token)
             if (token) {
-                console.log(token);
                 let url = `https://www.booqs.net/ja/api/v1/extension/is_logged_in?booqs_dict_token=` + token;
                 let params = {
                     method: "POST",
@@ -16,7 +14,6 @@ function inspectState() {
                         return response.json();
                     })
                     .then((data) => {
-                        console.log(data);
                         // ログイン済みならユーザー情報を更新しておく。
                         setUserData(data['data']);
                         resolve('loggedIn');
@@ -71,7 +68,6 @@ function renderProfile() {
     let iconUrl = '';
     let userName = '';
     chrome.storage.local.get(['booqsDictPublicUid', 'booqsDictIconUrl', 'booqsDictUserName'], function (result) {
-        console.log(result.booqsDictUserName);
         uid = result.booqsDictPublicUid;
         iconUrl = result.booqsDictIconUrl;
         userName = result.booqsDictUserName;
@@ -104,7 +100,6 @@ function addEventToProfile() {
     let logoutRequest = () => {
         chrome.storage.local.get(['booqsDictToken'], function (result) {
             let token = result.booqsDictToken
-            console.log(token);
             let url = `https://www.booqs.net/ja/api/v1/extension/log_out?booqs_dict_token=` + token;
             let params = {
                 method: "POST",
@@ -206,7 +201,6 @@ function addEventToLoginForm() {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 if (data['status'] == '200') {
                     setUserData(data['data']);
                     renderProfile();
