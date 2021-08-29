@@ -8,7 +8,6 @@ chrome.runtime.onMessage.addListener(function (message) {
     console.log('message');
     switch (message.action) {
         case "openOptionsPage":
-            console.log('openoption');
             chrome.runtime.openOptionsPage();
             break;
         default:
@@ -16,25 +15,38 @@ chrome.runtime.onMessage.addListener(function (message) {
     }
 });
 
-/////////  ログイン検証処理  /////////
-// content_scriptsから送られてきたメッセージを受け取り、ログイン検証用のリクエストをAPIに投げる。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
-chrome.runtime.onConnect.addListener(function(port) {
-    port.onMessage.addListener(function(msg) {
-        if(msg.action == "isLoggedIn") {
-            isLoggedIn(port);
+
+// content_scriptsから送られてきたメッセージを受け取り、それぞれの処理を実行するルーティング。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
+chrome.runtime.onConnect.addListener(function (port) {
+    port.onMessage.addListener(function (msg) {
+        switch (msg.action) {
+            case 'isLoggedIn':
+                isLoggedIn(port);
+                break;
+            case 'renderReviewForm':
+                respondReviewSetting(port, msg.wordId);
+                break;
+            case 'createReminder':
+                respondCreateReminder(port, msg.quizId, msg.settingNumber)
+                break;
+            case 'updateReminder':
+                respondUpdateReminder(port, msg.quizId, msg.settingNumber);
+                break;
+            case 'destroyReminder':
+                respondDestroyReminder(port, msg.quizId);
+                break;
         }
     })
 });
 
-// 以下ログイン済みか否かの判定。options.jsのほぼコピペ //
+/////////  ログイン検証処理  /////////
+// 以下ログイン済みか否かの判定。options.jsの当該処理のほぼコピペ（isLoggedIn(port)のみ異なる） //
 // ログイン済みかそうでないかの状態を返す関数。
 function inspectState() {
     return new Promise(resolve => {
         chrome.storage.local.get(['booqsDictToken'], function (result) {
             let token = result.booqsDictToken;
-            console.log(token)
             if (token) {
-                console.log(token);
                 let url = `https://www.booqs.net/ja/api/v1/extension/is_logged_in?booqs_dict_token=` + token;
                 let params = {
                     method: "POST",
@@ -45,7 +57,7 @@ function inspectState() {
                         return response.json();
                     })
                     .then((data) => {
-                        console.log(data);
+                        // console.log(data);
                         // ログイン済みならユーザー情報を更新しておく。
                         setUserData(data['data']);
                         resolve('loggedIn');
@@ -82,6 +94,155 @@ function resetUserData() {
 // ログイン済みかどうかを検証して、content_scriptsにレスポンスを返す。
 async function isLoggedIn(port) {
     const state = await inspectState();
-    port.postMessage({state: state});
+    port.postMessage({ state: state });
 }
 /////////  ログイン検証処理  /////////
+
+
+
+
+//////// 復習フォームのレンダリング //////
+function fetchReviewSetting(wordId) {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['booqsDictToken'], function (result) {
+            let token = result.booqsDictToken;
+            if (!token) {
+                return resolve('unauthorized');
+            }
+            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting?booqs_dict_token=${token}&word_id=${wordId}`;
+            let params = {
+                method: "GET"
+                //body: JSON.stringify({ booqs_dict_token: token })
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('success');
+                    console.log(data);
+                    resolve(data['data']);
+                })
+                .catch((error) => {
+                    console.log('error');
+                    console.log(error);
+                    resolve(error);
+                });
+        });
+    });
+}
+
+async function respondReviewSetting(port, wordId) {
+    const data = await fetchReviewSetting(wordId);
+    port.postMessage({ data: data });
+}
+//////// 復習フォームのレンダリング //////
+
+
+/////// 復習設定の新規作成 ///////
+function postCreateReminder(quizId, settingNumber) {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['booqsDictToken'], function (result) {
+            console.log(settingNumber);
+            let token = result.booqsDictToken;
+            if (!token) {
+                return resolve('unauthorized');
+            }
+            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            let params = {
+                method: "POST",
+                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.log('create-error：' + error)
+                    resolve(error);
+                });
+        });
+    });
+}
+
+async function respondCreateReminder(port, quizId, settingNumber) {
+    const data = await postCreateReminder(quizId, settingNumber);
+    port.postMessage({ data: data['data'] });
+};
+/////// 復習設定の新規作成 ///////
+
+
+/////// 復習設定の更新 ///////
+function postUpdateReminder(quizId, settingNumber) {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['booqsDictToken'], function (result) {
+            let token = result.booqsDictToken;
+            if (!token) {
+                return resolve('unauthorized');
+            }
+            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            let params = {
+                method: "POST",
+                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.log('update-error：' + error)
+                    resolve(error);
+                });
+        });
+    });
+}
+
+async function respondUpdateReminder(port, quizId, settingNumber) {
+    const data = await postUpdateReminder(quizId, settingNumber);
+    port.postMessage({ data: data['data'] });
+};
+/////// 復習設定の更新 ///////
+
+
+////// 復習設定の削除 ///////
+function requestDestroyReminder(quizId) {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['booqsDictToken'], function (result) {
+            let token = result.booqsDictToken;
+            if (!token) {
+                return resolve('unauthorized');
+            }
+            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder?booqs_dict_token=${token}&quiz_id=${quizId}`;
+            let params = {
+                method: "POST",
+                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId })
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.log('destroy-error：' + error)
+                    resolve(error);
+                });
+        });
+    });
+}
+
+async function respondDestroyReminder(port, quizId) {
+    const data = await requestDestroyReminder(quizId);
+    port.postMessage({ data: data['data'] });
+};
+////// 復習設定の削除 ///////

@@ -92,8 +92,6 @@ function toggleFloatingWindow() {
         searchSelectedText();
         // フォーム直上にユーザーステータス（ログイン状態など）を表示する。
         renderUserStatus();
-        
-
     } else {
         let frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
         frameDom.remove()
@@ -179,37 +177,49 @@ function searchSuccess(data) {
     console.log(data['data']);
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
-    if (data['data'] != null) {
-        data['data'].forEach(function (item, index, array) {
-            console.log(item, index)
-            let tags = createTagsHtml(item['tags']);
-            let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
-            let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
-            let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
-            let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
-            let reviewBtn = `<a href="${wordURL}?type=review" target="_blank" rel="noopener"><div class="booqs-dict-review-btn">復習する</div></a>`
-            let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
-            let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove
+    chrome.storage.local.get(['booqsDictToken'], function (result) {
+        let loginToken = result.booqsDictToken
+        if (data['data'] != null) {
+            data['data'].forEach(function (item, index, array) {
+                console.log(item, index)
+                let tags = createTagsHtml(item['tags']);
+                let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
+                let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
+                let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
+                let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
+                let reviewBtn;
+                if (loginToken) {
+                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
+                } else {
+                    reviewBtn = `<a href="${wordURL}?type=review" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" id="booqs-dict-review-btn-${item['id']}">復習する</div></a>`
+                }
+                let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
+                let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove;
+                resultForm.insertAdjacentHTML('beforeend', dict);
+                // 解説のクリックサーチを有効にする
+                activateClickSearch(resultForm);
+                if (loginToken) {
+                    // 拡張内で非同期で復習を設定できるようにする。
+                    asyncReviewReviewSetting(loginToken, item['id']);
+                }
+            });
 
-            resultForm.insertAdjacentHTML('beforeend', dict);
-            // 解説のクリックサーチを有効にする
-            activateClickSearch(resultForm);
-        })
-    } else {
-        let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
-        keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
-        let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
-        let result = notFound + createNewWord
-        resultForm.insertAdjacentHTML('afterbegin', result);
-    }
+        } else {
+            let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+            keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
+            let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
+            let result = notFound + createNewWord
+            resultForm.insertAdjacentHTML('afterbegin', result);
+        }
+    });
+
 
 }
 
 
 // 記法が使われた解説テキストをマークアップする。
 function markNotation(text) {
-    //const expObj = result.querySelector('booqs-dict-explanation');
     // 改行コードをすべて<br>にする。
     let expTxt = text.replace(/\r?\n/g, '<br>');
     // wiki記法（[[text]]）でテキストを分割する。
@@ -289,29 +299,261 @@ function createTagsHtml(text) {
 
 // ユーザーがログインしているか検証し、ログイン済みならユーザー名を、そうでないならログインフォームへのリンクを表示する。
 function renderUserStatus() {
-        // contentScriptからリクエスト送ると、 リクエストのoriginが拡張を実行したサイトのものになるので、PostがCORSに防がれる。
-        // そのため、content_scriptではなくbackgroundの固定originからリクエストを送るために、Message passingを利用する。
-        // またone-time requestでは、レスポンスを受け取る前にportが閉じてしまうため、Long-lived connectionsを利用する。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
-        let port = chrome.runtime.connect({name: "verifyLoggedIn"});
-        port.postMessage({ "action": "isLoggedIn" });
-        port.onMessage.addListener(function(msg) {
-            let userData = document.querySelector('#booqs-dict-logged-in-user');
-            if (msg.state == 'loggedIn') {
-                chrome.storage.local.get(['booqsDictUserName'], function (result) {
-                    userData.innerHTML = `<i class="fal fa-user"></i> ${result.booqsDictUserName}`
-                });
-            } else {
-                userData.innerHTML = '<i class="fal fa-user"></i> ログインする'
-            }
-        });
+    // contentScriptからリクエスト送ると、 リクエストのoriginが拡張を実行したサイトのものになるので、PostがCORSに防がれる。
+    // そのため、content_scriptではなくbackgroundの固定originからリクエストを送るために、Message passingを利用する。
+    // またone-time requestでは、レスポンスを受け取る前にportが閉じてしまうため、Long-lived connectionsを利用する。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
+    let port = chrome.runtime.connect({ name: "verifyLoggedIn" });
+    port.postMessage({ action: "isLoggedIn" });
+    port.onMessage.addListener(function (msg) {
+        let userData = document.querySelector('#booqs-dict-logged-in-user');
+        if (msg.state == 'loggedIn') {
+            chrome.storage.local.get(['booqsDictUserName'], function (result) {
+                userData.innerHTML = `<i class="fal fa-user"></i> ${result.booqsDictUserName}`
+            });
+        } else {
+            userData.innerHTML = '<i class="fal fa-user"></i> ログインする'
+        }
+    });
 
-        // ユーザーのステータス情報にoptions.htmlへのリンクを設定する。
-        document.querySelector('#booqs-dict-logged-in-user').addEventListener('click', function () {
-            // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-        });
+    // ユーザーのステータス情報にoptions.htmlへのリンクを設定する。
+    document.querySelector('#booqs-dict-logged-in-user').addEventListener('click', function () {
+        // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+        chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+    });
 
 }
 
+/////// 復習設定関係の処理 ///////
+// 拡張内で非同期で設定できる復習メニューを表示する
+function asyncReviewReviewSetting(loginToken, wordId) {
+    let reviewBtn = document.querySelector("#booqs-dict-review-" + wordId);
+    let reviewForm = reviewBtn.nextSibling;
+    reviewBtn.addEventListener('click', function () {
+        reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+        renderReviewForm(wordId);
+    });
+};
 
+// 復習設定フォームをレンダリングする。
+function renderReviewForm(wordId) {
+    let port = chrome.runtime.connect({ name: "renderReviewForm" });
+    port.postMessage({ action: "renderReviewForm", wordId: wordId });
+    port.onMessage.addListener(function (msg) {
+        if (msg.data) {
+            let data = msg.data;
+            let wordId = data.word_id;
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + wordId);
+            reviewForm.innerHTML = reviewFormHtml(data);
+            addEventToForm(data);
+        }
+    });
+}
 
+// 復習設定フォームのHTMLを返す関数。
+function reviewFormHtml(data) {
+    let wordId = data.word_id;
+    let html;
+    if (data.reminder_id) {
+        html = `
+        <div class="boqqs-dict-reminder-status">
+        <p>復習予定：${data.review_day}</p>
+        <p>復習設定：${reviewInterval(data.setting)}に復習する</p>  
+        <div class="booqs-dict-destroy-review-btn" id="booqs-dict-destroy-review-btn-${wordId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
+        </div>      
+<div class="booqs-dict-select-form cp_sl01">
+<select id="booqs-dict-select-form-${wordId}" required>
+	${createOptions(data)}
+</select>
+</div>
+<button class="booqs-dict-submit-review-btn" id="booqs-dict-update-review-btn-${wordId}">設定する</button>
+<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${wordId}"></div>`
+    } else {
+        html = `      
+<div class="booqs-dict-select-form cp_sl01">
+<select id="booqs-dict-select-form-${wordId}" required>
+	${createOptions(data)}
+</select>
+</div>
+<button class="booqs-dict-submit-review-btn" id="booqs-dict-create-review-btn-${wordId}">設定する</button>
+<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${wordId}"></div>`
+    }
+    return html;
+}
+
+// settingの番号を復習間隔に変換する関数
+function reviewInterval(setting) {
+    setting = Number(setting);
+    let interval = '';
+    switch (setting) {
+        case 0:
+            interval = `明日`;
+            break;
+        case 1:
+            interval = '3日後';
+            break;
+        case 2:
+            interval = '１週間後';
+            break;
+        case 3:
+            interval = '２週間後';
+            break;
+        case 4:
+            interval = '３週間後';
+            break;
+        case 5:
+            interval = '１ヶ月後';
+            break;
+        case 6:
+            interval = '２ヶ月後';
+            break;
+        case 7:
+            interval = '３ヶ月後';
+            break;
+        case 8:
+            interval = '６ヶ月後';
+            break;
+        case 9:
+            interval = '1年後';
+            break
+    }
+    return interval;
+}
+
+// 復習間隔を選択するためのoptionを作成する関数
+function createOptions(data) {
+    console.log(data);
+    console.log(data.premium);
+    let selectedNumber = 0;
+    if (data.setting) {
+        selectedNumber = Number(data.setting);
+    }
+    let html = ``
+    for (let i = 0; i < 10; i++) {
+        let icon = '';
+        if (i != 0 && data.premium == 'false') {
+            icon = '🔒 '
+        }
+        if (i == selectedNumber) {
+            html = html + `<option value="${i}" selected>${icon}${reviewInterval(i)}に復習する</option>`
+        } else {
+            html = html + `<option value="${i}">${icon}${reviewInterval(i)}に復習する</option>`
+        }
+    }
+    return html
+}
+
+// 復習設定フォームにイベントを設定する。
+function addEventToForm(data) {
+    let submitBtn;
+    let wordId = data.word_id;
+    console.log(wordId);
+    let quizId = data.quiz_id;
+    if (data.reminder_id) {
+        // 復習設定を更新するための設定
+        updateReviewSetting(wordId, quizId);
+        // 復習設定を削除するための設定
+        destroyReviewSetting(wordId, quizId);
+    } else {
+        // 復習設定を新規作成するための設定
+        createReviewSetting(wordId, quizId);
+    }
+
+    if (data.premium == 'false') {
+        // 有料機能にロックをかける。また無料会員がプレミアム会員向けのoptionを選択したときにプレミアムプランを紹介する。
+        recommendPremium(wordId);
+    }
+}
+
+// 復習設定を新規作成する
+function createReviewSetting(wordId, quizId) {
+    let submitBtn = document.querySelector("#booqs-dict-create-review-btn-" + wordId);
+    submitBtn.addEventListener('click', function () {
+        submitBtn.textContent = '設定中...'
+        let settingNumber = document.querySelector("#booqs-dict-select-form-" + wordId).value;
+        let port = chrome.runtime.connect({ name: "createReminder" });
+        port.postMessage({ action: "createReminder", quizId: quizId, settingNumber: settingNumber });
+        port.onMessage.addListener(function (msg) {
+            let data = msg['data']
+            if (!data.word_id) {
+                submitBtn.textContent = 'エラーが発生しました。'
+                return
+            }
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            reviewForm.innerHTML = ''
+            let reviewBtn = reviewForm.previousSibling;
+            reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
+        });
+    });
+}
+
+// 復習設定を更新する
+function updateReviewSetting(wordId, quizId) {
+    let submitBtn = document.querySelector("#booqs-dict-update-review-btn-" + wordId);
+    submitBtn.addEventListener('click', function () {
+        submitBtn.textContent = '設定中...'
+        let settingNumber = document.querySelector("#booqs-dict-select-form-" + wordId).value;
+        let port = chrome.runtime.connect({ name: "updateReminder" });
+        port.postMessage({ action: "updateReminder", quizId: quizId, settingNumber: settingNumber });
+        port.onMessage.addListener(function (msg) {
+            let data = msg['data']
+            if (!data.word_id) {
+                submitBtn.textContent = 'エラーが発生しました。'
+                return
+            }
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            reviewForm.innerHTML = '';
+            let reviewBtn = reviewForm.previousSibling;
+            reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
+        });
+    });
+}
+
+// 復習設定を削除する
+function destroyReviewSetting(wordId, quizId) {
+    let deleteBtn = document.querySelector(`#booqs-dict-destroy-review-btn-${wordId}`);
+    deleteBtn.addEventListener('click', function () {
+        deleteBtn.textContent = '設定中...';
+        let port = chrome.runtime.connect({ name: "destroyReminder" });
+        port.postMessage({ action: "destroyReminder", quizId: quizId });
+        port.onMessage.addListener(function (msg) {
+            let data = msg['data']
+            if (!data.word_id) {
+                submitBtn.textContent = 'エラーが発生しました。'
+                return
+            }
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            reviewForm.innerHTML = '';
+            let reviewBtn = reviewForm.previousSibling;
+            reviewBtn.textContent = `復習する`
+        });
+    });
+}
+
+// プレミアム会員向けのoptionが選択されたときに、プレミアムプラン説明ページへのリンクを表示する。
+function recommendPremium(wordId) {
+    const textWrapper = document.querySelector(`#booqs-dict-recommend-premium-${wordId}`);
+    const submitBtn = textWrapper.previousElementSibling;
+    const select = document.querySelector(`#booqs-dict-select-form-${wordId}`);
+    let settingNumber = Number(select.value);
+    const recommendationHtml = `<p>プレミアム会員になることで、復習を自由に設定できるようになります！</p>
+    <p><a href="https://www.booqs.net/ja/select_plan" target="_blank" rel="noopener"><i class="far fa-crown"></i> プレミアムプランの詳細を見る</a></p>`
+
+    if (settingNumber != 0) {
+        submitBtn.classList.add("hidden");
+        textWrapper.innerHTML = recommendationHtml;
+    }
+
+    select.addEventListener('change', function () {
+        settingNumber = Number(this.value);
+        if (settingNumber == 0) {
+            submitBtn.classList.remove("hidden");
+            console.log(submitBtn);
+            textWrapper.innerHTML = '';
+        } else {
+            submitBtn.classList.add("hidden");
+            console.log(submitBtn);
+            textWrapper.innerHTML = recommendationHtml;
+        }
+
+    });
+}
