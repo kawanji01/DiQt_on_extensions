@@ -11,6 +11,11 @@
   color: #27ae60;
 }
 
+/* ログインボタン・ログインユーザー名の表示 */
+a #booqs-dict-logged-in-user {
+  color: #27ae60;
+}
+
 /* 検索ボックスのデザイン */
 
 #booqs-dict-search-form {
@@ -71,7 +76,7 @@
   position: relative;
   display: inline-block;
   padding: 8px;
-  /*color: #614f38; */
+  cursor: pointer;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -149,7 +154,7 @@
 
 /* loader / 参照：https://loading.io/css/ */
 .center {
-    text-align: center;
+  text-align: center;
 }
 .lds-ripple-booqs-dict {
   display: inline-block;
@@ -183,4 +188,113 @@
     height: 72px;
     opacity: 0;
   }
+}
+
+/* 復習設定フォームのステータス */
+.boqqs-dict-reminder-status {
+  width: 90%;
+  display: block;
+  margin: 16px auto;
+  font-size: 12px;
+  color: #6e6e6e;
+}
+/* 復習設定の削除ボタン */
+.booqs-dict-destroy-review-btn {
+  display: block;
+  color: #ee5a5aff;
+  cursor: pointer;
+  margin-top: 8px auto;
+}
+/* 復習のセレクトメニュー */
+.booqs-dict-select-form {
+  overflow: hidden;
+  width: 90%;
+  margin: 2em auto;
+  text-align: center;
+}
+.booqs-dict-select-form select {
+  width: 100%;
+  padding-right: 1em;
+  cursor: pointer;
+  text-indent: 0.01px;
+  text-overflow: ellipsis;
+  border: none;
+  outline: none;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+  font-size: 14px;
+}
+.booqs-dict-select-form select::-ms-expand {
+  display: none;
+}
+.booqs-dict-select-form.cp_sl01 {
+  position: relative;
+  border: 1px solid #bbbbbb;
+  border-radius: 4px;
+  background: #ffffff;
+}
+.booqs-dict-select-form.cp_sl01::before {
+  position: absolute;
+  top: 14px;
+  right: 8px;
+  width: 0;
+  height: 0;
+  padding: 0;
+  content: "";
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #666666;
+  pointer-events: none;
+}
+.booqs-dict-select-form.cp_sl01 select {
+  padding: 8px 38px 8px 8px !important;
+  color: #666666;
+}
+
+/* 復習設定のsubmitボタン */
+
+.booqs-dict-submit-review-btn {
+  /* buttonのcssリセット */
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  appearance: none;
+  /* buttonのcssリセット */
+
+  display: block;
+  width: 90%;
+  margin: 16px auto;
+  text-align: center;
+  color: #fff;
+  background-color: #27ae60;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 2px;
+}
+
+.booqs-dict-submit-review-btn:hover {
+  background-color: #259755;
+}
+
+.booqs-dict-submit-review-btn.hidden {
+  display: none;
+}
+
+/* プレミアム会員限定のoptionを設定したときに表示する、プレミアムプランへの誘導 */
+.booqs-dict-recommend-premium {
+  display: block;
+  width: 90%;
+  margin: 16px auto;
+  font-size: 12px;
+}
+
+.booqs-dict-recommend-premium a {
+  color: #27ae60;
 }
