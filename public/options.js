@@ -136,8 +136,12 @@ function renderLoginForm() {
   ログインすることで、拡張機能から直接復習を設定できるようになります。
 </p>
 <p>
-  まだBooQsにアカウントを登録されていない方は、<a href="">こちら</a
+  まだBooQsにアカウントを登録されていない方は、<a href="https://www.booqs.net/ja/users/new" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
   >よりご登録ください。
+</p>
+<p>
+  SNSからご登録されたユーザー様は、<a href="https://www.booqs.net/ja/for_sns_authenticated_users" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">ユーザー設定</a
+  >よりemailアドレスとパスワードを設定いただき、以下のフォームからログインしてください。
 </p>
 </div>
 
@@ -171,8 +175,8 @@ function renderLoginForm() {
 </div>
 <input
   type="button"
-  value="送信"
-  class="button is-primary is-link is-block mt-3"
+  value="ログインする"
+  class="button is-success has-text-weight-bold is-block mt-3"
   id="booqs-login-btn"
   style="width: 100%"
 />
