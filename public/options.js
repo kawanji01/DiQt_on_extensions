@@ -155,7 +155,7 @@ function renderLoginForm() {
       class="input"
       id="booqs-email"
       type="email"
-      placeholder="Email input"
+      placeholder="メールアドレスを入力してください。"
       value="sakushahushou@gmail.com"
     />
   </div>
@@ -168,7 +168,7 @@ function renderLoginForm() {
       class="input"
       id="booqs-password"
       type="password"
-      placeholder="Text input"
+      placeholder="パスワードを入力してください。"
       value="foobar"
     />
   </div>
