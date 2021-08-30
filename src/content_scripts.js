@@ -183,7 +183,7 @@ function searchSuccess(data) {
             data['data'].forEach(function (item, index, array) {
                 console.log(item, index)
                 let tags = createTagsHtml(item['tags']);
-                let entry = '<div class="booqs-dict-entry">' + item['entry'] + '</div>';
+                let entry = `<div class="booqs-dict-entry"><span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button></div>`;
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
                 let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
                 let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
@@ -196,14 +196,17 @@ function searchSuccess(data) {
                 let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
                 let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove;
                 resultForm.insertAdjacentHTML('beforeend', dict);
-                // 解説のクリックサーチを有効にする
-                activateClickSearch(resultForm);
+
+                // ログインしていた場合に、拡張内で非同期で復習を設定できるようにする。
                 if (loginToken) {
-                    // 拡張内で非同期で復習を設定できるようにする。
                     asyncReviewReviewSetting(loginToken, item['id']);
                 }
             });
 
+            // 解説のクリックサーチを有効にする
+            activateClickSearch(resultForm);
+            // 項目の読み上げを有効にする。
+            enableTTS(resultForm);
         } else {
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -245,8 +248,8 @@ function markNotation(text) {
 
 // wiki記法でリンクになっている単語をクリックすると、自動で辞書を検索するようにする。
 function activateClickSearch(results) {
-    let links = results.querySelectorAll('.booqs-notation-link')
-    let searchForm = document.querySelector('#booqs-dict-search-form');
+    const links = results.querySelectorAll('.booqs-notation-link')
+    const searchForm = document.querySelector('#booqs-dict-search-form');
     links.forEach(function (target) {
         target.addEventListener('click', function (event) {
             let keyword = event.target.dataset["value"];
@@ -255,6 +258,36 @@ function activateClickSearch(results) {
                 searchForm.value = keyword;
                 searchWord(keyword);
             }
+            // 画面遷移をキャンセル
+            return false;
+        });
+    })
+}
+
+// 項目を読み上げさせる。
+function enableTTS(results) {
+    const speechBtns = results.querySelectorAll('.booqs-dict-speech-btn')
+    // 事前に一度これを実行しておかないと、初回のvoice取得時に空配列が返されてvoiceがundefinedになってしまう。参考：https://www.codegrid.net/articles/2016-web-speech-api-1/
+    speechSynthesis.getVoices()
+    speechBtns.forEach(function (target) {
+        target.addEventListener('click', function (event) {
+            // 読み上げを止める。
+            speechSynthesis.cancel();
+            let speechTxt = target.previousElementSibling.textContent;
+            console.log(speechTxt)
+            let msg = new SpeechSynthesisUtterance();
+            let voice = speechSynthesis.getVoices().find(function (voice) {
+                return voice.name === "Samantha"
+            });
+            msg.voice = voice;
+            console.log(voice);
+            msg.lang = 'en-US'; // en-US or ja-JP
+            msg.volume = 1.0; // 音量 min 0 ~ max 1
+            msg.rate = 1.0; // 速度 min 0 ~ max 10
+            msg.pitch = 1.0; // 音程 min 0 ~ max 2
+            msg.text = speechTxt; // 喋る内容
+            // 発話実行
+            speechSynthesis.speak(msg);
             // 画面遷移をキャンセル
             return false;
         });
