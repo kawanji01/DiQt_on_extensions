@@ -23,7 +23,7 @@
         ]
 
     }],
-    "permissions": ["storage", "unlimitedStorage"],
+    "permissions": ["storage", "unlimitedStorage", "cookies",  "http://*/*", "https://*/*"],
     "background": {
         "service_worker": "background.js"
     },
