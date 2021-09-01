@@ -156,7 +156,7 @@ function renderLoginForm() {
       id="booqs-email"
       type="email"
       placeholder="メールアドレスを入力してください。"
-      value="sakushahushou@gmail.com"
+      value=""
     />
   </div>
 </div>
@@ -169,7 +169,7 @@ function renderLoginForm() {
       id="booqs-password"
       type="password"
       placeholder="パスワードを入力してください。"
-      value="foobar"
+      value=""
     />
   </div>
 </div>
@@ -190,22 +190,23 @@ function renderLoginForm() {
 function addEventToLoginForm() {
     let btn = document.querySelector("#booqs-login-btn");
     const postFetch = () => {
-        console.log('clickBtn');
         let email = document.querySelector("#booqs-email").value;
         // emailに+が含まれていると空白文字として解釈されてしまうのでエンコードしておく。
-        let encodedEmail = encodeURIComponent(email);
+        // let encodedEmail = encodeURIComponent(email);
         let password = document.querySelector("#booqs-password").value;
-        let encodedPassword = encodeURIComponent(password);
-        console.log(encodedEmail);
-        console.log(encodedPassword);
-        let url = `https://www.booqs.net/ja/api/v1/extension/sign_in?email=${encodedEmail}&password=${encodedPassword}`;
+        // let encodedPassword = encodeURIComponent(password);
+        let url = `https://www.booqs.net/ja/api/v1/extension/sign_in`;
         let params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
-            body: JSON.stringify({ email: encodedEmail, password: encodedPassword })
+            body: JSON.stringify({ email: email, password: password }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
         };
-        console.log(url);
+
 
         fetch(url, params)
             .then((response) => {
@@ -216,7 +217,6 @@ function addEventToLoginForm() {
                     setUserData(data['data']);
                     renderProfile();
                 } else {
-                    console.log(data);
                     let errorHtml = `
                     <div class="notification is-danger is-light my-3">
                     メールアドレスとパスワードの組み合わせが正しくありません。
@@ -237,3 +237,18 @@ function addEventToLoginForm() {
 
 // ページのイニシャライズして、ログインフォームかプロフィールページのどちらかを表示する）
 initializePage()
+
+
+function getUserID() {
+    return new Promise((resolve, reject) => {
+        chrome.cookies.get(
+            {
+                url: 'https://www.booqs.net',
+                name: 'USERID',
+            },
+            cookie => {
+                return cookie ? resolve(cookie.value) : reject(new Error('no cookie'));
+            }
+        );
+    });
+};

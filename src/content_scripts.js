@@ -580,13 +580,10 @@ function recommendPremium(wordId) {
         settingNumber = Number(this.value);
         if (settingNumber == 0) {
             submitBtn.classList.remove("hidden");
-            console.log(submitBtn);
             textWrapper.innerHTML = '';
         } else {
             submitBtn.classList.add("hidden");
-            console.log(submitBtn);
             textWrapper.innerHTML = recommendationHtml;
         }
-
     });
 }
