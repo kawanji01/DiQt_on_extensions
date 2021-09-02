@@ -16,10 +16,14 @@ chrome.runtime.onMessage.addListener(function (message) {
 });
 
 
-// content_scriptsから送られてきたメッセージを受け取り、それぞれの処理を実行するルーティング。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
+// content_scriptsから送られてきたlong-termなメッセージを受け取り、それぞれの処理を実行するルーティング。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
 chrome.runtime.onConnect.addListener(function (port) {
     port.onMessage.addListener(function (msg) {
         switch (msg.action) {
+            case 'inspectCurrentUser':
+                inspectCurrentUser(port);
+                break;
+                // isLoggedInはinspectCurrentUserに統一して削除予定。
             case 'isLoggedIn':
                 isLoggedIn(port);
                 break;
@@ -39,10 +43,66 @@ chrome.runtime.onConnect.addListener(function (port) {
     })
 });
 
-/////////  ログイン検証処理  /////////
+///////// 現在のユーザーを取得する ///////
+function fetchCurrentUser() {
+    return new Promise(resolve => {
+        let url = `https://www.booqs.net/ja/api/v1/extension/inspect_current_user`;
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data['data']) {
+                    setUserData(data['data']);
+                } else {
+                    resetUserData();
+                }
+                console.log(data);
+                resolve(data['data']);
+            })
+            .catch((error) => {
+                resolve('error');
+            });
+    });
+}
+
+// is_logged_inやsign_inのJSONをlocalStorageに格納する。
+function setUserData(data) {
+    chrome.storage.local.set({ booqsDictUserName: data['name'] });
+    chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
+    chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
+    chrome.storage.local.set({ booqsDictToken: data['token'] });
+}
+
+// localStorageのユーザーデータをすべて消去する
+function resetUserData() {
+    chrome.storage.local.set({ booqsDictUserName: '' });
+    chrome.storage.local.set({ booqsDictIconUrl: '' });
+    chrome.storage.local.set({ booqsDictPublicUid: '' });
+    chrome.storage.local.set({ booqsDictToken: '' });
+}
+
+async function inspectCurrentUser(port) {
+    const data = await fetchCurrentUser();
+    port.postMessage({ data: data });
+}
+
+///////// 現在のユーザーを取得する ///////
+
+
+/////////  ログイン検証処理（inspectCurrentUserに移したので削除予定）  /////////
 // 以下ログイン済みか否かの判定。options.jsの当該処理のほぼコピペ（isLoggedIn(port)のみ異なる） //
 // ログイン済みかそうでないかの状態を返す関数。
-function inspectState() {
+/*function inspectState() {
     return new Promise(resolve => {
         chrome.storage.local.get(['booqsDictToken'], function (result) {
             let token = result.booqsDictToken;
@@ -74,28 +134,17 @@ function inspectState() {
         });
     })
 }
+*/
 
-// is_logged_inやsign_inのJSONをlocalStorageに格納する。
-function setUserData(data) {
-    chrome.storage.local.set({ booqsDictUserName: data['name'] });
-    chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ booqsDictToken: data['token'] });
-}
 
-// localStorageのユーザーデータをすべて消去する
-function resetUserData() {
-    chrome.storage.local.set({ booqsDictUserName: '' });
-    chrome.storage.local.set({ booqsDictIconUrl: '' });
-    chrome.storage.local.set({ booqsDictPublicUid: '' });
-    chrome.storage.local.set({ booqsDictToken: '' });
-}
 
 // ログイン済みかどうかを検証して、content_scriptsにレスポンスを返す。
-async function isLoggedIn(port) {
+
+/*async function isLoggedIn(port) {
     const state = await inspectState();
     port.postMessage({ state: state });
 }
+*/
 /////////  ログイン検証処理  /////////
 
 
@@ -109,11 +158,23 @@ function fetchReviewSetting(wordId) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting?booqs_dict_token=${token}&word_id=${wordId}`;
-            let params = {
-                method: "GET"
+            //let url = `https://www.booqs.net/ja/api/v1/extension/review_setting?booqs_dict_token=${token}&word_id=${wordId}`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting_2`;
+            //let params = {
+            //    method: "GET"
                 //body: JSON.stringify({ booqs_dict_token: token })
+            //};
+            let params = {
+                method: "POST",
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({  word_id: wordId }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
             };
+            console.log(url);
             fetch(url, params)
                 .then((response) => {
                     return response.json();
@@ -148,17 +209,28 @@ function postCreateReminder(quizId, settingNumber) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            // let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder_2`;
+            console.log(url);
+            //let params = {
+            //    method: "POST",
+            //    body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+            //};
             let params = {
                 method: "POST",
-                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({  quiz_id: quizId, setting_number: settingNumber }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
             };
             fetch(url, params)
                 .then((response) => {
                     return response.json();
                 })
                 .then((data) => {
-                    console.log(data);
                     resolve(data);
                 })
                 .catch((error) => {
@@ -184,17 +256,27 @@ function postUpdateReminder(quizId, settingNumber) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            // let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder_2`;
+            //let params = {
+            //    method: "POST",
+            //    body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+            //};
             let params = {
                 method: "POST",
-                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({  quiz_id: quizId, setting_number: settingNumber }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
             };
             fetch(url, params)
                 .then((response) => {
                     return response.json();
                 })
                 .then((data) => {
-                    console.log(data);
                     resolve(data);
                 })
                 .catch((error) => {
@@ -220,10 +302,17 @@ function requestDestroyReminder(quizId) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder?booqs_dict_token=${token}&quiz_id=${quizId}`;
+            //let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder?booqs_dict_token=${token}&quiz_id=${quizId}`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder_2`;
             let params = {
                 method: "POST",
-                body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId })
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({  quiz_id: quizId }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
             };
             fetch(url, params)
                 .then((response) => {

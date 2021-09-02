@@ -1,46 +1,16 @@
-// ログイン済みかそうでないかの状態を返す関数。
-function inspectState() {
-    return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken;
-            if (token) {
-                let url = `https://www.booqs.net/ja/api/v1/extension/is_logged_in?booqs_dict_token=` + token;
-                let params = {
-                    method: "POST",
-                    body: JSON.stringify({ booqs_dict_token: token })
-                };
-                fetch(url, params)
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        // ログイン済みならユーザー情報を更新しておく。
-                        setUserData(data['data']);
-                        resolve('loggedIn');
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        resetUserData();
-                        resolve('error');
-                    });
-            } else {
-                resetUserData();
-                resolve('blankToken');
-            }
-        });
-    })
-}
-
 // アクセスして一番最初に実行する関数。
-async function initializePage() {
-    const state = await inspectState();
-    if (state == 'loggedIn') {
-        renderProfile();
-    } else {
-        renderLoginForm();
-    }
+function initializePage() {
+    let port = chrome.runtime.connect({ name: "inspectCurrentUser" });
+    port.postMessage({ action: "inspectCurrentUser" });
+    port.onMessage.addListener(function (msg) {
+        const data = msg['data'];
+        if (data) {
+            renderMypage();
+        } else {
+            renderLoginForm();
+        }
+    });
 }
-
 
 
 // is_logged_inやsign_inのJSONをlocalStorageに格納する。
@@ -60,10 +30,8 @@ function resetUserData() {
 }
 
 
-
-
 // プロフィールページ（ログイン済み画面）をレンダリングする
-function renderProfile() {
+function renderMypage() {
     let uid = '';
     let iconUrl = '';
     let userName = '';
@@ -74,7 +42,7 @@ function renderProfile() {
 
         let profileHtml = `
 <div class="content has-text-centered">
-  <a href="https://www.booqs.net/ja/users/${uid}" target="_blank" rel="noopener">
+  
     <figure class="mt-5 image is-128x128 mx-auto">
       <img
         class="is-rounded"
@@ -85,45 +53,52 @@ function renderProfile() {
     <h1 class="mt-3 is-size-4 has-text-weight-bold">
       ${userName}
     </h1>
+  
+  <a href="https://www.booqs.net/ja/users/${uid}" target="_blank" rel="noopener">
+  <button class="button is-warning is-light mx-auto my-3">マイページ</button>
   </a>
+
   <button class="button is-warning is-light mx-auto my-3" id="logout-btn">ログアウト</button>
 </div>`
         let userPage = document.querySelector("#user-page");
         userPage.innerHTML = profileHtml;
-        addEventToProfile()
+        addEventToMypage()
     });
 }
 
 // プロフィールページのログアウトボタンなどのイベント追加
-function addEventToProfile() {
+function addEventToMypage() {
     let logoutBtn = document.querySelector("#logout-btn");
     let logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken
-            let url = `https://www.booqs.net/ja/api/v1/extension/log_out?booqs_dict_token=` + token;
-            let params = {
-                method: "POST",
-                body: JSON.stringify({ booqs_dict_token: token })
-            };
+        let url = `https://www.booqs.net/ja/api/v1/extension/logout`;
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        }
 
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    // ユーザー情報をすべて削除して、ログインフォームを表示する。
-                    resetUserData();
-                    renderLoginForm();
-                    addEventToLoginForm();
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        });
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                // ユーザー情報をすべて削除して、ログインフォームを表示する。
+                resetUserData();
+                renderLoginForm();
+                addEventToLoginForm();
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
     logoutBtn.addEventListener("click", logoutRequest, false);
 }
+
 
 // ログインフォームをレンダリングする
 function renderLoginForm() {
@@ -140,8 +115,8 @@ function renderLoginForm() {
   >よりご登録ください。
 </p>
 <p>
-  SNSからご登録されたユーザー様は、<a href="https://www.booqs.net/ja/for_sns_authenticated_users" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">ユーザー設定</a
-  >よりemailアドレスとパスワードを設定いただき、以下のフォームからログインしてください。
+  SNSからご登録されたユーザー様は、<a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
+  >からログインしてください。
 </p>
 </div>
 
@@ -207,7 +182,6 @@ function addEventToLoginForm() {
             }
         };
 
-
         fetch(url, params)
             .then((response) => {
                 return response.json();
@@ -215,7 +189,7 @@ function addEventToLoginForm() {
             .then((data) => {
                 if (data['status'] == '200') {
                     setUserData(data['data']);
-                    renderProfile();
+                    renderMypage();
                 } else {
                     let errorHtml = `
                     <div class="notification is-danger is-light my-3">
@@ -229,7 +203,6 @@ function addEventToLoginForm() {
                 console.log(error);
             });
     };
-
     btn.addEventListener("click", postFetch, false);
 }
 
@@ -239,16 +212,20 @@ function addEventToLoginForm() {
 initializePage()
 
 
+
+// 参考：https://qiita.com/akiras7171/items/37a58506b282c01ff009
+/*
 function getUserID() {
     return new Promise((resolve, reject) => {
-        chrome.cookies.get(
-            {
-                url: 'https://www.booqs.net',
-                name: 'USERID',
-            },
-            cookie => {
-                return cookie ? resolve(cookie.value) : reject(new Error('no cookie'));
+        chrome.cookies.get({ url: 'https://www.booqs.net/', name: '_session_id' }, ((aCookie) => {
+            if (aCookie) {
+                console.log(aCookie);
+                resolve(aCookie);
+            } else {
+                console.log("not-found");
+                reject('error');
             }
-        );
+        }));
     });
 };
+*/
