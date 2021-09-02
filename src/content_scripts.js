@@ -335,16 +335,17 @@ function renderUserStatus() {
     // contentScriptからリクエスト送ると、 リクエストのoriginが拡張を実行したサイトのものになるので、PostがCORSに防がれる。
     // そのため、content_scriptではなくbackgroundの固定originからリクエストを送るために、Message passingを利用する。
     // またone-time requestでは、レスポンスを受け取る前にportが閉じてしまうため、Long-lived connectionsを利用する。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
-    let port = chrome.runtime.connect({ name: "verifyLoggedIn" });
-    port.postMessage({ action: "isLoggedIn" });
+    let port = chrome.runtime.connect({ name: "inspectCurrentUser" });
+    port.postMessage({ action: "inspectCurrentUser" });
     port.onMessage.addListener(function (msg) {
         let userData = document.querySelector('#booqs-dict-logged-in-user');
-        if (msg.state == 'loggedIn') {
+        let data = msg['data'];
+        if (data) {
             chrome.storage.local.get(['booqsDictUserName'], function (result) {
                 userData.innerHTML = `<i class="fal fa-user"></i> ${result.booqsDictUserName}`
             });
         } else {
-            userData.innerHTML = '<i class="fal fa-user"></i> ログインする'
+            userData.innerHTML = '<i class="fal fa-user"></i> ログインする';
         }
     });
 
@@ -477,7 +478,6 @@ function createOptions(data) {
 
 // 復習設定フォームにイベントを設定する。
 function addEventToForm(data) {
-    let submitBtn;
     let wordId = data.word_id;
     console.log(wordId);
     let quizId = data.quiz_id;

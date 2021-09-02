@@ -23,7 +23,8 @@
         ]
 
     }],
-    "permissions": ["storage", "unlimitedStorage", "cookies",  "http://*/*", "https://*/*"],
+    "permissions": ["storage", "unlimitedStorage"],
+    "host_permissions": ["https://www.booqs.net/"],
     "background": {
         "service_worker": "background.js"
     },
