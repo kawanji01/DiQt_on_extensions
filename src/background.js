@@ -158,12 +158,8 @@ function fetchReviewSetting(wordId) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            //let url = `https://www.booqs.net/ja/api/v1/extension/review_setting?booqs_dict_token=${token}&word_id=${wordId}`;
-            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting_2`;
-            //let params = {
-            //    method: "GET"
-                //body: JSON.stringify({ booqs_dict_token: token })
-            //};
+            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting`;
+            console.log(url);
             let params = {
                 method: "POST",
                 mode: 'cors',
@@ -209,13 +205,8 @@ function postCreateReminder(quizId, settingNumber) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            // let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
-            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder_2`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder`;
             console.log(url);
-            //let params = {
-            //    method: "POST",
-            //    body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
-            //};
             let params = {
                 method: "POST",
                 mode: 'cors',
@@ -256,12 +247,7 @@ function postUpdateReminder(quizId, settingNumber) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            // let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder?booqs_dict_token=${token}&quiz_id=${quizId}&setting_number=${settingNumber}`;
-            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder_2`;
-            //let params = {
-            //    method: "POST",
-            //    body: JSON.stringify({ booqs_dict_token: token, quiz_id: quizId, setting_number: settingNumber })
-            //};
+            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder`;
             let params = {
                 method: "POST",
                 mode: 'cors',
@@ -302,8 +288,7 @@ function requestDestroyReminder(quizId) {
             if (!token) {
                 return resolve('unauthorized');
             }
-            //let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder?booqs_dict_token=${token}&quiz_id=${quizId}`;
-            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder_2`;
+            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder`;
             let params = {
                 method: "POST",
                 mode: 'cors',
