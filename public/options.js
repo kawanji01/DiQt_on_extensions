@@ -13,7 +13,7 @@ function initializePage() {
 }
 
 
-// is_logged_inやsign_inのJSONをlocalStorageに格納する。
+// localStorageにユーザーデータを格納する。
 function setUserData(data) {
     chrome.storage.local.set({ booqsDictUserName: data['name'] });
     chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
