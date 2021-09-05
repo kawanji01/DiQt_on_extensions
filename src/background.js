@@ -27,6 +27,9 @@ chrome.runtime.onConnect.addListener(function (port) {
             case 'isLoggedIn':
                 isLoggedIn(port);
                 break;
+            case 'search':
+                respondSearch(port, msg.keyword)
+                break;
             case 'renderReviewForm':
                 respondReviewSetting(port, msg.wordId);
                 break;
@@ -159,39 +162,33 @@ async function inspectCurrentUser(port) {
 //////// 復習フォームのレンダリング //////
 function fetchReviewSetting(wordId) {
     return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken;
-            if (!token) {
-                return resolve('unauthorized');
+        let url = `https://www.booqs.net/ja/api/v1/extension/review_setting`;
+        console.log(url);
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ word_id: wordId }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/review_setting`;
-            console.log(url);
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ word_id: wordId }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            console.log(url);
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log('success');
-                    console.log(data);
-                    resolve(data['data']);
-                })
-                .catch((error) => {
-                    console.log('error');
-                    console.log(error);
-                    resolve(error);
-                });
-        });
+        };
+        console.log(url);
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log('success');
+                console.log(data);
+                resolve(data['data']);
+            })
+            .catch((error) => {
+                console.log('error');
+                console.log(error);
+                resolve(error);
+            });
     });
 }
 
@@ -205,36 +202,29 @@ async function respondReviewSetting(port, wordId) {
 /////// 復習設定の新規作成 ///////
 function postCreateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            console.log(settingNumber);
-            let token = result.booqsDictToken;
-            if (!token) {
-                return resolve('unauthorized');
+        let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder`;
+        console.log(url);
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder`;
-            console.log(url);
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    console.log('create-error：' + error)
-                    resolve(error);
-                });
-        });
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log('create-error：' + error)
+                resolve(error);
+            });
     });
 }
 
@@ -248,34 +238,28 @@ async function respondCreateReminder(port, quizId, settingNumber) {
 /////// 復習設定の更新 ///////
 function postUpdateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken;
-            if (!token) {
-                return resolve('unauthorized');
+        let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder`;
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/update_reminder`;
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    console.log('update-error：' + error)
-                    resolve(error);
-                });
-        });
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log('update-error：' + error)
+                resolve(error);
+            });
     });
 }
 
@@ -289,35 +273,29 @@ async function respondUpdateReminder(port, quizId, settingNumber) {
 ////// 復習設定の削除 ///////
 function requestDestroyReminder(quizId) {
     return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken;
-            if (!token) {
-                return resolve('unauthorized');
+        let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder`;
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ quiz_id: quizId }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             }
-            let url = `https://www.booqs.net/ja/api/v1/extension/destroy_reminder`;
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ quiz_id: quizId }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log(data);
-                    resolve(data);
-                })
-                .catch((error) => {
-                    console.log('destroy-error：' + error)
-                    resolve(error);
-                });
-        });
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log('destroy-error：' + error)
+                resolve(error);
+            });
     });
 }
 
@@ -332,28 +310,28 @@ async function respondDestroyReminder(port, quizId) {
 function requestGoogleTranslation(keyword) {
     return new Promise(resolve => {
         let url = `https://www.booqs.net/ja/api/v1/extension/google_translate`;
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ keyword: keyword }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log(data);
-                    resolve(data);
-                })
-                .catch((error) => {
-                    console.log(error)
-                    resolve(error);
-                });
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ keyword: keyword }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error)
+                resolve(error);
+            });
     });
 }
 
@@ -369,28 +347,28 @@ async function respondGoogleTranslation(port, keyword) {
 function requestDeeplTranslation(keyword) {
     return new Promise(resolve => {
         let url = `https://www.booqs.net/ja/api/v1/extension/deepl_translate`;
-            let params = {
-                method: "POST",
-                mode: 'cors',
-                credentials: 'include',
-                body: JSON.stringify({ keyword: keyword }),
-                dataType: 'json',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                }
-            };
-            fetch(url, params)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log(data);
-                    resolve(data);
-                })
-                .catch((error) => {
-                    console.log(error)
-                    resolve(error);
-                });
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ keyword: keyword }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error)
+                resolve(error);
+            });
     });
 }
 
@@ -399,3 +377,39 @@ async function respondDeepLTranslation(port, keyword) {
     port.postMessage({ data: data });
 }
 ///// Deepl翻訳 /////
+
+
+////// 検索 //////
+function requestSearch(keyword) {
+    return new Promise(resolve => {
+        let url = 'https://www.booqs.net/api/v1/extension/search_word';
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ keyword: keyword }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error)
+                resolve(error);
+            });
+    });
+}
+
+async function respondSearch(port, keyword) {
+    const data = await requestSearch(keyword);
+    port.postMessage({ data: data });
+}
+////// 検索 //////
