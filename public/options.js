@@ -108,14 +108,14 @@ function renderLoginForm() {
   ログインフォーム
 </h1>
 <p>
-  ログインすることで、拡張機能から直接復習を設定できるようになります。
+  ログインすることで、拡張機能から復習を設定できるようになったり、機械翻訳が利用できるようになります。
 </p>
 <p>
   まだBooQsにアカウントを登録されていない方は、<a href="https://www.booqs.net/ja/users/new" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
   >よりご登録ください。
 </p>
 <p>
-  SNSからご登録されたユーザー様は、<a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
+  SNSからBooQsにご登録されたユーザー様は、<a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
   >からログインしてください。
 </p>
 </div>

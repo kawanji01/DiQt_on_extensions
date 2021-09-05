@@ -23,7 +23,7 @@ chrome.runtime.onConnect.addListener(function (port) {
             case 'inspectCurrentUser':
                 inspectCurrentUser(port);
                 break;
-                // isLoggedInはinspectCurrentUserに統一して削除予定。
+            // isLoggedInはinspectCurrentUserに統一して削除予定。
             case 'isLoggedIn':
                 isLoggedIn(port);
                 break;
@@ -38,6 +38,12 @@ chrome.runtime.onConnect.addListener(function (port) {
                 break;
             case 'destroyReminder':
                 respondDestroyReminder(port, msg.quizId);
+                break;
+            case 'googleTranslation':
+                respondGoogleTranslation(port, msg.keyword)
+                break;
+            case 'deeplTranslation':
+                respondDeepLTranslation(port, msg.keyword)
                 break;
         }
     })
@@ -164,7 +170,7 @@ function fetchReviewSetting(wordId) {
                 method: "POST",
                 mode: 'cors',
                 credentials: 'include',
-                body: JSON.stringify({  word_id: wordId }),
+                body: JSON.stringify({ word_id: wordId }),
                 dataType: 'json',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -211,7 +217,7 @@ function postCreateReminder(quizId, settingNumber) {
                 method: "POST",
                 mode: 'cors',
                 credentials: 'include',
-                body: JSON.stringify({  quiz_id: quizId, setting_number: settingNumber }),
+                body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
                 dataType: 'json',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -252,7 +258,7 @@ function postUpdateReminder(quizId, settingNumber) {
                 method: "POST",
                 mode: 'cors',
                 credentials: 'include',
-                body: JSON.stringify({  quiz_id: quizId, setting_number: settingNumber }),
+                body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
                 dataType: 'json',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -293,7 +299,7 @@ function requestDestroyReminder(quizId) {
                 method: "POST",
                 mode: 'cors',
                 credentials: 'include',
-                body: JSON.stringify({  quiz_id: quizId }),
+                body: JSON.stringify({ quiz_id: quizId }),
                 dataType: 'json',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -320,3 +326,76 @@ async function respondDestroyReminder(port, quizId) {
     port.postMessage({ data: data['data'] });
 };
 ////// 復習設定の削除 ///////
+
+
+///// Google翻訳 /////
+function requestGoogleTranslation(keyword) {
+    return new Promise(resolve => {
+        let url = `https://www.booqs.net/ja/api/v1/extension/google_translate`;
+            let params = {
+                method: "POST",
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({ keyword: keyword }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.log(error)
+                    resolve(error);
+                });
+    });
+}
+
+async function respondGoogleTranslation(port, keyword) {
+    const data = await requestGoogleTranslation(keyword);
+    port.postMessage({ data: data });
+};
+///// Google翻訳 /////
+
+
+
+///// Deepl翻訳 /////
+function requestDeeplTranslation(keyword) {
+    return new Promise(resolve => {
+        let url = `https://www.booqs.net/ja/api/v1/extension/deepl_translate`;
+            let params = {
+                method: "POST",
+                mode: 'cors',
+                credentials: 'include',
+                body: JSON.stringify({ keyword: keyword }),
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
+            };
+            fetch(url, params)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.log(error)
+                    resolve(error);
+                });
+    });
+}
+
+async function respondDeepLTranslation(port, keyword) {
+    const data = await requestDeeplTranslation(keyword);
+    port.postMessage({ data: data });
+}
+///// Deepl翻訳 /////
