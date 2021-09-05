@@ -29,7 +29,7 @@ function toggleFloatingWindow() {
         </a>
         <form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form>
         <div id="booqs-dict-search-status">
-        "<span id="booqs-dict-search-keyword"></span>"<span id="booqs-dict-search-status-text">の検索結果</span>
+        "<span id="booqs-dict-search-keyword" style="font-size: 12px;"></span>"<span id="booqs-dict-search-status-text"></span>
         </div>
         <div id="search-booqs-dict-results"></div>
         </div>`
@@ -100,7 +100,6 @@ function toggleFloatingWindow() {
 }
 
 
-
 // ドラッグした瞬間に、ドラッグしたテキストの検索を走らせるイベントを付与。
 function mouseupSearch() {
     document.addEventListener('mouseup', function (evt) {
@@ -113,12 +112,16 @@ function mouseupSearch() {
 // ドラッグされているテキストを検索する処理
 function searchSelectedText() {
     const selTxt = window.getSelection().toString();
+    console.log(selTxt.length);
     const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+    if (selTxt.length >= 1000) {
+        document.querySelector('#search-booqs-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
+        return;
+    }
     // 検索フォーム
-    if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 50) {
+    if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 1000) {
         let searchForm = document.querySelector('#booqs-dict-search-form');
         searchForm.value = selTxt;
-        console.log(searchForm.value);
         searchWord(selTxt);
     }
 }
@@ -131,8 +134,10 @@ function searchViaForm(form) {
         let previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
         const search = () => {
             let currentKeyword = document.querySelector('#booqs-dict-search-form').value;
-            if (keyword == currentKeyword && keyword != previousKeyword && keyword.length < 50) {
+            if (keyword == currentKeyword && keyword != previousKeyword && keyword.length < 1000) {
                 searchWord(keyword);
+            } else if (selTxt.length >= 1000) {
+                document.querySelector('#search-booqs-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
             }
         }
         // 0.5秒ずつ、検索を走らせるか検証する。
@@ -156,11 +161,22 @@ function searchWord(keyword) {
     // 検索キーワードを更新する
     let searchKeyword = document.querySelector('#booqs-dict-search-keyword');
     searchKeyword.textContent = keyword;
+    if (keyword.length < 50 && keyword.length > 0) {
+        document.querySelector('#booqs-dict-search-status-text').textContent = 'の検索結果';
+    } else {
+        document.querySelector('#booqs-dict-search-status-text').textContent = '';
+    }
     // 検索結果をLoaderに変更して、検索中であることを示す。
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
     // リクエスト
-    let encodedKeyword = encodeURIComponent(keyword);
+    let encodedKeyword;
+    if (keyword.length > 50) {
+        encodedKeyword = encodeURIComponent(keyword.slice(0, 50));
+        console.log(encodedKeyword);
+    } else {
+        encodedKeyword = encodeURIComponent(keyword);
+    } 
     let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodedKeyword
     fetch(url, {
         method: 'GET',
@@ -174,14 +190,12 @@ function searchWord(keyword) {
 
 // 検索結果を表示する
 function searchSuccess(data) {
-    console.log(data['data']);
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
     chrome.storage.local.get(['booqsDictToken'], function (result) {
         let loginToken = result.booqsDictToken
         if (data['data'] != null) {
             data['data'].forEach(function (item, index, array) {
-                console.log(item, index)
                 let tags = createTagsHtml(item['tags']);
                 let entry = `<div class="booqs-dict-entry"><span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button></div>`;
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
@@ -189,9 +203,9 @@ function searchSuccess(data) {
                 let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
                 let reviewBtn;
                 if (loginToken) {
-                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
+                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
                 } else {
-                    reviewBtn = `<a href="${wordURL}?type=review" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" id="booqs-dict-review-btn-${item['id']}">復習する</div></a>`
+                    reviewBtn = `<div class="booqs-dict-review-btn" id="booqs-dict-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
                 }
                 let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
                 let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove;
@@ -200,9 +214,15 @@ function searchSuccess(data) {
                 // ログインしていた場合に、拡張内で非同期で復習を設定できるようにする。
                 if (loginToken) {
                     asyncReviewReviewSetting(loginToken, item['id']);
+                } else {
+                    const reviewLink = document.querySelector(`#booqs-dict-review-btn-${item['id']}`);
+                    // options.htmlへのリンクを設定する。
+                    reviewLink.addEventListener('click', function () {
+                        // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+                        chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                    });
                 }
             });
-
             // 解説のクリックサーチを有効にする
             activateClickSearch(resultForm);
             // 項目の読み上げを有効にする。
@@ -210,16 +230,93 @@ function searchSuccess(data) {
         } else {
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
-            let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener"><div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
-            let result = notFound + createNewWord
+            let notFound;
+            let createNewWord;
+            if (keyword.length < 50 && keyword.length > 0) {
+                notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
+                createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
+                <div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
+            } else {
+                notFound = ``;
+                createNewWord = ``;
+            }
+            let translationForm;
+            if (loginToken) {
+                translationForm = `<div id="booqs-dict-translation-form">
+                <div id="booqs-dict-google-translation"><div class="booqs-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
+                <div id="booqs-dict-deepl-translation"><div class="booqs-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
+                </div>`
+            } else {
+                translationForm = `<div id="booqs-dict-translation-form">
+                <div id="booqs-dict-google-translation"><div class="booqs-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
+                <div id="booqs-dict-deepl-translation"><div class="booqs-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
+                <p><a id="booqs-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
+                </div>`
+            }
+            let result = notFound + createNewWord + translationForm
             resultForm.insertAdjacentHTML('afterbegin', result);
+            addEventToTranslationForm(loginToken, keyword);
         }
     });
 
 
 }
 
+function addEventToTranslationForm(loginToken, keyword) {
+    const googleTranslationForm = document.querySelector('#booqs-dict-google-translation');
+    const deeplTranslationForm = document.querySelector('#booqs-dict-deepl-translation');
+    if (loginToken) {
+        // Google翻訳
+        googleTranslationForm.addEventListener('click', function () {
+            googleTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+            let port = chrome.runtime.connect({ name: "googleTranslation" });
+            port.postMessage({ action: "googleTranslation", keyword: keyword });
+            port.onMessage.addListener(function (msg) {
+                let data = msg['data'];
+                if (data['status'] == "200") {
+                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
+                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
+                    googleTranslationForm.innerHTML = translation;
+                } else {
+                    console.log(data);
+                    let message = `<p style="margin: 24px 0;"><a href="https://www.booqs.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
+                    googleTranslationForm.innerHTML = message;
+                }
+            });
+        });
+        // DeepL翻訳
+        deeplTranslationForm.addEventListener('click', function () {
+            deeplTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+            let deeplPort = chrome.runtime.connect({ name: "deeplTranslation" });
+            deeplPort.postMessage({ action: "deeplTranslation", keyword: keyword });
+            deeplPort.onMessage.addListener(function (msg) {
+                let data = msg['data'];
+                if (data['status'] == "200") {
+                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
+                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
+                    deeplTranslationForm.innerHTML = translation;
+                } else {
+                    let message = `<p style="margin: 24px 0;"><a href="https://www.booqs.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
+                    deeplTranslationForm.innerHTML = message;
+                }
+            });
+        });
+
+    } else {
+        // options.htmlへのリンクを設定する。
+        googleTranslationForm.addEventListener('click', function () {
+            // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        });
+        deeplTranslationForm.addEventListener('click', function () {
+            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        });
+        const loginBtn = document.querySelector('#booqs-dict-login-for-translation');
+        loginBtn.addEventListener('click', function () {
+            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        });
+    }
+}
 
 // 記法が使われた解説テキストをマークアップする。
 function markNotation(text) {
@@ -587,3 +684,4 @@ function recommendPremium(wordId) {
         }
     });
 }
+
