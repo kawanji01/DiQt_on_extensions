@@ -169,23 +169,20 @@ function searchWord(keyword) {
     // 検索結果をLoaderに変更して、検索中であることを示す。
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
-    // リクエスト
+    // キーワードが50文字以上なら50文字まで縮めてエンコードする。
     let encodedKeyword;
     if (keyword.length > 50) {
         encodedKeyword = encodeURIComponent(keyword.slice(0, 50));
-        console.log(encodedKeyword);
     } else {
         encodedKeyword = encodeURIComponent(keyword);
-    } 
-    let url = 'https://www.booqs.net/api/v1/extension/search?keyword=' + encodedKeyword
-    fetch(url, {
-        method: 'GET',
-    })
-        .then(res => res.json())
-        .then(jsonData => {
-            searchSuccess(jsonData)
-        })
-        .catch(error => { console.log(error); });
+    }
+    // 実際の検索
+    let port = chrome.runtime.connect({ name: "search" });
+    port.postMessage({ action: "search", keyword: encodedKeyword });
+    port.onMessage.addListener(function (msg) {
+        let data = msg['data'];
+        searchSuccess(data);
+    });
 }
 
 // 検索結果を表示する
@@ -576,7 +573,6 @@ function createOptions(data) {
 // 復習設定フォームにイベントを設定する。
 function addEventToForm(data) {
     let wordId = data.word_id;
-    console.log(wordId);
     let quizId = data.quiz_id;
     if (data.reminder_id) {
         // 復習設定を更新するための設定
