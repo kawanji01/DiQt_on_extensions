@@ -23,10 +23,6 @@ chrome.runtime.onConnect.addListener(function (port) {
             case 'inspectCurrentUser':
                 inspectCurrentUser(port);
                 break;
-            // isLoggedInはinspectCurrentUserに統一して削除予定。
-            case 'isLoggedIn':
-                isLoggedIn(port);
-                break;
             case 'search':
                 respondSearch(port, msg.keyword)
                 break;
@@ -108,56 +104,6 @@ async function inspectCurrentUser(port) {
 ///////// 現在のユーザーを取得する ///////
 
 
-/////////  ログイン検証処理（inspectCurrentUserに移したので削除予定）  /////////
-// 以下ログイン済みか否かの判定。options.jsの当該処理のほぼコピペ（isLoggedIn(port)のみ異なる） //
-// ログイン済みかそうでないかの状態を返す関数。
-/*function inspectState() {
-    return new Promise(resolve => {
-        chrome.storage.local.get(['booqsDictToken'], function (result) {
-            let token = result.booqsDictToken;
-            if (token) {
-                let url = `https://www.booqs.net/ja/api/v1/extension/is_logged_in?booqs_dict_token=` + token;
-                let params = {
-                    method: "POST",
-                    body: JSON.stringify({ booqs_dict_token: token })
-                };
-                fetch(url, params)
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        // console.log(data);
-                        // ログイン済みならユーザー情報を更新しておく。
-                        setUserData(data['data']);
-                        resolve('loggedIn');
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        resetUserData();
-                        resolve('error');
-                    });
-            } else {
-                resetUserData();
-                resolve('blankToken');
-            }
-        });
-    })
-}
-*/
-
-
-
-// ログイン済みかどうかを検証して、content_scriptsにレスポンスを返す。
-
-/*async function isLoggedIn(port) {
-    const state = await inspectState();
-    port.postMessage({ state: state });
-}
-*/
-/////////  ログイン検証処理  /////////
-
-
-
 
 //////// 復習フォームのレンダリング //////
 function fetchReviewSetting(wordId) {
@@ -180,12 +126,9 @@ function fetchReviewSetting(wordId) {
                 return response.json();
             })
             .then((data) => {
-                console.log('success');
-                console.log(data);
-                resolve(data['data']);
+                resolve(data);
             })
             .catch((error) => {
-                console.log('error');
                 console.log(error);
                 resolve(error);
             });
@@ -230,7 +173,7 @@ function postCreateReminder(quizId, settingNumber) {
 
 async function respondCreateReminder(port, quizId, settingNumber) {
     const data = await postCreateReminder(quizId, settingNumber);
-    port.postMessage({ data: data['data'] });
+    port.postMessage({ data: data });
 };
 /////// 復習設定の新規作成 ///////
 
@@ -265,7 +208,7 @@ function postUpdateReminder(quizId, settingNumber) {
 
 async function respondUpdateReminder(port, quizId, settingNumber) {
     const data = await postUpdateReminder(quizId, settingNumber);
-    port.postMessage({ data: data['data'] });
+    port.postMessage({ data: data });
 };
 /////// 復習設定の更新 ///////
 
@@ -301,7 +244,7 @@ function requestDestroyReminder(quizId) {
 
 async function respondDestroyReminder(port, quizId) {
     const data = await requestDestroyReminder(quizId);
-    port.postMessage({ data: data['data'] });
+    port.postMessage({ data: data });
 };
 ////// 復習設定の削除 ///////
 

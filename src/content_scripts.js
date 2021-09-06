@@ -112,7 +112,6 @@ function mouseupSearch() {
 // ドラッグされているテキストを検索する処理
 function searchSelectedText() {
     const selTxt = window.getSelection().toString();
-    console.log(selTxt.length);
     const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
     if (selTxt.length >= 1000) {
         document.querySelector('#search-booqs-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
@@ -464,13 +463,15 @@ function asyncReviewReviewSetting(loginToken, wordId) {
 
 // 復習設定フォームをレンダリングする。
 function renderReviewForm(wordId) {
+    let reviewForm = document.querySelector("#booqs-dict-review-form-" + wordId);
     let port = chrome.runtime.connect({ name: "renderReviewForm" });
     port.postMessage({ action: "renderReviewForm", wordId: wordId });
     port.onMessage.addListener(function (msg) {
-        if (msg.data) {
-            let data = msg.data;
-            let wordId = data.word_id;
-            let reviewForm = document.querySelector("#booqs-dict-review-form-" + wordId);
+        let response = msg.data;
+        if (response.status == '401') {
+            reviewForm.innerHTML = `<p style="font-size: 12px; margin: 16px 0; color: #ee5a5aff;">${response.message}</p>`
+        } else {
+            let data = response.data;
             reviewForm.innerHTML = reviewFormHtml(data);
             addEventToForm(data);
         }
@@ -549,8 +550,6 @@ function reviewInterval(setting) {
 
 // 復習間隔を選択するためのoptionを作成する関数
 function createOptions(data) {
-    console.log(data);
-    console.log(data.premium);
     let selectedNumber = 0;
     if (data.setting) {
         selectedNumber = Number(data.setting);
@@ -599,11 +598,12 @@ function createReviewSetting(wordId, quizId) {
         let port = chrome.runtime.connect({ name: "createReminder" });
         port.postMessage({ action: "createReminder", quizId: quizId, settingNumber: settingNumber });
         port.onMessage.addListener(function (msg) {
-            let data = msg['data']
-            if (!data.word_id) {
-                submitBtn.textContent = 'エラーが発生しました。'
+            let response = msg.data
+            if (response.status == '401') {
+                submitBtn.textContent = response.message;
                 return
             }
+            let data = response.data;
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
             reviewForm.innerHTML = ''
             let reviewBtn = reviewForm.previousSibling;
@@ -621,11 +621,12 @@ function updateReviewSetting(wordId, quizId) {
         let port = chrome.runtime.connect({ name: "updateReminder" });
         port.postMessage({ action: "updateReminder", quizId: quizId, settingNumber: settingNumber });
         port.onMessage.addListener(function (msg) {
-            let data = msg['data']
-            if (!data.word_id) {
-                submitBtn.textContent = 'エラーが発生しました。'
+            let response = msg.data
+            if (response.status == '401') {
+                submitBtn.textContent = response.message;
                 return
             }
+            let data = response.data;
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
@@ -642,11 +643,12 @@ function destroyReviewSetting(wordId, quizId) {
         let port = chrome.runtime.connect({ name: "destroyReminder" });
         port.postMessage({ action: "destroyReminder", quizId: quizId });
         port.onMessage.addListener(function (msg) {
-            let data = msg['data']
-            if (!data.word_id) {
-                submitBtn.textContent = 'エラーが発生しました。'
+            let response = msg.data;
+            if (response.status == '401') {
+                deleteBtn.textContent = response.message;
                 return
             }
+            let data = response.data;
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
