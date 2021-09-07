@@ -16,6 +16,8 @@ BooQsの辞書がWebブラウザで利用できるようになる拡張機能で
 
 今後の国際化のために、自身はIssueとPullRequestを英語で管理していますが、もちろん、日本語で送っていただいても構いません。
 
+[Kanban](https://github.com/kawanji01/BooQs-Dictionary_on_browsers/projects/1)
+
 ご協力、大変感謝いたします！
 
 
