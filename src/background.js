@@ -3,9 +3,14 @@ chrome.action.onClicked.addListener(function (tab) {
     chrome.tabs.sendMessage(tab.id, "Action");
 });
 
-// contents_scriptから送られてきたメッセージを通じて、オプション画面を開く。参考：参照： https://stackoverflow.com/questions/49192636/how-can-i-open-my-options-html-currently-i-get-cannot-read-property-create-of
+// タブがアップデート（画面遷移など）されたことをcontent_scriptsに伝える。参考：https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
+chrome.tabs.onUpdated.addListener(function (tabId) {
+    chrome.tabs.sendMessage(tabId, "Updated");
+});
+
+
+// contents_scriptから送られてきたone-timeメッセージを通じて、オプション画面を開く。参考：参照： https://stackoverflow.com/questions/49192636/how-can-i-open-my-options-html-currently-i-get-cannot-read-property-create-of
 chrome.runtime.onMessage.addListener(function (message) {
-    console.log('message');
     switch (message.action) {
         case "openOptionsPage":
             chrome.runtime.openOptionsPage();
@@ -16,7 +21,7 @@ chrome.runtime.onMessage.addListener(function (message) {
 });
 
 
-// content_scriptsから送られてきたlong-termなメッセージを受け取り、それぞれの処理を実行するルーティング。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
+// content_scriptsから送られてきたlong-termメッセージを受け取り、それぞれの処理を実行するルーティング。参照：https://developer.chrome.com/docs/extensions/mv3/messaging/
 chrome.runtime.onConnect.addListener(function (port) {
     port.onMessage.addListener(function (msg) {
         switch (msg.action) {
@@ -71,7 +76,6 @@ function fetchCurrentUser() {
                 } else {
                     resetUserData();
                 }
-                console.log(data);
                 resolve(data['data']);
             })
             .catch((error) => {
@@ -109,7 +113,6 @@ async function inspectCurrentUser(port) {
 function fetchReviewSetting(wordId) {
     return new Promise(resolve => {
         let url = `https://www.booqs.net/ja/api/v1/extension/review_setting`;
-        console.log(url);
         let params = {
             method: "POST",
             mode: 'cors',
@@ -120,7 +123,6 @@ function fetchReviewSetting(wordId) {
                 'Content-Type': 'application/json;charset=utf-8'
             }
         };
-        console.log(url);
         fetch(url, params)
             .then((response) => {
                 return response.json();
@@ -146,7 +148,6 @@ async function respondReviewSetting(port, wordId) {
 function postCreateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
         let url = `https://www.booqs.net/ja/api/v1/extension/create_reminder`;
-        console.log(url);
         let params = {
             method: "POST",
             mode: 'cors',
@@ -165,7 +166,7 @@ function postCreateReminder(quizId, settingNumber) {
                 resolve(data);
             })
             .catch((error) => {
-                console.log('create-error：' + error)
+                console.log(error);
                 resolve(error);
             });
     });
@@ -200,7 +201,7 @@ function postUpdateReminder(quizId, settingNumber) {
                 resolve(data);
             })
             .catch((error) => {
-                console.log('update-error：' + error)
+                console.log(error);
                 resolve(error);
             });
     });
@@ -232,11 +233,10 @@ function requestDestroyReminder(quizId) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 resolve(data);
             })
             .catch((error) => {
-                console.log('destroy-error：' + error)
+                console.log(error);
                 resolve(error);
             });
     });
@@ -268,7 +268,6 @@ function requestGoogleTranslation(keyword) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 resolve(data);
             })
             .catch((error) => {
@@ -305,7 +304,6 @@ function requestDeeplTranslation(keyword) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 resolve(data);
             })
             .catch((error) => {
@@ -341,7 +339,6 @@ function requestSearch(keyword) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 resolve(data);
             })
             .catch((error) => {

@@ -7,10 +7,18 @@
 
 
 
-// アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。/ manifest 3 では書き方に変更があった。参照：https://blog.holyblue.jp/entry/2021/05/03/105010
+// Backgroundからタブに送られたメッセージを受信し、タブ内でメッセージに応じた処理を実行する。
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request == "Action") {
-        toggleFloatingWindow();
+    switch (request) {
+        case "Action":
+            // アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。/ manifest 3 では書き方に変更があった。参照：https://blog.holyblue.jp/entry/2021/05/03/105010
+            toggleFloatingWindow();
+            break;
+        case "Updated":
+            // タブが更新されたときにあらかじめ実行する、テキスト選択時などの処理。
+            console.log('updated');
+            displayPopupWhenSelected();
+            break;
     }
 });
 
@@ -112,7 +120,13 @@ function mouseupSearch() {
 // ドラッグされているテキストを検索する処理
 function searchSelectedText() {
     const selTxt = window.getSelection().toString();
-    const previousKeyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+    let previousKeywordForm = document.querySelector('#booqs-dict-search-keyword');
+    let previousKeyword;
+    if (previousKeywordForm) {
+        previousKeyword = previousKeywordForm.textContent;
+    } else {
+        previousKeyword = '';
+    }
     if (selTxt.length >= 1000) {
         document.querySelector('#search-booqs-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
         return;
@@ -120,8 +134,10 @@ function searchSelectedText() {
     // 検索フォーム
     if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 1000) {
         let searchForm = document.querySelector('#booqs-dict-search-form');
-        searchForm.value = selTxt;
-        searchWord(selTxt);
+        if (searchForm) {
+            searchForm.value = selTxt;
+            searchWord(selTxt);
+        }
     }
 }
 
@@ -274,7 +290,6 @@ function addEventToTranslationForm(loginToken, keyword) {
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
                     googleTranslationForm.innerHTML = translation;
                 } else {
-                    console.log(data);
                     let message = `<p style="margin: 24px 0;"><a href="https://www.booqs.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
                     googleTranslationForm.innerHTML = message;
                 }
@@ -367,13 +382,11 @@ function enableTTS(results) {
             // 読み上げを止める。
             speechSynthesis.cancel();
             let speechTxt = target.previousElementSibling.textContent;
-            console.log(speechTxt)
             let msg = new SpeechSynthesisUtterance();
             let voice = speechSynthesis.getVoices().find(function (voice) {
                 return voice.name === "Samantha"
             });
             msg.voice = voice;
-            console.log(voice);
             msg.lang = 'en-US'; // en-US or ja-JP
             msg.volume = 1.0; // 音量 min 0 ~ max 1
             msg.rate = 1.0; // 速度 min 0 ~ max 10
@@ -683,3 +696,50 @@ function recommendPremium(wordId) {
     });
 }
 
+
+function renderPopup(popupHtml) {
+    return new Promise(resolve => {
+        const bodyElement = document.querySelector('html body');
+        bodyElement.insertAdjacentHTML('beforeend', popupHtml);
+        resolve('Success');
+    })
+}
+
+
+
+// テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
+function displayPopupWhenSelected() {
+    const selection = () => {
+        const dictWrapper = document.querySelector('#booqs-dict-extension-wrapper');
+        const sel = window.getSelection();
+        const selText = sel.toString();
+        let popup = document.querySelector('#booqs-dict-popup-to-display-window');
+        if (popup) {
+            popup.remove();
+        }
+        if (dictWrapper == null && selText != '') {
+            const sel = window.getSelection()
+            const range = sel.getRangeAt(0)
+            const textRange = document.createRange()
+            textRange.setStart(range.endContainer, range.endOffset - 1)
+            textRange.setEnd(range.endContainer, range.endOffset)
+            const textRect = textRange.getBoundingClientRect();
+            // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
+            topPx = window.pageYOffset + textRect.top + 32;
+            leftPx = window.pageXOffset + textRect.left;
+            popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
+            <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
+            </button>`
+            const bodyElement = document.querySelector('html body');
+            bodyElement.insertAdjacentHTML('beforeend', popupHtml);
+            // popupに辞書ウィンドウを開くイベントを追加
+            popup = document.querySelector('button#booqs-dict-popup-to-display-window');
+            console.log('currentPopup');
+            popup.addEventListener('click', function () {
+                toggleFloatingWindow();
+                popup.remove();
+            });
+        }
+    }
+    document.addEventListener('selectionchange', selection)
+}
