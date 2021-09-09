@@ -709,49 +709,56 @@ function renderPopup(popupHtml) {
 
 // テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
 function displayPopupWhenSelected() {
-    const selection = () => {
-        const dictWrapper = document.querySelector('#booqs-dict-extension-wrapper');
-        const sel = window.getSelection();
-        const selText = sel.toString();
-        let popup = document.querySelector('#booqs-dict-popup-to-display-window');
-        if (popup) {
-            popup.remove();
+    chrome.storage.local.get(['booqsDictPopupDisplayed'], function (result) {
+        // 設定で表示がOFFになっている場合は、ポップアップを表示しない
+        if (result.booqsDictPopupDisplayed === false) {
+            return;
         }
-        if (dictWrapper == null && selText != '') {
-            const sel = window.getSelection()
-            const range = sel.getRangeAt(0)
-            const textRange = document.createRange()
 
-            // offsetが0だと -1 したときに429496729となりエラーが発生する。
-            if (range.endOffset == 0) {
-                return;
-            }
-            textRange.setStart(range.endContainer, range.endOffset - 1)
-            textRange.setEnd(range.endContainer, range.endOffset)
-            const textRect = textRange.getBoundingClientRect();
-
-            // テキストエリアでは選択位置の座標が取得できないので、ポップアップも表示しないようにする。
-            if (textRect.top == 0 && textRect.left == 0) {
-                return;
-            }
-            // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
-            topPx = window.pageYOffset + textRect.top + 32;
-            leftPx = window.pageXOffset + textRect.left;
-            console.log(textRect.top);
-            console.log(textRect.left);
-            popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
-                <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
-                </button>`
-            const bodyElement = document.querySelector('html body');
-            bodyElement.insertAdjacentHTML('beforeend', popupHtml);
-            console.log('display-popup')
-            // popupに辞書ウィンドウを開くイベントを追加
-            popup = document.querySelector('button#booqs-dict-popup-to-display-window');
-            popup.addEventListener('click', function () {
-                toggleFloatingWindow();
+        const selection = () => {
+            const dictWrapper = document.querySelector('#booqs-dict-extension-wrapper');
+            const sel = window.getSelection();
+            const selText = sel.toString();
+            let popup = document.querySelector('#booqs-dict-popup-to-display-window');
+            if (popup) {
                 popup.remove();
-            });
+            }
+            if (dictWrapper == null && selText != '') {
+                const sel = window.getSelection()
+                const range = sel.getRangeAt(0)
+                const textRange = document.createRange()
+    
+                // offsetが0だと -1 したときに429496729となりエラーが発生する。
+                if (range.endOffset == 0) {
+                    return;
+                }
+                textRange.setStart(range.endContainer, range.endOffset - 1)
+                textRange.setEnd(range.endContainer, range.endOffset)
+                const textRect = textRange.getBoundingClientRect();
+    
+                // テキストエリアでは選択位置の座標が取得できないので、ポップアップも表示しないようにする。
+                if (textRect.top == 0 && textRect.left == 0) {
+                    return;
+                }
+                // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
+                topPx = window.pageYOffset + textRect.top + 32;
+                leftPx = window.pageXOffset + textRect.left;
+                popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
+                    <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
+                    </button>`
+                const bodyElement = document.querySelector('html body');
+                bodyElement.insertAdjacentHTML('beforeend', popupHtml);
+                console.log('display-popup')
+                // popupに辞書ウィンドウを開くイベントを追加
+                popup = document.querySelector('button#booqs-dict-popup-to-display-window');
+                popup.addEventListener('click', function () {
+                    toggleFloatingWindow();
+                    popup.remove();
+                });
+            }
         }
-    }
-    document.addEventListener('selectionchange', selection)
+        document.addEventListener('selectionchange', selection)
+
+
+    });
 }

@@ -90,6 +90,7 @@ function setUserData(data) {
     chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
     chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
     chrome.storage.local.set({ booqsDictToken: data['token'] });
+    chrome.storage.local.set({ booqsDictPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
@@ -98,6 +99,7 @@ function resetUserData() {
     chrome.storage.local.set({ booqsDictIconUrl: '' });
     chrome.storage.local.set({ booqsDictPublicUid: '' });
     chrome.storage.local.set({ booqsDictToken: '' });
+    chrome.storage.local.set({ booqsDictPopupDisplayed: '' });
 }
 
 async function inspectCurrentUser(port) {
