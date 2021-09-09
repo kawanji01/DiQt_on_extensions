@@ -125,7 +125,6 @@ function AddEventToPopupDisplayed() {
     let checkboxLabel = document.querySelector('#booqs-dict-popup-displayed');
     let checkbox = document.querySelector('#booqs-dict-popup-displayed-checkbox');
     let checkboxText = document.querySelector('#booqs-dict-popup-displayed-text');
-    console.log(checkboxText);
     let toggleRequest = () => {
         checkboxText.textContent = '設定中...';
         let url = `https://www.booqs.net/ja/api/v1/extension/update_popup_displayed`;

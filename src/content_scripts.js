@@ -16,7 +16,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             break;
         case "Updated":
             // タブが更新されたときにあらかじめ実行する、テキスト選択時などの処理。
-            console.log('updated');
             displayPopupWhenSelected();
             break;
     }
@@ -748,7 +747,6 @@ function displayPopupWhenSelected() {
                     </button>`
                 const bodyElement = document.querySelector('html body');
                 bodyElement.insertAdjacentHTML('beforeend', popupHtml);
-                console.log('display-popup')
                 // popupに辞書ウィンドウを開くイベントを追加
                 popup = document.querySelector('button#booqs-dict-popup-to-display-window');
                 popup.addEventListener('click', function () {
