@@ -8,6 +8,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "bulma-switch": "^2.0.0",
     "jsframe.js": "^1.6.2",
     "webextension-polyfill-ts": "^0.26.0"
   },

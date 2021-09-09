@@ -19,6 +19,7 @@ function setUserData(data) {
     chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
     chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
     chrome.storage.local.set({ booqsDictToken: data['token'] });
+    chrome.storage.local.set({ booqsDictPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
@@ -27,6 +28,7 @@ function resetUserData() {
     chrome.storage.local.set({ booqsDictIconUrl: '' });
     chrome.storage.local.set({ booqsDictPublicUid: '' });
     chrome.storage.local.set({ booqsDictToken: '' });
+    chrome.storage.local.set({ booqsDictPopupDisplayed: '' });
 }
 
 
@@ -35,10 +37,16 @@ function renderMypage() {
     let uid = '';
     let iconUrl = '';
     let userName = '';
-    chrome.storage.local.get(['booqsDictPublicUid', 'booqsDictIconUrl', 'booqsDictUserName'], function (result) {
+    let popupDisplayed = '';
+    chrome.storage.local.get(['booqsDictPublicUid', 'booqsDictIconUrl', 'booqsDictUserName', 'booqsDictPopupDisplayed'], function (result) {
         uid = result.booqsDictPublicUid;
         iconUrl = result.booqsDictIconUrl;
         userName = result.booqsDictUserName;
+        popupDisplayed = result.booqsDictPopupDisplayed;
+        let checked = ''
+        if (popupDisplayed) {
+            checked = 'checked';
+        }
 
         let profileHtml = `
 <div class="content has-text-centered">
@@ -53,21 +61,34 @@ function renderMypage() {
     <h1 class="mt-3 is-size-4 has-text-weight-bold">
       ${userName}
     </h1>
-  
-  <a href="https://www.booqs.net/ja/users/${uid}" target="_blank" rel="noopener">
-  <button class="button is-warning is-light mx-auto my-3">マイページ</button>
-  </a>
 
-  <button class="button is-warning is-light mx-auto my-3" id="logout-btn">ログアウト</button>
+    <dic class="block my-3">
+<label class="checkbox" id="booqs-dict-popup-displayed">
+  <input type="checkbox" id="booqs-dict-popup-displayed-checkbox" ${checked}>
+  <span id="booqs-dict-popup-displayed-text">テキストを選択したときにポップアップを表示する。</span>
+</label>
+    </div>
+  
+<div class="block has-text-centered">
+  <a href="https://www.booqs.net/ja/users/${uid}" target="_blank" rel="noopener">
+  <button class="button is-warning is-light">マイページ</button>
+  </a>
+</div>
+
+<div class="block has-text-centered">
+  <button class="button is-warning is-light" id="logout-btn">ログアウト</button>
+</div>
+
 </div>`
         let userPage = document.querySelector("#user-page");
         userPage.innerHTML = profileHtml;
-        addEventToMypage()
+        addEventToLogout();
+        AddEventToPopupDisplayed();
     });
 }
 
-// プロフィールページのログアウトボタンなどのイベント追加
-function addEventToMypage() {
+// プロフィールページのログアウトボタンにイベントを追加
+function addEventToLogout() {
     let logoutBtn = document.querySelector("#logout-btn");
     let logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
@@ -99,6 +120,39 @@ function addEventToMypage() {
     logoutBtn.addEventListener("click", logoutRequest, false);
 }
 
+// ポップアップの表示・非表示チェックボックスにイベントを追加
+function AddEventToPopupDisplayed() {
+    let checkboxLabel = document.querySelector('#booqs-dict-popup-displayed');
+    let checkbox = document.querySelector('#booqs-dict-popup-displayed-checkbox');
+    let checkboxText = document.querySelector('#booqs-dict-popup-displayed-text');
+    let toggleRequest = () => {
+        checkboxText.textContent = '設定中...';
+        let url = `https://www.booqs.net/ja/api/v1/extension/update_popup_displayed`;
+        let params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        }
+
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                checkbox.checked = data.data.popup_displayed;
+                checkboxText.textContent = 'テキストを選択したときにポップアップを表示する。'
+                chrome.storage.local.set({ booqsDictPopupDisplayed: data.data.popup_displayed });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+    checkboxLabel.addEventListener("click", toggleRequest, false);
+}
 
 // ログインフォームをレンダリングする
 function renderLoginForm() {
