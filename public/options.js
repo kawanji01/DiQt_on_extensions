@@ -265,21 +265,3 @@ function addEventToLoginForm() {
 // ページのイニシャライズして、ログインフォームかプロフィールページのどちらかを表示する）
 initializePage()
 
-
-
-// 参考：https://qiita.com/akiras7171/items/37a58506b282c01ff009
-/*
-function getUserID() {
-    return new Promise((resolve, reject) => {
-        chrome.cookies.get({ url: 'https://www.booqs.net/', name: '_session_id' }, ((aCookie) => {
-            if (aCookie) {
-                console.log(aCookie);
-                resolve(aCookie);
-            } else {
-                console.log("not-found");
-                reject('error');
-            }
-        }));
-    });
-};
-*/
