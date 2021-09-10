@@ -79,6 +79,7 @@ function fetchCurrentUser() {
                 resolve(data['data']);
             })
             .catch((error) => {
+                console.log(error);
                 resolve('error');
             });
     });
@@ -177,7 +178,7 @@ function postCreateReminder(quizId, settingNumber) {
 async function respondCreateReminder(port, quizId, settingNumber) {
     const data = await postCreateReminder(quizId, settingNumber);
     port.postMessage({ data: data });
-};
+}
 /////// 復習設定の新規作成 ///////
 
 
@@ -212,7 +213,7 @@ function postUpdateReminder(quizId, settingNumber) {
 async function respondUpdateReminder(port, quizId, settingNumber) {
     const data = await postUpdateReminder(quizId, settingNumber);
     port.postMessage({ data: data });
-};
+}
 /////// 復習設定の更新 ///////
 
 
@@ -247,7 +248,7 @@ function requestDestroyReminder(quizId) {
 async function respondDestroyReminder(port, quizId) {
     const data = await requestDestroyReminder(quizId);
     port.postMessage({ data: data });
-};
+}
 ////// 復習設定の削除 ///////
 
 
@@ -282,7 +283,7 @@ function requestGoogleTranslation(keyword) {
 async function respondGoogleTranslation(port, keyword) {
     const data = await requestGoogleTranslation(keyword);
     port.postMessage({ data: data });
-};
+}
 ///// Google翻訳 /////
 
 

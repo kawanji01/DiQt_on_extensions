@@ -150,7 +150,8 @@ function searchViaForm(form) {
             let currentKeyword = document.querySelector('#booqs-dict-search-form').value;
             if (keyword == currentKeyword && keyword != previousKeyword && keyword.length < 1000) {
                 searchWord(keyword);
-            } else if (selTxt.length >= 1000) {
+            } else if (keyword.length >= 1000) {
+                // コピペで1000文字以上フォームに入力された場合にエラーを表示する。
                 document.querySelector('#search-booqs-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
             }
         }
@@ -696,16 +697,6 @@ function recommendPremium(wordId) {
 }
 
 
-function renderPopup(popupHtml) {
-    return new Promise(resolve => {
-        const bodyElement = document.querySelector('html body');
-        bodyElement.insertAdjacentHTML('beforeend', popupHtml);
-        resolve('Success');
-    })
-}
-
-
-
 // テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
 function displayPopupWhenSelected() {
     chrome.storage.local.get(['booqsDictPopupDisplayed'], function (result) {
@@ -740,9 +731,9 @@ function displayPopupWhenSelected() {
                     return;
                 }
                 // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
-                topPx = window.pageYOffset + textRect.top + 32;
-                leftPx = window.pageXOffset + textRect.left;
-                popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
+                const topPx = window.pageYOffset + textRect.top + 32;
+                const leftPx = window.pageXOffset + textRect.left;
+                const popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
                     <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
                     </button>`
                 const bodyElement = document.querySelector('html body');
