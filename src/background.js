@@ -342,6 +342,7 @@ function requestSearch(keyword) {
                 return response.json();
             })
             .then((data) => {
+                console.log(data);
                 resolve(data);
             })
             .catch((error) => {

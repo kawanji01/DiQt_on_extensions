@@ -274,6 +274,7 @@ function searchSuccess(data) {
 
 }
 
+// 翻訳フォームにイベントを付与
 function addEventToTranslationForm(loginToken, keyword) {
     const googleTranslationForm = document.querySelector('#booqs-dict-google-translation');
     const deeplTranslationForm = document.querySelector('#booqs-dict-deepl-translation');
