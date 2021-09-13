@@ -206,6 +206,7 @@ function searchSuccess(data) {
     resultForm.innerHTML = '';
     chrome.storage.local.get(['booqsDictToken'], function (result) {
         let loginToken = result.booqsDictToken
+        console.log(data);
         if (data['data'] != null) {
             data['data'].forEach(function (item, index, array) {
                 let tags = createTagsHtml(item['tags']);
@@ -239,6 +240,19 @@ function searchSuccess(data) {
             activateClickSearch(resultForm);
             // 項目の読み上げを有効にする。
             enableTTS(resultForm);
+        } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
+            /////// CORSエラーの再現方法 ////////
+            // 1, アイコンのコンテキストメニューから「拡張機能を管理」へ飛ぶ。
+            // 2, 拡張機能を一度OFFにしてから再びONにする。
+            // 3, 適当なタブをリロードしてから、辞書を引く。
+            // 4, エラー発生。内容：Access to fetch at 'https://www.booqs.net/api/v1/extension/search_word' from origin 'chrome-extension://gpddlaapalckciombdafdfpeakndmmeg' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+            let corsErrorHtml = `<div class="booqs-dict-meaning" style="margin: 24px 0;">大変申し訳ございません。辞書にアクセスできませんでした。<a id="booqs-dict-option-btn" style="color: #27ae60;">こちら</a>にアクセスした後、再び検索してください。</div>`
+            resultForm.insertAdjacentHTML('afterbegin', corsErrorHtml);
+            // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
+            let optionBtn = document.querySelector('#booqs-dict-option-btn');
+            optionBtn.addEventListener('click', function () {
+                chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            });
         } else {
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -734,7 +748,7 @@ function displayPopupWhenSelected() {
                 // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
                 const topPx = window.pageYOffset + textRect.top + 32;
                 const leftPx = window.pageXOffset + textRect.left;
-                const popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;" value="${selText}">
+                const popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;">
                     <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
                     </button>`
                 const bodyElement = document.querySelector('html body');
