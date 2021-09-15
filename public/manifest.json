@@ -1,6 +1,6 @@
 {
     "name": "BooQs Dictionary",
-    "version": "1.0.1.3",
+    "version": "1.0.1.4",
     "manifest_version": 3,
     "description": "BooQsの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
     "icons": {

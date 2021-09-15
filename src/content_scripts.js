@@ -210,10 +210,13 @@ function searchSuccess(data) {
         if (data['data'] != null) {
             data['data'].forEach(function (item, index, array) {
                 let tags = createTagsHtml(item['tags']);
-                let entry = `<div class="booqs-dict-entry"><span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button></div>`;
+                let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
+                let entry = `<div class="booqs-dict-entry">
+                <span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
+                <a href="${wordURL}" target="_blank" rel="noopener" style="color: #6e6e6e;"><i class="far fa-external-link-alt" style="float: right; margin-top: 4px; margin-right: 8px;"></i></a>
+                </div>`;
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
                 let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
-                let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
                 let reviewBtn;
                 if (loginToken) {
                     reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
