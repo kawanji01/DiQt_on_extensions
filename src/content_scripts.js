@@ -32,7 +32,7 @@ function toggleFloatingWindow() {
         const form_html = `
         <div id="booqs-dict-extension-wrapper">
         <a>
-        <div id="booqs-dict-logged-in-user">　</div>
+        <div id="booqs-dict-logged-in-user" style="font-size: 10px;">　</div>
         </a>
         <form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form>
         <div id="booqs-dict-search-status">
