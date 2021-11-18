@@ -43,7 +43,7 @@ function toggleFloatingWindow() {
 
         let frame = jsFrame.create({
             name: 'booqs-dict-window',
-            title: 'BooQs Dictionary',
+            title: 'BooQs',
             width: 320,
             height: 480,
             movable: true, //マウスで移動可能
@@ -521,7 +521,7 @@ function reviewFormHtml(data) {
         <div class="booqs-dict-destroy-review-btn" id="booqs-dict-destroy-review-btn-${wordId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
         </div>      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" required>
+<select id="booqs-dict-select-form-${wordId}" style="height: 32px;" required>
 	${createOptions(data)}
 </select>
 </div>
@@ -530,7 +530,7 @@ function reviewFormHtml(data) {
     } else {
         html = `      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" required>
+<select id="booqs-dict-select-form-${wordId}" style="height: 32px;" required>
 	${createOptions(data)}
 </select>
 </div>
@@ -718,8 +718,8 @@ function recommendPremium(wordId) {
 // テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
 function displayPopupWhenSelected() {
     chrome.storage.local.get(['booqsDictPopupDisplayed'], function (result) {
-        // 設定で表示がOFFになっている場合は、ポップアップを表示しない
-        if (result.booqsDictPopupDisplayed === false) {
+        // 設定で表示がOFFになっている場合、あるいはユーザーがログインしていない場合は、ポップアップを表示しない
+        if (result.booqsDictPopupDisplayed === false || result.booqsDictPopupDisplayed === '') {
             return;
         }
 
@@ -751,8 +751,8 @@ function displayPopupWhenSelected() {
                 // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
                 const topPx = window.pageYOffset + textRect.top + 32;
                 const leftPx = window.pageXOffset + textRect.left;
-                const popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border-radius: 4px;">
-                    <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Dictionary Icon" style="height: 75%; margin: 2px auto;">
+                const popupHtml = `<button id="booqs-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border: 0; border-radius: 4px; padding: 0; margin: 0;">
+                    <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/BooQs_logo.svg" alt="BooQs Icon" style="height: 24px;width: 24px; margin: 4px 2px 2px 3px; padding: 0;">
                     </button>`
                 const bodyElement = document.querySelector('html body');
                 bodyElement.insertAdjacentHTML('beforeend', popupHtml);
