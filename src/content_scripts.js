@@ -521,7 +521,7 @@ function reviewFormHtml(data) {
         <div class="booqs-dict-destroy-review-btn" id="booqs-dict-destroy-review-btn-${wordId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
         </div>      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" style="height: 32px;" required>
+<select id="booqs-dict-select-form-${wordId}" style="height: 40px;" required>
 	${createOptions(data)}
 </select>
 </div>
@@ -530,7 +530,7 @@ function reviewFormHtml(data) {
     } else {
         html = `      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" style="height: 32px;" required>
+<select id="booqs-dict-select-form-${wordId}" style="height: 40px;" required>
 	${createOptions(data)}
 </select>
 </div>

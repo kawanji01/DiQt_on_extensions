@@ -159,19 +159,12 @@ function renderLoginForm() {
     let loginFormHtml = `
 <div class="content">
 <h1 class="mb-5 mt-3 has-text-centered is-size-2 has-text-weight-bold">
-  ログインフォーム
+  ログイン
 </h1>
 <p>
-  ログインすることで、拡張機能から復習を設定できるようになったり、機械翻訳が利用できるようになります。
+  ログインすることで、復習を設定できるようになったり、機械翻訳が利用できるようになります。
 </p>
-<p>
-  まだBooQsにアカウントを登録されていない方は、<a href="https://www.booqs.net/ja/users/new" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
-  >よりご登録ください。
-</p>
-<p>
-  SNSからBooQsにご登録されたユーザー様は、<a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener" class="has-text-success has-text-weight-bold">こちら</a
-  >からログインしてください。
-</p>
+
 </div>
 
 <form class="fetchForm">
@@ -205,11 +198,40 @@ function renderLoginForm() {
 <input
   type="button"
   value="ログインする"
-  class="button is-success has-text-weight-bold is-block mt-3"
+  class="button is-success has-text-weight-bold is-block is-medium mt-5"
   id="booqs-login-btn"
   style="width: 100%"
 />
-</form>`
+</form>
+<p>　</p>
+<h5 class="mb-3 mt-5 has-text-centered is-size-4 has-text-grey">
+<span class="has-text-weight-light">———</span> or <span class="has-text-weight-light">———</span>
+</h3>
+<div class="columns has-text-centered">
+  <div class="column is-three-fifths is-offset-one-fifth">
+    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+        <button class="button is-danger my-3 is-medium is-fullwidth has-text-weight-bold">Googleで続ける</button>
+    </a>
+
+    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+        <button class="button is-info my-3 is-medium is-fullwidth has-text-weight-bold">Twitterで続ける</button>
+    </a>
+
+    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+        <button class="button is-black my-3 is-medium is-fullwidth has-text-weight-bold">Appleで続ける</button>
+    </a>
+
+    <p>　</p>
+    <p class="my-5 has-text-weight-bold">
+        アカウントを持っていませんか？ <a href="https://www.booqs.net/ja/users/new" target="_blank" rel="noopener" style="color: #f79c4f;">新規登録</a
+        >
+    </p>
+
+
+  </div>
+</div>
+
+`
     let userPage = document.querySelector("#user-page");
     userPage.innerHTML = loginFormHtml;
     addEventToLoginForm();
