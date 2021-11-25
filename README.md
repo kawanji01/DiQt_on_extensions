@@ -1,12 +1,6 @@
+日本語 | [English](./README-en.md)
+
 # BooQs Chrome Extension
-
-This extension is for using BooQs dictionaries on web.
-
-With the extension, You can search a word in your reading article on web quickly, and set the word to reminder so as to review it.
-
-It can be helped to memorize unknown words to meet on web.
-
-# BooQsのブラウザ拡張辞書
 
 BooQsの辞書がWebブラウザで利用できるようになる拡張機能です。
 
@@ -14,19 +8,11 @@ BooQsの辞書がWebブラウザで利用できるようになる拡張機能で
 
 ご要望・バグなど見つけましたら、お気軽にIssue・PullRequestを投げていただければ嬉しいです。
 
-今後の国際化のために、自身はIssueとPullRequestを英語で管理していますが、もちろん、日本語で送っていただいても構いません。
-
-[Kanban](https://github.com/kawanji01/BooQs-Dictionary_on_browsers/projects/1)
-
-ご協力、大変感謝いたします！
-
-
 # How to use on local
 
-1.  Run `npx webpack --mode production` on terminal.
+1.  `npx webpack --mode production`
 2. 「拡張機能を管理」より、distファイル以下を読み込む。
 3. タブバーよりアイコンをクリック。
-
 
 
 
