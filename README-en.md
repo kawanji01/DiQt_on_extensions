@@ -1,3 +1,5 @@
+ [日本語](./README.md) | English
+
 # BooQs Chrome Extension
 
 This extension is for using BooQs on web.
