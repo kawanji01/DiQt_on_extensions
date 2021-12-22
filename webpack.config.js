@@ -11,6 +11,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 
+// 環境変数を.envで管理する。参考： https://forsmile.jp/javascript/1054/
+const Dotenv = require('dotenv-webpack');
+
 module.exports = {
     //mode: process.env.NODE_ENV || "development",
     mode: MODE,
@@ -90,5 +93,8 @@ module.exports = {
             // ファイル名を設定する
             filename: "./style.css",
         }),
+
+        // 環境変数を.envで管理する。
+        new Dotenv()
     ]
 };
