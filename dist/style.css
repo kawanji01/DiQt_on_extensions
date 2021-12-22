@@ -40,13 +40,12 @@ a #booqs-dict-logged-in-user {
 }
 
 /* 見出し */
-
 #booqs-dict-extension-wrapper .booqs-dict-entry {
   /* Brand Green */
   color: #27ae60;
   font-size: 15px;
   font-weight: bold;
-  margin: 8px 0;
+  margin: 8px 0 8px 4px;
 }
 
 /* 見出しの読み上げボタン */
@@ -72,7 +71,7 @@ a #booqs-dict-logged-in-user {
   color: #6e6e6e;
   font-size: 13px;
   font-weight: bold;
-  margin: 8px 0;
+  margin: 8px 0 8px 4px;
 }
 
 /* 解説 */
@@ -82,7 +81,7 @@ a #booqs-dict-logged-in-user {
   color: #6e6e6e;
   font-size: 12px;
   margin-top: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 /* 復習ボタン */
@@ -98,7 +97,7 @@ a #booqs-dict-logged-in-user {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 12px;
   margin-bottom: 16px;
 }
 
@@ -135,6 +134,7 @@ a #booqs-dict-logged-in-user {
   color: #6e6e6e;
   font-size: 10px;
   display: inline-block;
+  margin-top: 16px;
   margin-bottom: 24px;
 }
 
@@ -142,8 +142,7 @@ a #booqs-dict-logged-in-user {
   color: #27ae60;
 }
 
-/* タグ */
-
+/* タグ（頻出語のタグや、解説や例文などの前にラベルとして利用するタグ） */
 .booqs-dict-word-tags-wrapper {
   margin-top: 8px;
   text-align: right;
@@ -167,6 +166,19 @@ a #booqs-dict-logged-in-user {
 
 .booqs-dict-word-tags-wrapper a.booqs-dict-word-tag i {
   margin-right: 2px;
+}
+
+/* ラベル（例文や解説などカテゴリーを示す） */
+.booqs-dict-label {
+  display: inline-block;
+  font-weight: bold;
+  color: #6e6e6e;
+  font-size: 8px;
+  border-radius: 6px;
+  border: 1px solid #9b9999;
+  padding: 3px 5px;
+  text-decoration: none;
+  margin-left: 4px;
 }
 
 /* loader / 参照：https://loading.io/css/ */

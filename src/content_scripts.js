@@ -211,31 +211,49 @@ function searchSuccess(data) {
             data['data'].forEach(function (item, index, array) {
                 let tags = createTagsHtml(item['tags']);
                 let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
+                /* タイトル */
                 let entry = `<div class="booqs-dict-entry">
                 <span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                 <a href="${wordURL}" target="_blank" rel="noopener" style="color: #6e6e6e;"><i class="far fa-external-link-alt" style="float: right; margin-top: 4px; margin-right: 8px;"></i></a>
                 </div>`;
+                /* 意味 */
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
-                let explanation = '<div class="booqs-dict-explanation">' + markNotation(item['explanation']) + '</div>'
+                /* 復習ボタン */
                 let reviewBtn;
                 if (loginToken) {
                     reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
                 } else {
-                    reviewBtn = `<div class="booqs-dict-review-btn" id="booqs-dict-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
+                    reviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
                 }
+                /* 解説 */
+                let explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">解説</div></div>`
+                let explanation = `<div class="booqs-dict-explanation">${markNotation(item['explanation'])}</div>`
+                /* 例文 */
+                let sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">例文</div></div>`
+                let sentence = `<div class="booqs-dict-explanation">${markNotation(item['sentence']['original'])}</div><div class="booqs-dict-explanation">${item['sentence']['translation']}</div>`
+                /* 例文の復習ボタン */
+                if (loginToken) {
+                    sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-sentence-review-${item['sentence_id']}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-sentence-review-form-${item['sentence_id']}"></div>`
+                } else {
+                    sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
+                }
+                /* 項目の改善ボタン */
                 let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
-                let dict = tags + entry + meaning + explanation + reviewBtn + linkToImprove;
+                /* 項目のレンダリング */
+                let dict = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceLabel + sentence + sentenceReviewBtn + linkToImprove;
                 resultForm.insertAdjacentHTML('beforeend', dict);
 
                 // ログインしていた場合に、拡張内で非同期で復習を設定できるようにする。
                 if (loginToken) {
-                    asyncReviewReviewSetting(loginToken, item['id']);
+                    asyncReviewReviewSetting(item);
                 } else {
-                    const reviewLink = document.querySelector(`#booqs-dict-review-btn-${item['id']}`);
-                    // options.htmlへのリンクを設定する。
-                    reviewLink.addEventListener('click', function () {
+                    // ログインしていない場合には、復習ボタンにoptions.htmlへのリンクを設定する。
+                    const reviewLinks = document.querySelectorAll(`.not-logged-in-review-btn-${item['id']}`);
+                    reviewLinks.forEach(function (item, index, array) {
+                        item.addEventListener('click', function () {
                         // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
                         chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                        });
                     });
                 }
             });
@@ -483,13 +501,25 @@ function renderUserStatus() {
 
 /////// 復習設定関係の処理 ///////
 // 拡張内で非同期で設定できる復習メニューを表示する
-function asyncReviewReviewSetting(loginToken, wordId) {
+function asyncReviewReviewSetting(item) {
+    /* 項目の復習設定 */
+    let wordId = item['id']
     let reviewBtn = document.querySelector("#booqs-dict-review-" + wordId);
     let reviewForm = reviewBtn.nextSibling;
     reviewBtn.addEventListener('click', function () {
         reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
         renderReviewForm(wordId);
     });
+    /* 例文の復習設定 */
+    let sentenceId = item['sentence_id']
+    if (sentenceId) {
+        let sentenceReviewBtn = document.querySelector("#booqs-dict-sentence-review-" + sentenceId);
+        let sentenceReviewForm = sentenceReviewBtn.nextSibling;
+        sentenceReviewBtn.addEventListener('click', function () {
+            sentenceReviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+            //renderReviewForm(sentenceId);
+        });
+    }
 };
 
 // 復習設定フォームをレンダリングする。

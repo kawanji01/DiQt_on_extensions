@@ -326,15 +326,15 @@ async function respondDeepLTranslation(port, keyword) {
 ////// 検索 //////
 function requestSearch(keyword) {
     return new Promise(resolve => {
-        let url = 'https://www.booqs.net/api/v1/extension/search_word';
+        let url = `${process.env.ROOT_URL}/api/v1/extensions/words/search`;
         let params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
-            body: JSON.stringify({ keyword: keyword }),
+            body: JSON.stringify({ keyword: keyword, dictionary_id: 1 }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
             }
         };
         fetch(url, params)
