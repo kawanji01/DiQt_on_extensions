@@ -227,18 +227,30 @@ function searchSuccess(data) {
                     reviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
                 }
                 /* 解説 */
-                let explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">解説</div></div>`
-                let explanation = `<div class="booqs-dict-explanation">${markNotation(item['explanation'])}</div>`
-                /* 例文 */
-                let sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">例文</div></div>`
-                let sentence = `<div class="booqs-dict-explanation">${markNotation(item['sentence']['original'])}</div><div class="booqs-dict-explanation">${item['sentence']['translation']}</div>`
-                /* 例文の復習ボタン */
-                let sentenceQuizId = item['sentence']['quiz']['id'];
-                if (loginToken) {
-                    sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${sentenceQuizId}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-sentence-review-form-${sentenceQuizId}"></div>`
-                } else {
-                    sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
+                let explanationLabel = '';
+                let explanation = '';
+                if (item['explanation']) {
+                    explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">解説</div></div>`
+                    explanation = `<div class="booqs-dict-explanation">${markNotation(item['explanation'])}</div>`    
                 }
+                /* 例文 */
+                let sentenceLabel = '';
+                let sentence = '';
+                let sentenceQuizId = '';
+                let sentenceReviewBtn = '';
+                if (item['sentence']) {
+                    // 例文と翻訳
+                    sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">例文</div></div>`
+                    sentence = `<div class="booqs-dict-explanation">${markNotation(item['sentence']['original'])}</div><div class="booqs-dict-explanation">${item['sentence']['translation']}</div>`
+                    /* 例文の復習ボタン */
+                    sentenceQuizId = item['sentence']['quiz']['id'];
+                    if (loginToken) {
+                        sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${sentenceQuizId}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${sentenceQuizId}"></div>`
+                    } else {
+                        sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
+                    }
+                }
+                
                 /* 項目の改善ボタン */
                 let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
                 /* 項目のレンダリング */
@@ -277,6 +289,7 @@ function searchSuccess(data) {
                 chrome.runtime.sendMessage({ "action": "openOptionsPage" });
             });
         } else {
+            // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let notFound;
@@ -506,7 +519,6 @@ function renderUserStatus() {
 function asyncReviewReviewSetting(item) {
     /* 項目の復習設定 */
     let wordQuizId = item['quiz']['id']
-    console.log(wordQuizId)
     let reviewBtn = document.querySelector("#booqs-dict-review-" + wordQuizId);
     let reviewForm = reviewBtn.nextSibling;
     reviewBtn.addEventListener('click', function () {
@@ -514,21 +526,21 @@ function asyncReviewReviewSetting(item) {
         renderReviewForm(wordQuizId);
     });
     /* 例文の復習設定 */
+    if (item['sentence'] == null) return;
+
     let sentenceQuizId = item['sentence']['quiz']['id'];
-    if (sentenceQuizId) {
-        let sentenceReviewBtn = document.querySelector("#booqs-dict-review-" + sentenceQuizId);
-        let sentenceReviewForm = sentenceReviewBtn.nextSibling;
-        sentenceReviewBtn.addEventListener('click', function () {
-            sentenceReviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
-            renderReviewForm(sentenceQuizId);
-        });
-    }
+    let sentenceReviewBtn = document.querySelector("#booqs-dict-review-" + sentenceQuizId);
+    let sentenceReviewForm = sentenceReviewBtn.nextSibling;
+    sentenceReviewBtn.addEventListener('click', function () {
+        sentenceReviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
+        renderReviewForm(sentenceQuizId);
+    });
+    
 };
 
 // 復習設定フォームをレンダリングする。
 function renderReviewForm(quizId) {
     let reviewForm = document.querySelector("#booqs-dict-review-form-" + quizId);
-    console.log("review-form" + quizId);
     let port = chrome.runtime.connect({ name: "renderReviewForm" });
     port.postMessage({ action: "renderReviewForm", quizId: quizId });
     port.onMessage.addListener(function (msg) {
@@ -670,7 +682,7 @@ function createReviewSetting(quizId) {
             }
             let data = response.data;
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
-            reviewForm.innerHTML = ''
+            reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
             reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
         });

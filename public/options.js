@@ -1,3 +1,7 @@
+// booqsのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
+const booqsRootUrl = 'https://6de7-202-177-82-121.ngrok.io';
+
+
 // アクセスして一番最初に実行する関数。
 function initializePage() {
     let port = chrome.runtime.connect({ name: "inspectCurrentUser" });
@@ -92,7 +96,7 @@ function addEventToLogout() {
     let logoutBtn = document.querySelector("#logout-btn");
     let logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
-        let url = `https://www.booqs.net/ja/api/v1/extension/logout`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/sessions/logout`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -246,7 +250,7 @@ function addEventToLoginForm() {
         // let encodedEmail = encodeURIComponent(email);
         let password = document.querySelector("#booqs-password").value;
         // let encodedPassword = encodeURIComponent(password);
-        let url = `https://www.booqs.net/ja/api/v1/extension/sign_in`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/sessions/sign_in`;
         let params = {
             method: "POST",
             mode: 'cors',

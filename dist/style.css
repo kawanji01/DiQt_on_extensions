@@ -227,6 +227,10 @@ a #booqs-dict-logged-in-user {
   font-size: 12px;
   color: #6e6e6e;
 }
+.boqqs-dict-reminder-status p {
+  font-size: 12px;
+  margin: 8px 0;
+}
 /* 復習設定の削除ボタン */
 .booqs-dict-destroy-review-btn {
   display: block;
