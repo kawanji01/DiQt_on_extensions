@@ -32,7 +32,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                 respondSearch(port, msg.keyword)
                 break;
             case 'renderReviewForm':
-                respondReviewSetting(port, msg.wordId);
+                respondReviewSetting(port, msg.quizId);
                 break;
             case 'createReminder':
                 respondCreateReminder(port, msg.quizId, msg.settingNumber)
@@ -113,14 +113,15 @@ async function inspectCurrentUser(port) {
 
 
 //////// 復習フォームのレンダリング //////
-function fetchReviewSetting(wordId) {
+function fetchReviewSetting(quizId) {
+    console.log(quizId);
     return new Promise(resolve => {
-        let url = `https://www.booqs.net/ja/api/v1/extension/review_setting`;
+        let url = `${process.env.ROOT_URL}/ja/api/v1/extensions/reminders/review_setting`;
         let params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
-            body: JSON.stringify({ word_id: wordId }),
+            body: JSON.stringify({ quiz_id: quizId }),
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
@@ -140,8 +141,8 @@ function fetchReviewSetting(wordId) {
     });
 }
 
-async function respondReviewSetting(port, wordId) {
-    const data = await fetchReviewSetting(wordId);
+async function respondReviewSetting(port, quizId) {
+    const data = await fetchReviewSetting(quizId);
     port.postMessage({ data: data });
 }
 //////// 復習フォームのレンダリング //////
