@@ -219,9 +219,10 @@ function searchSuccess(data) {
                 /* 意味 */
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
                 /* 復習ボタン */
+                let wordQuizId = item['quiz']['id'];
                 let reviewBtn;
                 if (loginToken) {
-                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${item['id']}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${item['id']}"></div>`
+                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${wordQuizId}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${wordQuizId}"></div>`
                 } else {
                     reviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
                 }
@@ -232,8 +233,9 @@ function searchSuccess(data) {
                 let sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">例文</div></div>`
                 let sentence = `<div class="booqs-dict-explanation">${markNotation(item['sentence']['original'])}</div><div class="booqs-dict-explanation">${item['sentence']['translation']}</div>`
                 /* 例文の復習ボタン */
+                let sentenceQuizId = item['sentence']['quiz']['id'];
                 if (loginToken) {
-                    sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-sentence-review-${item['sentence_id']}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-sentence-review-form-${item['sentence_id']}"></div>`
+                    sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${sentenceQuizId}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-sentence-review-form-${sentenceQuizId}"></div>`
                 } else {
                     sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
                 }
@@ -503,30 +505,32 @@ function renderUserStatus() {
 // 拡張内で非同期で設定できる復習メニューを表示する
 function asyncReviewReviewSetting(item) {
     /* 項目の復習設定 */
-    let wordId = item['id']
-    let reviewBtn = document.querySelector("#booqs-dict-review-" + wordId);
+    let wordQuizId = item['quiz']['id']
+    console.log(wordQuizId)
+    let reviewBtn = document.querySelector("#booqs-dict-review-" + wordQuizId);
     let reviewForm = reviewBtn.nextSibling;
     reviewBtn.addEventListener('click', function () {
         reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
-        renderReviewForm(wordId);
+        renderReviewForm(wordQuizId);
     });
     /* 例文の復習設定 */
-    let sentenceId = item['sentence_id']
-    if (sentenceId) {
-        let sentenceReviewBtn = document.querySelector("#booqs-dict-sentence-review-" + sentenceId);
+    let sentenceQuizId = item['sentence']['quiz']['id'];
+    if (sentenceQuizId) {
+        let sentenceReviewBtn = document.querySelector("#booqs-dict-review-" + sentenceQuizId);
         let sentenceReviewForm = sentenceReviewBtn.nextSibling;
         sentenceReviewBtn.addEventListener('click', function () {
             sentenceReviewForm.innerHTML = `<div class="center"><div class="lds-ripple-booqs-dict"><div></div><div></div></div></div>`;
-            //renderReviewForm(sentenceId);
+            renderReviewForm(sentenceQuizId);
         });
     }
 };
 
 // 復習設定フォームをレンダリングする。
-function renderReviewForm(wordId) {
-    let reviewForm = document.querySelector("#booqs-dict-review-form-" + wordId);
+function renderReviewForm(quizId) {
+    let reviewForm = document.querySelector("#booqs-dict-review-form-" + quizId);
+    console.log("review-form" + quizId);
     let port = chrome.runtime.connect({ name: "renderReviewForm" });
-    port.postMessage({ action: "renderReviewForm", wordId: wordId });
+    port.postMessage({ action: "renderReviewForm", quizId: quizId });
     port.onMessage.addListener(function (msg) {
         let response = msg.data;
         if (response.status == '401') {
@@ -539,33 +543,34 @@ function renderReviewForm(wordId) {
     });
 }
 
+
 // 復習設定フォームのHTMLを返す関数。
 function reviewFormHtml(data) {
-    let wordId = data.word_id;
+    let quizId = data.quiz_id;
     let html;
     if (data.reminder_id) {
         html = `
         <div class="boqqs-dict-reminder-status">
         <p>復習予定：${data.review_day}</p>
         <p>復習設定：${reviewInterval(data.setting)}に復習する</p>  
-        <div class="booqs-dict-destroy-review-btn" id="booqs-dict-destroy-review-btn-${wordId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
+        <div class="booqs-dict-destroy-review-btn" id="booqs-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
         </div>      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" style="height: 40px;" required>
+<select id="booqs-dict-select-form-${quizId}" style="height: 40px;" required>
 	${createOptions(data)}
 </select>
 </div>
-<button class="booqs-dict-submit-review-btn" id="booqs-dict-update-review-btn-${wordId}">設定する</button>
-<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${wordId}"></div>`
+<button class="booqs-dict-submit-review-btn" id="booqs-dict-update-review-btn-${quizId}">設定する</button>
+<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${quizId}"></div>`
     } else {
         html = `      
 <div class="booqs-dict-select-form cp_sl01">
-<select id="booqs-dict-select-form-${wordId}" style="height: 40px;" required>
+<select id="booqs-dict-select-form-${quizId}" style="height: 40px;" required>
 	${createOptions(data)}
 </select>
 </div>
-<button class="booqs-dict-submit-review-btn" id="booqs-dict-create-review-btn-${wordId}">設定する</button>
-<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${wordId}"></div>`
+<button class="booqs-dict-submit-review-btn" id="booqs-dict-create-review-btn-${quizId}">設定する</button>
+<div class="booqs-dict-recommend-premium" id="booqs-dict-recommend-premium-${quizId}"></div>`
     }
     return html;
 }
@@ -632,30 +637,29 @@ function createOptions(data) {
 
 // 復習設定フォームにイベントを設定する。
 function addEventToForm(data) {
-    let wordId = data.word_id;
     let quizId = data.quiz_id;
     if (data.reminder_id) {
         // 復習設定を更新するための設定
-        updateReviewSetting(wordId, quizId);
+        updateReviewSetting(quizId);
         // 復習設定を削除するための設定
-        destroyReviewSetting(wordId, quizId);
+        destroyReviewSetting(quizId);
     } else {
         // 復習設定を新規作成するための設定
-        createReviewSetting(wordId, quizId);
+        createReviewSetting(quizId);
     }
 
     if (data.premium == 'false') {
         // 有料機能にロックをかける。また無料会員がプレミアム会員向けのoptionを選択したときにプレミアムプランを紹介する。
-        recommendPremium(wordId);
+        recommendPremium(quizId);
     }
 }
 
 // 復習設定を新規作成する
-function createReviewSetting(wordId, quizId) {
-    let submitBtn = document.querySelector("#booqs-dict-create-review-btn-" + wordId);
+function createReviewSetting(quizId) {
+    let submitBtn = document.querySelector("#booqs-dict-create-review-btn-" + quizId);
     submitBtn.addEventListener('click', function () {
         submitBtn.textContent = '設定中...'
-        let settingNumber = document.querySelector("#booqs-dict-select-form-" + wordId).value;
+        let settingNumber = document.querySelector("#booqs-dict-select-form-" + quizId).value;
         let port = chrome.runtime.connect({ name: "createReminder" });
         port.postMessage({ action: "createReminder", quizId: quizId, settingNumber: settingNumber });
         port.onMessage.addListener(function (msg) {
@@ -665,7 +669,7 @@ function createReviewSetting(wordId, quizId) {
                 return
             }
             let data = response.data;
-            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = ''
             let reviewBtn = reviewForm.previousSibling;
             reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
@@ -674,11 +678,11 @@ function createReviewSetting(wordId, quizId) {
 }
 
 // 復習設定を更新する
-function updateReviewSetting(wordId, quizId) {
-    let submitBtn = document.querySelector("#booqs-dict-update-review-btn-" + wordId);
+function updateReviewSetting(quizId) {
+    let submitBtn = document.querySelector("#booqs-dict-update-review-btn-" + quizId);
     submitBtn.addEventListener('click', function () {
         submitBtn.textContent = '設定中...'
-        let settingNumber = document.querySelector("#booqs-dict-select-form-" + wordId).value;
+        let settingNumber = document.querySelector("#booqs-dict-select-form-" + quizId).value;
         let port = chrome.runtime.connect({ name: "updateReminder" });
         port.postMessage({ action: "updateReminder", quizId: quizId, settingNumber: settingNumber });
         port.onMessage.addListener(function (msg) {
@@ -688,7 +692,7 @@ function updateReviewSetting(wordId, quizId) {
                 return
             }
             let data = response.data;
-            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
             reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
@@ -697,8 +701,8 @@ function updateReviewSetting(wordId, quizId) {
 }
 
 // 復習設定を削除する
-function destroyReviewSetting(wordId, quizId) {
-    let deleteBtn = document.querySelector(`#booqs-dict-destroy-review-btn-${wordId}`);
+function destroyReviewSetting(quizId) {
+    let deleteBtn = document.querySelector(`#booqs-dict-destroy-review-btn-${quizId}`);
     deleteBtn.addEventListener('click', function () {
         deleteBtn.textContent = '設定中...';
         let port = chrome.runtime.connect({ name: "destroyReminder" });
@@ -710,7 +714,7 @@ function destroyReviewSetting(wordId, quizId) {
                 return
             }
             let data = response.data;
-            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.word_id);
+            let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
             reviewBtn.textContent = `復習する`
@@ -719,10 +723,10 @@ function destroyReviewSetting(wordId, quizId) {
 }
 
 // プレミアム会員向けのoptionが選択されたときに、プレミアムプラン説明ページへのリンクを表示する。
-function recommendPremium(wordId) {
-    const textWrapper = document.querySelector(`#booqs-dict-recommend-premium-${wordId}`);
+function recommendPremium(quizId) {
+    const textWrapper = document.querySelector(`#booqs-dict-recommend-premium-${quizId}`);
     const submitBtn = textWrapper.previousElementSibling;
-    const select = document.querySelector(`#booqs-dict-select-form-${wordId}`);
+    const select = document.querySelector(`#booqs-dict-select-form-${quizId}`);
     let settingNumber = Number(select.value);
     const recommendationHtml = `<p>プレミアム会員になることで、復習を自由に設定できるようになります！</p>
     <p><a href="https://www.booqs.net/ja/select_plan" target="_blank" rel="noopener"><i class="far fa-crown"></i> プレミアムプランの詳細を見る</a></p>`
