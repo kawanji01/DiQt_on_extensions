@@ -35,7 +35,7 @@ function toggleFloatingWindow() {
         <div id="booqs-dict-logged-in-user" style="font-size: 10px;">　</div>
         </a>
         <form method="get" action=""><input type="text" name="keyword" id="booqs-dict-search-form"></form>
-        <div id="booqs-dict-search-status">
+        <div id="booqs-dict-search-status" style="text-align: left; color: #6e6e6e;">
         "<span id="booqs-dict-search-keyword" style="font-size: 12px;"></span>"<span id="booqs-dict-search-status-text"></span>
         </div>
         <div id="search-booqs-dict-results"></div>
@@ -252,7 +252,7 @@ function searchSuccess(data) {
                 }
                 
                 /* 項目の改善ボタン */
-                let linkToImprove = `<a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a>`
+                let linkToImprove = `<div style="text-align: left;"><a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a></div>`
                 /* 項目のレンダリング */
                 let dict = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceLabel + sentence + sentenceReviewBtn + linkToImprove;
                 resultForm.insertAdjacentHTML('beforeend', dict);
@@ -292,16 +292,17 @@ function searchSuccess(data) {
             // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            let notFound;
-            let createNewWord;
+            let notFound = ``;
+            let createNewWord = ``;
+            let searchWeb = ``;
             if (keyword.length < 50 && keyword.length > 0) {
                 notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
                 createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
                 <div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
-            } else {
-                notFound = ``;
-                createNewWord = ``;
-            }
+                searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
+            <div class="booqs-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+            } 
+            
             let translationForm;
             if (loginToken) {
                 translationForm = `<div id="booqs-dict-translation-form">
@@ -315,7 +316,7 @@ function searchSuccess(data) {
                 <p><a id="booqs-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
                 </div>`
             }
-            let result = notFound + createNewWord + translationForm
+            let result = notFound + createNewWord + searchWeb + translationForm
             resultForm.insertAdjacentHTML('afterbegin', result);
             addEventToTranslationForm(loginToken, keyword);
         }
