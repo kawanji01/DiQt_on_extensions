@@ -1,5 +1,5 @@
 // booqsのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-const booqsRootUrl = 'https://6de7-202-177-82-121.ngrok.io';
+const booqsRootUrl = 'https://www.booqs.net';
 
 
 // アクセスして一番最初に実行する関数。
