@@ -14,6 +14,7 @@
 /* ログインボタン・ログインユーザー名の表示 */
 a #booqs-dict-logged-in-user {
   color: #27ae60;
+  text-align: left;
 }
 
 /* 検索ボックスのデザイン */
@@ -33,6 +34,11 @@ a #booqs-dict-logged-in-user {
   margin-top: 8px;
   margin-bottom: 16px;
 }
+input#booqs-dict-search-form {
+  width: 100%;
+  min-height: 24px;
+  max-width: none;
+}
 
 #booqs-dict-search-form:focus {
   border: 1px solid #2ecc71;
@@ -46,6 +52,7 @@ a #booqs-dict-logged-in-user {
   font-size: 15px;
   font-weight: bold;
   margin: 8px 0 8px 4px;
+  text-align: left;
 }
 
 /* 見出しの読み上げボタン */
@@ -72,6 +79,7 @@ a #booqs-dict-logged-in-user {
   font-size: 13px;
   font-weight: bold;
   margin: 8px 0 8px 4px;
+  text-align: left;
 }
 
 /* 解説 */
@@ -82,6 +90,7 @@ a #booqs-dict-logged-in-user {
   font-size: 12px;
   margin-top: 8px;
   margin-bottom: 8px;
+  text-align: left;
 }
 
 /* 復習ボタン */
@@ -226,6 +235,11 @@ a #booqs-dict-logged-in-user {
   margin: 16px auto;
   font-size: 12px;
   color: #6e6e6e;
+  text-align: left;
+}
+.boqqs-dict-reminder-status p {
+  font-size: 12px;
+  margin: 8px 0;
 }
 /* 復習設定の削除ボタン */
 .booqs-dict-destroy-review-btn {
