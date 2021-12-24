@@ -131,7 +131,7 @@ function AddEventToPopupDisplayed() {
     let checkboxText = document.querySelector('#booqs-dict-popup-displayed-text');
     let toggleRequest = () => {
         checkboxText.textContent = '設定中...';
-        let url = `https://www.booqs.net/ja/api/v1/extension/update_popup_displayed`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/users/update_popup_displayed`;
         let params = {
             method: "POST",
             mode: 'cors',

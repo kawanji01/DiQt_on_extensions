@@ -59,7 +59,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 ///////// 現在のユーザーを取得する ///////
 function fetchCurrentUser() {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extension/inspect_current_user`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/users/fetch_current_user`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -259,7 +259,7 @@ async function respondDestroyReminder(port, quizId) {
 ///// Google翻訳 /////
 function requestGoogleTranslation(keyword) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extension/google_translate`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/words/google_translate`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -295,7 +295,7 @@ async function respondGoogleTranslation(port, keyword) {
 ///// Deepl翻訳 /////
 function requestDeeplTranslation(keyword) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extension/deepl_translate`;
+        let url = `${booqsRootUrl}/ja/api/v1/extensions/words/deepl_translate`;
         let params = {
             method: "POST",
             mode: 'cors',
