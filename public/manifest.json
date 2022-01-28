@@ -1,6 +1,6 @@
 {
-    "name": "BooQs",
-    "version": "1.0.1.8",
+    "name": " BooQs拡張機能 - 調べたら忘れない英和辞書",
+    "version": "1.0.1.9",
     "manifest_version": 3,
     "description": "BooQsの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
     "icons": {
