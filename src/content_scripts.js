@@ -204,18 +204,17 @@ function searchWord(keyword) {
 function searchSuccess(data) {
     let resultForm = document.querySelector('#search-booqs-dict-results');
     resultForm.innerHTML = '';
+    
     chrome.storage.local.get(['booqsDictToken'], function (result) {
         let loginToken = result.booqsDictToken
-        console.log(data);
         if (data['data'] != null) {
             data['data'].forEach(function (item, index, array) {
                 let tags = createTagsHtml(item['tags']);
                 let wordURL = `https://www.booqs.net/ja/words/${item['id']}`
                 /* タイトル */
                 let entry = `<div class="booqs-dict-entry">
-                <span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
-                <a href="${wordURL}" target="_blank" rel="noopener" style="color: #6e6e6e;"><i class="far fa-external-link-alt" style="float: right; margin-top: 4px; margin-right: 8px;"></i></a>
-                </div>`;
+                                <span>${item['entry']}</span><button class="booqs-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
+                             </div>`;
                 /* 意味 */
                 let meaning = '<div class="booqs-dict-meaning">' + item['meaning'] + '</div>';
                 /* 復習ボタン */
@@ -238,6 +237,7 @@ function searchSuccess(data) {
                 let sentence = '';
                 let sentenceQuizId = '';
                 let sentenceReviewBtn = '';
+                let linkToImproveSentence = '';
                 if (item['sentence']) {
                     // 例文と翻訳
                     sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="booqs-dict-label">例文</div></div>`
@@ -249,12 +249,20 @@ function searchSuccess(data) {
                     } else {
                         sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
                     }
+                    /* 例文のURL */
+                    let sentenceUrl = `https://www.booqs.net/ja/sentences/${item['id']}`
+                    /* 例文の改善ボタン */
+                    linkToImproveSentence = liknToImproveHtml(sentenceUrl, 'この例文を改善する');
                 }
                 
                 /* 項目の改善ボタン */
-                let linkToImprove = `<div style="text-align: left;"><a href="${wordURL + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve">この項目を改善する</a></div>`
+                let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を改善する');
+                /* 項目改善ボタンの上の余白 */
+                let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
+                /* 項目と次の項目の間の余白 */
+                let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
                 /* 項目のレンダリング */
-                let dict = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceLabel + sentence + sentenceReviewBtn + linkToImprove;
+                let dict = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceLabel + sentence + sentenceReviewBtn + linkToImproveSentence + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
                 resultForm.insertAdjacentHTML('beforeend', dict);
 
                 // ログインしていた場合に、拡張内で非同期で復習を設定できるようにする。
@@ -275,6 +283,13 @@ function searchSuccess(data) {
             activateClickSearch(resultForm);
             // 項目の読み上げを有効にする。
             enableTTS(resultForm);
+            // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
+            let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
+            if (data['data'][0]['entry'] != keyword) {
+                let notFound = notFoundFormHtml(keyword);
+                resultForm.insertAdjacentHTML('beforeend', notFound);
+            }
+
         } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
             /////// CORSエラーの再現方法 ////////
             // 1, アイコンのコンテキストメニューから「拡張機能を管理」へ飛ぶ。
@@ -293,14 +308,10 @@ function searchSuccess(data) {
             let keyword = document.querySelector('#booqs-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let notFound = ``;
-            let createNewWord = ``;
-            let searchWeb = ``;
+            //let createNewWord = ``;
+            //let searchWeb = ``;
             if (keyword.length < 50 && keyword.length > 0) {
-                notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`
-                createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
-                <div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`
-                searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
-            <div class="booqs-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+                notFound = notFoundFormHtml(keyword);
             } 
             
             let translationForm;
@@ -316,13 +327,33 @@ function searchSuccess(data) {
                 <p><a id="booqs-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
                 </div>`
             }
-            let result = notFound + createNewWord + searchWeb + translationForm
+            let result = notFound + translationForm
             resultForm.insertAdjacentHTML('afterbegin', result);
             addEventToTranslationForm(loginToken, keyword);
         }
     });
 
 
+}
+
+// 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
+function liknToImproveHtml(url, label) {
+    let html = `<div style="display: flex;">
+                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">${label}</a>
+                    <a href="${url}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">詳細</a>
+                </div>`;
+    return html;
+}
+
+// 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
+function notFoundFormHtml(keyword) {
+    let notFound = `<div class="booqs-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`;
+    let createNewWord = `<a href="https://www.booqs.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
+                <div class="booqs-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
+    let searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
+            <div class="booqs-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+    let html = notFound + createNewWord + searchWeb;
+    return html;
 }
 
 // 翻訳フォームにイベントを付与
