@@ -221,9 +221,9 @@ function searchSuccess(data) {
                 let wordQuizId = item['quiz']['id'];
                 let reviewBtn;
                 if (loginToken) {
-                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${wordQuizId}" style="font-weight: bold;">復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${wordQuizId}"></div>`
+                    reviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${wordQuizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${wordQuizId}"></div>`
                 } else {
-                    reviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">復習する</div></a>`
+                    reviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div></a>`
                 }
                 /* 解説 */
                 let explanationLabel = '';
@@ -245,9 +245,9 @@ function searchSuccess(data) {
                     /* 例文の復習ボタン */
                     sentenceQuizId = item['sentence']['quiz']['id'];
                     if (loginToken) {
-                        sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${sentenceQuizId}" style="font-weight: bold;">例文を復習する</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${sentenceQuizId}"></div>`
+                        sentenceReviewBtn = `<div class="booqs-dict-async-review-btn booqs-dict-review-btn" id="booqs-dict-review-${sentenceQuizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>例文を覚える</div><div class="booqs-dict-review-form" id="booqs-dict-review-form-${sentenceQuizId}"></div>`
                     } else {
-                        sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;">例文を復習する</div></a>`
+                        sentenceReviewBtn = `<div class="booqs-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>例文を覚える</div></a>`
                     }
                     /* 例文のURL */
                     let sentenceUrl = `https://www.booqs.net/ja/sentences/${item['id']}`
@@ -339,8 +339,8 @@ function searchSuccess(data) {
 // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
 function liknToImproveHtml(url, label) {
     let html = `<div style="display: flex;">
-                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">${label}</a>
-                    <a href="${url}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">詳細</a>
+                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-edit"></i>${label}</a>
+                    <a href="${url}" target="_blank" rel="noopener" class="booqs-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>詳細</a>
                 </div>`;
     return html;
 }
@@ -716,7 +716,7 @@ function createReviewSetting(quizId) {
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
+            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${reviewInterval(data.setting)}に復習する`
         });
     });
 }
@@ -739,7 +739,7 @@ function updateReviewSetting(quizId) {
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.textContent = `${reviewInterval(data.setting)}に復習する`
+            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${reviewInterval(data.setting)}に復習する`
         });
     });
 }
@@ -761,7 +761,7 @@ function destroyReviewSetting(quizId) {
             let reviewForm = document.querySelector("#booqs-dict-review-form-" + data.quiz_id);
             reviewForm.innerHTML = '';
             let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.textContent = `復習する`
+            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える`
         });
     });
 }
