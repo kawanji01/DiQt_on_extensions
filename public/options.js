@@ -1,5 +1,5 @@
-// booqsのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-const booqsRootUrl = 'https://www.booqs.net';
+// diqtのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
+const diqtRootUrl = 'https://www.diqt.net';
 
 
 // アクセスして一番最初に実行する関数。
@@ -19,20 +19,20 @@ function initializePage() {
 
 // localStorageにユーザーデータを格納する。
 function setUserData(data) {
-    chrome.storage.local.set({ booqsDictUserName: data['name'] });
-    chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ booqsDictToken: data['token'] });
-    chrome.storage.local.set({ booqsDictPopupDisplayed: data['popup_displayed'] });
+    chrome.storage.local.set({ diqtDictUserName: data['name'] });
+    chrome.storage.local.set({ diqtDictIconUrl: data['icon_url'] });
+    chrome.storage.local.set({ diqtDictPublicUid: data['public_uid'] });
+    chrome.storage.local.set({ diqtDictToken: data['token'] });
+    chrome.storage.local.set({ diqtDictPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
 function resetUserData() {
-    chrome.storage.local.set({ booqsDictUserName: '' });
-    chrome.storage.local.set({ booqsDictIconUrl: '' });
-    chrome.storage.local.set({ booqsDictPublicUid: '' });
-    chrome.storage.local.set({ booqsDictToken: '' });
-    chrome.storage.local.set({ booqsDictPopupDisplayed: '' });
+    chrome.storage.local.set({ diqtDictUserName: '' });
+    chrome.storage.local.set({ diqtDictIconUrl: '' });
+    chrome.storage.local.set({ diqtDictPublicUid: '' });
+    chrome.storage.local.set({ diqtDictToken: '' });
+    chrome.storage.local.set({ diqtDictPopupDisplayed: '' });
 }
 
 
@@ -42,11 +42,11 @@ function renderMypage() {
     let iconUrl = '';
     let userName = '';
     let popupDisplayed = '';
-    chrome.storage.local.get(['booqsDictPublicUid', 'booqsDictIconUrl', 'booqsDictUserName', 'booqsDictPopupDisplayed'], function (result) {
-        uid = result.booqsDictPublicUid;
-        iconUrl = result.booqsDictIconUrl;
-        userName = result.booqsDictUserName;
-        popupDisplayed = result.booqsDictPopupDisplayed;
+    chrome.storage.local.get(['diqtDictPublicUid', 'diqtDictIconUrl', 'diqtDictUserName', 'diqtDictPopupDisplayed'], function (result) {
+        uid = result.diqtDictPublicUid;
+        iconUrl = result.diqtDictIconUrl;
+        userName = result.diqtDictUserName;
+        popupDisplayed = result.diqtDictPopupDisplayed;
         let checked = ''
         if (popupDisplayed) {
             checked = 'checked';
@@ -67,14 +67,14 @@ function renderMypage() {
     </h1>
 
     <dic class="block my-3">
-<label class="checkbox" id="booqs-dict-popup-displayed">
-  <input type="checkbox" id="booqs-dict-popup-displayed-checkbox" ${checked}>
-  <span id="booqs-dict-popup-displayed-text">テキストを選択したときにポップアップを表示する。</span>
+<label class="checkbox" id="diqt-dict-popup-displayed">
+  <input type="checkbox" id="diqt-dict-popup-displayed-checkbox" ${checked}>
+  <span id="diqt-dict-popup-displayed-text">テキストを選択したときにポップアップを表示する。</span>
 </label>
     </div>
   
 <div class="block has-text-centered">
-  <a href="https://www.booqs.net/ja/users/${uid}" target="_blank" rel="noopener">
+  <a href="https://www.diqt.net/ja/users/${uid}" target="_blank" rel="noopener">
   <button class="button is-warning is-light">マイページ</button>
   </a>
 </div>
@@ -96,7 +96,7 @@ function addEventToLogout() {
     let logoutBtn = document.querySelector("#logout-btn");
     let logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/sessions/logout`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/sessions/logout`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -126,12 +126,12 @@ function addEventToLogout() {
 
 // ポップアップの表示・非表示チェックボックスにイベントを追加
 function AddEventToPopupDisplayed() {
-    let checkboxLabel = document.querySelector('#booqs-dict-popup-displayed');
-    let checkbox = document.querySelector('#booqs-dict-popup-displayed-checkbox');
-    let checkboxText = document.querySelector('#booqs-dict-popup-displayed-text');
+    let checkboxLabel = document.querySelector('#diqt-dict-popup-displayed');
+    let checkbox = document.querySelector('#diqt-dict-popup-displayed-checkbox');
+    let checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
     let toggleRequest = () => {
         checkboxText.textContent = '設定中...';
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/users/update_popup_displayed`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/users/update_popup_displayed`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -149,7 +149,7 @@ function AddEventToPopupDisplayed() {
             .then((data) => {
                 checkbox.checked = data.data.popup_displayed;
                 checkboxText.textContent = 'テキストを選択したときにポップアップを表示する。'
-                chrome.storage.local.set({ booqsDictPopupDisplayed: data.data.popup_displayed });
+                chrome.storage.local.set({ diqtDictPopupDisplayed: data.data.popup_displayed });
             })
             .catch((error) => {
                 console.log(error);
@@ -179,7 +179,7 @@ function renderLoginForm() {
   <div class="control">
     <input
       class="input"
-      id="booqs-email"
+      id="diqt-email"
       type="email"
       placeholder="メールアドレスを入力してください。"
       value=""
@@ -192,7 +192,7 @@ function renderLoginForm() {
   <div class="control">
     <input
       class="input"
-      id="booqs-password"
+      id="diqt-password"
       type="password"
       placeholder="パスワードを入力してください。"
       value=""
@@ -203,7 +203,7 @@ function renderLoginForm() {
   type="button"
   value="ログインする"
   class="button is-success has-text-weight-bold is-block is-medium mt-5"
-  id="booqs-login-btn"
+  id="diqt-login-btn"
   style="width: 100%"
 />
 </form>
@@ -213,21 +213,21 @@ function renderLoginForm() {
 </h3>
 <div class="columns has-text-centered">
   <div class="column is-three-fifths is-offset-one-fifth">
-    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-danger my-3 is-medium is-fullwidth has-text-weight-bold">Googleで続ける</button>
     </a>
 
-    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-info my-3 is-medium is-fullwidth has-text-weight-bold">Twitterで続ける</button>
     </a>
 
-    <a href="https://www.booqs.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-black my-3 is-medium is-fullwidth has-text-weight-bold">Appleで続ける</button>
     </a>
 
     <p>　</p>
     <p class="my-5 has-text-weight-bold">
-        アカウントを持っていませんか？ <a href="https://www.booqs.net/ja/users/new" target="_blank" rel="noopener" style="color: #f79c4f;">新規登録</a
+        アカウントを持っていませんか？ <a href="https://www.diqt.net/ja/users/new" target="_blank" rel="noopener" style="color: #f79c4f;">新規登録</a
         >
     </p>
 
@@ -243,14 +243,14 @@ function renderLoginForm() {
 
 // ログインフォームに、ログインのためのイベントを追加する
 function addEventToLoginForm() {
-    let btn = document.querySelector("#booqs-login-btn");
+    let btn = document.querySelector("#diqt-login-btn");
     const postFetch = () => {
-        let email = document.querySelector("#booqs-email").value;
+        let email = document.querySelector("#diqt-email").value;
         // emailに+が含まれていると空白文字として解釈されてしまうのでエンコードしておく。
         // let encodedEmail = encodeURIComponent(email);
-        let password = document.querySelector("#booqs-password").value;
+        let password = document.querySelector("#diqt-password").value;
         // let encodedPassword = encodeURIComponent(password);
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/sessions/sign_in`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/sessions/sign_in`;
         let params = {
             method: "POST",
             mode: 'cors',

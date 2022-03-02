@@ -1,8 +1,8 @@
 日本語 | [English](./README-en.md)
 
-# BooQs Chrome Extension
+# DiQt Chrome Extension
 
-BooQsの辞書がWebブラウザで利用できるようになる拡張機能です。
+DiQtの辞書がWebブラウザで利用できるようになる拡張機能です。
 
 [Google Chrome Store URL](https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj?hl=ja) 
 

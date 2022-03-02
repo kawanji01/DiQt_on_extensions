@@ -1,8 +1,8 @@
 {
-    "name": " BooQs拡張機能 - 調べたら忘れない英和辞書",
-    "version": "1.0.1.9",
+    "name": "DiQt拡張機能 - 調べたら忘れない英和辞書",
+    "version": "1.0.2.1",
     "manifest_version": 3,
-    "description": "BooQsの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
+    "description": "DiQtの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",
@@ -24,13 +24,13 @@
 
     }],
     "permissions": ["storage", "unlimitedStorage"],
-    "host_permissions": ["https://www.booqs.net/"],
+    "host_permissions": ["https://www.diqt.net/"],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
         "default_icon": "/icon48.png",
-        "default_title": "BooQs"
+        "default_title": "DiQt"
     },
     "options_page": "options.html",
     "web_accessible_resources": [{
