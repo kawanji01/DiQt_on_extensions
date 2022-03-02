@@ -1,8 +1,8 @@
  [日本語](./README.md) | English
 
-# BooQs Chrome Extension
+# DiQt Chrome Extension
 
-This extension is for using BooQs on web.
+This extension is for using DiQt on web.
 
 With the extension, You can quickly search a unknown word in an article you are reading on the browser.
 And You can set a reminder to review for that word.

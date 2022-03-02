@@ -1,5 +1,5 @@
-// booqsのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
-const booqsRootUrl = 'https://www.booqs.net';
+// diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
+const diqtRootUrl = 'https://www.diqt.net';
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
@@ -59,7 +59,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 ///////// 現在のユーザーを取得する ///////
 function fetchCurrentUser() {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/users/fetch_current_user`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/users/inspect_current_user`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -90,20 +90,20 @@ function fetchCurrentUser() {
 
 // is_logged_inやsign_inのJSONをlocalStorageに格納する。
 function setUserData(data) {
-    chrome.storage.local.set({ booqsDictUserName: data['name'] });
-    chrome.storage.local.set({ booqsDictIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ booqsDictPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ booqsDictToken: data['token'] });
-    chrome.storage.local.set({ booqsDictPopupDisplayed: data['popup_displayed'] });
+    chrome.storage.local.set({ diqtDictUserName: data['name'] });
+    chrome.storage.local.set({ diqtDictIconUrl: data['icon_url'] });
+    chrome.storage.local.set({ diqtDictPublicUid: data['public_uid'] });
+    chrome.storage.local.set({ diqtDictToken: data['token'] });
+    chrome.storage.local.set({ diqtDictPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
 function resetUserData() {
-    chrome.storage.local.set({ booqsDictUserName: '' });
-    chrome.storage.local.set({ booqsDictIconUrl: '' });
-    chrome.storage.local.set({ booqsDictPublicUid: '' });
-    chrome.storage.local.set({ booqsDictToken: '' });
-    chrome.storage.local.set({ booqsDictPopupDisplayed: '' });
+    chrome.storage.local.set({ diqtDictUserName: '' });
+    chrome.storage.local.set({ diqtDictIconUrl: '' });
+    chrome.storage.local.set({ diqtDictPublicUid: '' });
+    chrome.storage.local.set({ diqtDictToken: '' });
+    chrome.storage.local.set({ diqtDictPopupDisplayed: '' });
 }
 
 async function inspectCurrentUser(port) {
@@ -119,7 +119,7 @@ async function inspectCurrentUser(port) {
 function fetchReviewSetting(quizId) {
     console.log(quizId);
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/reminders/review_setting`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/review_setting`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -154,7 +154,7 @@ async function respondReviewSetting(port, quizId) {
 /////// 復習設定の新規作成 ///////
 function postCreateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/reminders/create_review`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/create_review`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -189,7 +189,7 @@ async function respondCreateReminder(port, quizId, settingNumber) {
 /////// 復習設定の更新 ///////
 function postUpdateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/reminders/update_review`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/update_review`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -224,7 +224,7 @@ async function respondUpdateReminder(port, quizId, settingNumber) {
 ////// 復習設定の削除 ///////
 function requestDestroyReminder(quizId) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/reminders/destroy_review`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/destroy_review`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -259,7 +259,7 @@ async function respondDestroyReminder(port, quizId) {
 ///// Google翻訳 /////
 function requestGoogleTranslation(keyword) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/words/google_translate`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/words/google_translate`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -295,7 +295,7 @@ async function respondGoogleTranslation(port, keyword) {
 ///// Deepl翻訳 /////
 function requestDeeplTranslation(keyword) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/ja/api/v1/extensions/words/deepl_translate`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/words/deepl_translate`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -330,7 +330,7 @@ async function respondDeepLTranslation(port, keyword) {
 ////// 検索 //////
 function requestSearch(keyword) {
     return new Promise(resolve => {
-        let url = `${booqsRootUrl}/api/v1/extensions/words/search`;
+        let url = `${diqtRootUrl}/api/v1/extensions/words/search`;
         let params = {
             method: "POST",
             mode: 'cors',
