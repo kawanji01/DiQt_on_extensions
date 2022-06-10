@@ -1,12 +1,15 @@
 日本語 | [English](./README-en.md)
 
 # DiQt Chrome Extension
+![PromotionTile Large_2x](https://user-images.githubusercontent.com/44082240/173001788-b6ac2fb0-09dd-42f4-a876-ea4d3c12111f.png)
+
+
 
 DiQtの辞書がWebブラウザで利用できるようになる拡張機能です。
 
 [Google Chrome Store URL](https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj?hl=ja) 
 
-ご要望・バグなど見つけましたら、お気軽にIssue・PullRequestを投げていただければ嬉しいです。
+ご要望・バグなど見つけましたら、お気軽にIssue・PullRequestを投げていただければ嬉しいです！
 
 # How to use on local
 
