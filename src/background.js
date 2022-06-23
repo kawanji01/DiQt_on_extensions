@@ -154,7 +154,7 @@ async function respondReviewSetting(port, quizId) {
 /////// 復習設定の新規作成 ///////
 function postCreateReminder(quizId, settingNumber) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/create_review`;
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews`;
         let params = {
             method: "POST",
             mode: 'cors',
