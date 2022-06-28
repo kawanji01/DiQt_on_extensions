@@ -1,5 +1,6 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = 'https://www.diqt.net';
+//const diqtRootUrl = 'https://www.diqt.net';
+const diqtRootUrl = 'https://57c9-202-177-82-121.ngrok.io';
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
@@ -34,17 +35,14 @@ chrome.runtime.onConnect.addListener(function (port) {
             case 'search':
                 respondSearch(port, msg.keyword)
                 break;
-            case 'renderReviewForm':
-                respondReviewSetting(port, msg.quizId);
+            case 'createReview':
+                respondCreateReview(port, msg.quizId)
                 break;
-            case 'createReminder':
-                respondCreateReminder(port, msg.quizId, msg.settingNumber)
+            case 'updateReview':
+                respondUpdateReview(port, msg.reviewId, msg.settingNumber);
                 break;
-            case 'updateReminder':
-                respondUpdateReminder(port, msg.quizId, msg.settingNumber);
-                break;
-            case 'destroyReminder':
-                respondDestroyReminder(port, msg.quizId);
+            case 'destroyReview':
+                respondDestroyReview(port, msg.reviewId);
                 break;
             case 'googleTranslation':
                 respondGoogleTranslation(port, msg.keyword)
@@ -152,79 +150,9 @@ async function respondReviewSetting(port, quizId) {
 
 
 /////// 復習設定の新規作成 ///////
-function postCreateReminder(quizId, settingNumber) {
+function postCreateReview(quizId) {
     return new Promise(resolve => {
         let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews`;
-        let params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        };
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                console.log(error);
-                resolve(error);
-            });
-    });
-}
-
-async function respondCreateReminder(port, quizId, settingNumber) {
-    const data = await postCreateReminder(quizId, settingNumber);
-    port.postMessage({ data: data });
-}
-/////// 復習設定の新規作成 ///////
-
-
-/////// 復習設定の更新 ///////
-function postUpdateReminder(quizId, settingNumber) {
-    return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/update_review`;
-        let params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ quiz_id: quizId, setting_number: settingNumber }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        };
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                console.log(error);
-                resolve(error);
-            });
-    });
-}
-
-async function respondUpdateReminder(port, quizId, settingNumber) {
-    const data = await postUpdateReminder(quizId, settingNumber);
-    port.postMessage({ data: data });
-}
-/////// 復習設定の更新 ///////
-
-
-////// 復習設定の削除 ///////
-function requestDestroyReminder(quizId) {
-    return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/destroy_review`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -249,8 +177,77 @@ function requestDestroyReminder(quizId) {
     });
 }
 
-async function respondDestroyReminder(port, quizId) {
-    const data = await requestDestroyReminder(quizId);
+async function respondCreateReview(port, quizId) {
+    const data = await postCreateReview(quizId);
+    port.postMessage({ data: data });
+}
+/////// 復習設定の新規作成 ///////
+
+
+/////// 復習設定の更新 ///////
+function postUpdateReview(reviewId, settingNumber) {
+    return new Promise(resolve => {
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
+        let params = {
+            method: "PATCH",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ interval_setting: settingNumber }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error);
+                resolve(error);
+            });
+    });
+}
+
+async function respondUpdateReview(port, quizId, settingNumber) {
+    const data = await postUpdateReview(quizId, settingNumber);
+    port.postMessage({ data: data });
+}
+/////// 復習設定の更新 ///////
+
+
+////// 復習設定の削除 ///////
+function requestDestroyReview(reviewId) {
+    return new Promise(resolve => {
+        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
+        let params = {
+            method: "DELETE",
+            mode: 'cors',
+            credentials: 'include',
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error);
+                resolve(error);
+            });
+    });
+}
+
+async function respondDestroyReview(port, reviewId) {
+    const data = await requestDestroyReview(reviewId);
     port.postMessage({ data: data });
 }
 ////// 復習設定の削除 ///////
