@@ -217,7 +217,7 @@ function searchSuccess(data) {
     let resultForm = document.querySelector('#search-diqt-dict-results');
     resultForm.innerHTML = '';
     let words = data.words;
-    console.log(words);
+    let dictionary = data.dictionary;
 
     chrome.storage.local.get(['diqtDictToken'], function (result) {
         let loginToken = result.diqtDictToken;
@@ -269,7 +269,7 @@ function searchSuccess(data) {
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let notFound = ``;
             if (keyword.length < 50 && keyword.length > 0) {
-                notFound = notFoundFormHtml(keyword);
+                notFound = notFoundFormHtml(keyword, dictionary);
             }
 
             let translationForm = createTranslationForm(loginToken);
@@ -648,9 +648,9 @@ function liknToImproveHtml(url, label) {
 }
 
 // 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
-function notFoundFormHtml(keyword) {
+function notFoundFormHtml(keyword, dictionary) {
     let notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`;
-    let createNewWord = `<a href="https://www.diqt.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
+    let createNewWord = `<a href="https://www.diqt.net/ja/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
                 <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
     let searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
             <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
