@@ -497,7 +497,7 @@ function addEventToForm(review) {
     updateReviewSetting(quizId, review);
     // 復習設定を削除するための設定
     destroyReviewSetting(quizId, review);
-    if (review.premium == 'false') {
+    if (review.premium == false) {
         // 有料機能にロックをかける。また無料会員がプレミアム会員向けのoptionを選択したときにプレミアムプランを紹介する。
         recommendPremium(quizId);
     }
@@ -591,7 +591,9 @@ function recommendPremium(quizId) {
     const select = document.querySelector(`#diqt-dict-select-form-${quizId}`);
     let settingNumber = Number(select.value);
     const recommendationHtml = `<p>プレミアム会員になることで、復習を自由に設定できるようになります！</p>
-    <p><a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener"><i class="far fa-crown"></i> プレミアムプランの詳細を見る</a></p>`
+    <a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener">
+    <button class="diqt-dict-submit-review-btn" style="width: 100%;"><i class="far fa-crown"></i> プレミアムプランを見る</button>
+    </a>`
 
     if (settingNumber != 0) {
         submitBtn.classList.add("hidden");

@@ -112,43 +112,6 @@ async function inspectCurrentUser(port) {
 ///////// 現在のユーザーを取得する ///////
 
 
-
-//////// 復習フォームのレンダリング //////
-function fetchReviewSetting(quizId) {
-    console.log(quizId);
-    return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reminders/review_setting`;
-        let params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ quiz_id: quizId }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        };
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                console.log(error);
-                resolve(error);
-            });
-    });
-}
-
-async function respondReviewSetting(port, quizId) {
-    const data = await fetchReviewSetting(quizId);
-    port.postMessage({ data: data });
-}
-//////// 復習フォームのレンダリング //////
-
-
 /////// 復習設定の新規作成 ///////
 function postCreateReview(quizId) {
     return new Promise(resolve => {
