@@ -28,7 +28,7 @@ document.addEventListener("keydown", event => {
             // Ctrl + Q でウィンドウを開閉する
             case 'q':
                 toggleFloatingWindow();
-            break;
+                break;
         }
     }
 });
@@ -216,79 +216,22 @@ function searchWord(keyword) {
 function searchSuccess(data) {
     let resultForm = document.querySelector('#search-diqt-dict-results');
     resultForm.innerHTML = '';
-    
-    chrome.storage.local.get(['diqtDictToken'], function (result) {
-        let loginToken = result.diqtDictToken
-        if (data['data'] != null) {
-            data['data'].forEach(function (item, index, array) {
-                let tags = createTagsHtml(item['tags']);
-                let wordURL = `https://www.diqt.net/ja/words/${item['id']}`
-                /* タイトル */
-                let entry = `<div class="diqt-dict-entry">
-                                <span>${item['entry']}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
-                             </div>`;
-                /* 意味 */
-                let meaning = '<div class="diqt-dict-meaning">' + item['meaning'] + '</div>';
-                /* 復習ボタン */
-                let wordQuizId = item['quiz']['id'];
-                let reviewBtn;
-                if (loginToken) {
-                    reviewBtn = `<div class="diqt-dict-async-review-btn diqt-dict-review-btn" id="diqt-dict-review-${wordQuizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div><div class="diqt-dict-review-form" id="diqt-dict-review-form-${wordQuizId}"></div>`
-                } else {
-                    reviewBtn = `<div class="diqt-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div></a>`
-                }
-                /* 解説 */
-                let explanationLabel = '';
-                let explanation = '';
-                if (item['explanation']) {
-                    explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">解説</div></div>`
-                    explanation = `<div class="diqt-dict-explanation">${markNotation(item['explanation'])}</div>`    
-                }
-                /* 例文 */
-                let sentenceLabel = '';
-                let sentence = '';
-                let sentenceQuizId = '';
-                let sentenceReviewBtn = '';
-                let linkToImproveSentence = '';
-                if (item['sentence']) {
-                    // 例文と翻訳
-                    sentenceLabel = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">例文</div></div>`
-                    sentence = `<div class="diqt-dict-explanation">${markNotation(item['sentence']['original'])}</div><div class="diqt-dict-explanation">${item['sentence']['translation']}</div>`
-                    /* 例文の復習ボタン */
-                    sentenceQuizId = item['sentence']['quiz']['id'];
-                    if (loginToken) {
-                        sentenceReviewBtn = `<div class="diqt-dict-async-review-btn diqt-dict-review-btn" id="diqt-dict-review-${sentenceQuizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>例文を覚える</div><div class="diqt-dict-review-form" id="diqt-dict-review-form-${sentenceQuizId}"></div>`
-                    } else {
-                        sentenceReviewBtn = `<div class="diqt-dict-review-btn not-logged-in-review-btn-${item['id']}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>例文を覚える</div></a>`
-                    }
-                    /* 例文のURL */
-                    let sentenceUrl = `https://www.diqt.net/ja/sentences/${item['id']}`
-                    /* 例文の改善ボタン */
-                    linkToImproveSentence = liknToImproveHtml(sentenceUrl, 'この例文を改善する');
-                }
-                
-                /* 項目の改善ボタン */
-                let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を改善する');
-                /* 項目改善ボタンの上の余白 */
-                let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
-                /* 項目と次の項目の間の余白 */
-                let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
-                /* 項目のレンダリング */
-                let dict = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceLabel + sentence + sentenceReviewBtn + linkToImproveSentence + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
-                resultForm.insertAdjacentHTML('beforeend', dict);
+    let words = data.words;
+    let dictionary = data.dictionary;
 
-                // ログインしていた場合に、拡張内で非同期で復習を設定できるようにする。
-                if (loginToken) {
-                    asyncReviewReviewSetting(item);
-                } else {
-                    // ログインしていない場合には、復習ボタンにoptions.htmlへのリンクを設定する。
-                    const reviewLinks = document.querySelectorAll(`.not-logged-in-review-btn-${item['id']}`);
-                    reviewLinks.forEach(function (item, index, array) {
-                        item.addEventListener('click', function () {
-                        // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-                        chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                        });
-                    });
+    chrome.storage.local.get(['diqtDictToken'], function (result) {
+        let loginToken = result.diqtDictToken;
+        if (words != null) {
+            words.forEach(function (word, index, array) {
+                // 辞書の項目のHTMLを作成して、画面に挿入する
+                let wordHtml = createWordHtml(word, loginToken);
+                resultForm.insertAdjacentHTML('beforeend', wordHtml);
+                // 復習ボタンのイベントを設定する
+                setEventToReviewBtn(word.quiz.id, word.quiz.review, loginToken);
+                // 例文の復習ボタンのイベントを設定する
+                let sentence = word.sentence;
+                if (sentence) {
+                    setEventToReviewBtn(sentence.quiz.id, sentence.quiz.review, loginToken);
                 }
             });
             // 解説のクリックサーチを有効にする
@@ -297,10 +240,15 @@ function searchSuccess(data) {
             enableTTS(resultForm);
             // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
             let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-            if (data['data'][0]['entry'] != keyword) {
+            if (words[0]['entry'] != keyword) {
                 let notFound = notFoundFormHtml(keyword);
                 resultForm.insertAdjacentHTML('beforeend', notFound);
             }
+
+            // 翻訳ボタンを末尾に置き、イベントを付与
+            let translationFrom = createTranslationForm(loginToken);
+            resultForm.insertAdjacentHTML('beforeend', translationFrom);
+            addEventToTranslationForm(loginToken, keyword);
 
         } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
             /////// CORSエラーの再現方法 ////////
@@ -320,25 +268,11 @@ function searchSuccess(data) {
             let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let notFound = ``;
-            //let createNewWord = ``;
-            //let searchWeb = ``;
             if (keyword.length < 50 && keyword.length > 0) {
-                notFound = notFoundFormHtml(keyword);
-            } 
-            
-            let translationForm;
-            if (loginToken) {
-                translationForm = `<div id="diqt-dict-translation-form">
-                <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
-                <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
-                </div>`
-            } else {
-                translationForm = `<div id="diqt-dict-translation-form">
-                <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
-                <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
-                <p><a id="diqt-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
-                </div>`
+                notFound = notFoundFormHtml(keyword, dictionary);
             }
+
+            let translationForm = createTranslationForm(loginToken);
             let result = notFound + translationForm
             resultForm.insertAdjacentHTML('afterbegin', result);
             addEventToTranslationForm(loginToken, keyword);
@@ -346,6 +280,364 @@ function searchSuccess(data) {
     });
 
 
+}
+
+// WordのHTMLを作成する
+function createWordHtml(word, loginToken) {
+    let tags = createTagsHtml(word.tags);
+    let wordURL = `https://www.diqt.net/ja/words/${word.id}`;
+    /* タイトル */
+    let entry = `<div class="diqt-dict-entry">
+                                <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
+                             </div>`;
+    /* 意味 */
+    let meaning = `<div class="diqt-dict-meaning">${word.meaning}</div>`;
+    /* 復習ボタン */
+    let review = word.quiz.review;
+    let quizId = word.quiz.id;
+    let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
+
+    /* 解説 */
+    let explanationLabel = '';
+    let explanation = '';
+    if (word.explanation) {
+        explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">解説</div></div>`
+        explanation = `<div class="diqt-dict-explanation">${markNotation(word.explanation)}</div>`
+    }
+    /* 例文 */
+    let sentenceHtml = createSentenceHtml(word, loginToken);
+    /* 項目の改善ボタン */
+    let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を改善する');
+    /* 項目改善ボタンの上の余白 */
+    let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
+    /* 項目と次の項目の間の余白 */
+    let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
+    /* 項目のレンダリング */
+    let wordHtml = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
+    return wordHtml;
+}
+
+// 例文のHTMLを作成する
+function createSentenceHtml(word, loginToken) {
+    let sentence = word.sentence;
+    if (sentence == null) {
+        // 例文がない場合は、例文を追加するリンクための項目の編集リンクを返す
+        return liknToImproveHtml(`https://www.diqt.net/ja/words/${word.id}/edit`, '例文を追加する');;
+    }
+    // 例文と翻訳
+    let label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">例文</div></div>`;
+    let original = `<div class="diqt-dict-explanation">${markNotation(sentence.original)}</div>`;
+    let translation = `<div class="diqt-dict-explanation">${sentence.translation}</div>`;
+    /* 例文の復習ボタン */
+    let quizId = sentence.quiz.id;
+    let review = sentence.quiz.review;
+    let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
+    /* 例文の改善ボタン */
+    let editUrl = `https://www.diqt.net/ja/sentences/${sentence.id}/edit`
+    let linkToImproveSentence = liknToImproveHtml(editUrl, 'この例文を改善する');
+    // 例文のHTML
+    let sentenceHtml = label + original + translation + reviewBtn + linkToImproveSentence;
+    return sentenceHtml;
+}
+
+
+//////// 復習に関する処理 START ////////
+
+// 復習設定ボタンを生成する
+function createReviewBtnHtml(quizId, review, loginToken) {
+    if (loginToken) {
+        if (review) {
+            // 設定編集ボタン
+            return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${reviewInterval(review.interval_setting)}に復習する</div>
+            <div class="diqt-dict-review-form" id="diqt-dict-review-form-${quizId}"></div>`
+        } else {
+            // 新規設定ボタン
+            return `<div class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div>`
+        }
+    } else {
+        // 非ログイン時の復習設定ボタン
+        return `<div class="diqt-dict-review-btn" id="not-logged-in-review-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える</div></a>`
+    }
+}
+
+// 復習ボタンにイベントを設定
+function setEventToReviewBtn(quizId, review, loginToken) {
+    if (loginToken) {
+        if (review) {
+            // 復習の編集イベントを設定
+            editReviewSetting(quizId, review);
+        } else {
+            // 復習の新規作成イベントを設定
+            createReviewSetting(quizId);
+        }
+    } else {
+        // ログイン画面への遷移を設定
+        setSignInToReviewBtn(quizId)
+    }
+}
+
+// 非ログイン時に、復習ボタンにログイン画面への遷移を設定する
+function setSignInToReviewBtn(quizId) {
+    let notLoggedInReviewBtn = document.querySelector(`#not-logged-in-review-btn-${quizId}`);
+    if (notLoggedInReviewBtn) {
+        notLoggedInReviewBtn.addEventListener('click', function () {
+            // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        });
+    }
+}
+
+
+
+// 復習設定の新規作成イベントをセット
+function setCreateToReviewBtn(word) {
+    let wordQuizId = word['quiz']['id']
+    let reviewBtn = document.querySelector("#diqt-dict-review-" + wordQuizId);
+    let reviewForm = reviewBtn.nextSibling;
+    reviewBtn.addEventListener('click', function () {
+        reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
+        renderReviewForm(wordQuizId);
+    });
+}
+
+
+// 復習設定フォームをレンダリングする。
+function renderReviewForm(quizId, review) {
+    let reviewForm = document.querySelector("#diqt-dict-review-form-" + quizId);
+    reviewForm.innerHTML = reviewFormHtml(review);
+    addEventToForm(review);
+}
+
+
+// 復習設定フォームのHTMLを返す関数。
+function reviewFormHtml(review) {
+    let quizId = review.quiz_id;
+    let html = `
+        <div class="boqqs-dict-reminder-status">
+        <p>復習予定：${review.scheduled_date}</p>
+        <p>復習設定：${reviewInterval(review.interval_setting)}に復習する</p>  
+        <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
+        </div>      
+<div class="diqt-dict-select-form cp_sl01">
+<select id="diqt-dict-select-form-${quizId}" style="height: 40px;" required>
+	${createOptions(review)}
+</select>
+</div>
+<button class="diqt-dict-submit-review-btn" id="diqt-dict-update-review-btn-${quizId}">設定する</button>
+<div class="diqt-dict-recommend-premium" id="diqt-dict-recommend-premium-${quizId}"></div>`
+
+    return html;
+}
+
+
+// settingの番号を復習間隔に変換する関数
+function reviewInterval(setting) {
+    setting = Number(setting);
+    let interval = '';
+    switch (setting) {
+        case 0:
+            interval = `明日`;
+            break;
+        case 1:
+            interval = '3日後';
+            break;
+        case 2:
+            interval = '１週間後';
+            break;
+        case 3:
+            interval = '２週間後';
+            break;
+        case 4:
+            interval = '３週間後';
+            break;
+        case 5:
+            interval = '１ヶ月後';
+            break;
+        case 6:
+            interval = '２ヶ月後';
+            break;
+        case 7:
+            interval = '３ヶ月後';
+            break;
+        case 8:
+            interval = '６ヶ月後';
+            break;
+        case 9:
+            interval = '1年後';
+            break
+    }
+    return interval;
+}
+
+// 復習間隔を選択するためのoptionを作成する関数
+function createOptions(review) {
+    let selectedNumber = 0;
+    if (review.interval_setting) {
+        selectedNumber = Number(review.interval_setting);
+    }
+    let html = ``
+    for (let i = 0; i < 10; i++) {
+        let icon = '';
+        if (i != 0 && review.premium == 'false') {
+            icon = '🔒 '
+        }
+        if (i == selectedNumber) {
+            html = html + `<option value="${i}" selected>${icon}${reviewInterval(i)}に復習する</option>`
+        } else {
+            html = html + `<option value="${i}">${icon}${reviewInterval(i)}に復習する</option>`
+        }
+    }
+    return html
+}
+
+// 復習設定フォームにイベントを設定する。
+function addEventToForm(review) {
+    let quizId = review.quiz_id;
+    // 復習設定を更新するための設定
+    updateReviewSetting(quizId, review);
+    // 復習設定を削除するための設定
+    destroyReviewSetting(quizId, review);
+    if (review.premium == false) {
+        // 有料機能にロックをかける。また無料会員がプレミアム会員向けのoptionを選択したときにプレミアムプランを紹介する。
+        recommendPremium(quizId);
+    }
+}
+
+// 復習設定を新規作成する
+function createReviewSetting(quizId) {
+    let createBtn = document.querySelector(`#diqt-dict-review-create-btn-${quizId}`);
+    if (createBtn) {
+
+        createBtn.addEventListener('click', function () {
+            createBtn.textContent = '設定中...'
+            // let settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
+            let port = chrome.runtime.connect({ name: "createReview" });
+            port.postMessage({ action: "createReview", quizId: quizId });
+            port.onMessage.addListener(function (msg) {
+                let response = msg.data
+                if (response.status == '401') {
+                    createBtn.textContent = response.message;
+                    return
+                }
+                let review = response.review;
+                let editBtn = createReviewBtnHtml(quizId, review, 'loggedIn');
+                let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
+                reviewBtnWrapper.innerHTML = editBtn;
+                editReviewSetting(quizId, review);
+            });
+        });
+
+    }
+}
+
+// 復習設定を編集する
+function editReviewSetting(quizId, review) {
+    let editBtn = document.querySelector(`#diqt-dict-review-edit-btn-${quizId}`);
+    if (editBtn) {
+        editBtn.addEventListener('click', function () {
+            renderReviewForm(quizId, review);
+        });
+    }
+}
+
+// 復習設定を更新する
+function updateReviewSetting(quizId, review) {
+    let submitBtn = document.querySelector("#diqt-dict-update-review-btn-" + quizId);
+    submitBtn.addEventListener('click', function () {
+        submitBtn.textContent = '設定中...'
+        let settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
+        let port = chrome.runtime.connect({ name: "updateReview" });
+        port.postMessage({ action: "updateReview", reviewId: review.id, settingNumber: settingNumber });
+        port.onMessage.addListener(function (msg) {
+            let response = msg.data
+            if (response.status == '401') {
+                submitBtn.textContent = response.message;
+                return
+            }
+            let review = response.review;
+            let editBtn = createReviewBtnHtml(quizId, review, 'loggedIn');
+            let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
+            reviewBtnWrapper.innerHTML = editBtn;
+            editReviewSetting(quizId, review);
+        });
+    });
+}
+
+// 復習設定を削除する
+function destroyReviewSetting(quizId, review) {
+    let deleteBtn = document.querySelector(`#diqt-dict-destroy-review-btn-${quizId}`);
+    deleteBtn.addEventListener('click', function () {
+        deleteBtn.textContent = '設定中...';
+        let port = chrome.runtime.connect({ name: "destroyReview" });
+        port.postMessage({ action: "destroyReview", reviewId: review.id });
+        port.onMessage.addListener(function (msg) {
+            let response = msg.data;
+            if (response.status == '401') {
+                deleteBtn.textContent = '401 error';
+                return
+            }
+            let createBtn = createReviewBtnHtml(quizId, null, 'loggedIn');
+            let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
+            reviewBtnWrapper.innerHTML = createBtn;
+            createReviewSetting(quizId);
+        });
+    });
+}
+
+// プレミアム会員向けのoptionが選択されたときに、プレミアムプラン説明ページへのリンクを表示する。
+function recommendPremium(quizId) {
+    const textWrapper = document.querySelector(`#diqt-dict-recommend-premium-${quizId}`);
+    const submitBtn = textWrapper.previousElementSibling;
+    const select = document.querySelector(`#diqt-dict-select-form-${quizId}`);
+    let settingNumber = Number(select.value);
+    const recommendationHtml = `<p>プレミアム会員になることで、復習を自由に設定できるようになります！</p>
+    <a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener">
+    <button class="diqt-dict-submit-review-btn" style="width: 100%;"><i class="far fa-crown"></i> プレミアムプランを見る</button>
+    </a>`
+
+    if (settingNumber != 0) {
+        submitBtn.classList.add("hidden");
+        textWrapper.innerHTML = recommendationHtml;
+    }
+
+    select.addEventListener('change', function () {
+        settingNumber = Number(this.value);
+        if (settingNumber == 0) {
+            submitBtn.classList.remove("hidden");
+            textWrapper.innerHTML = '';
+        } else {
+            submitBtn.classList.add("hidden");
+            textWrapper.innerHTML = recommendationHtml;
+        }
+    });
+}
+
+//////// 復習に関する処理 END ////////
+
+
+
+
+
+
+
+
+
+// 翻訳ボタンを生成する
+function createTranslationForm(loginToken) {
+    let translationForm;
+    if (loginToken) {
+        translationForm = `<div id="diqt-dict-translation-form">
+        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
+        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
+        </div>`
+    } else {
+        translationForm = `<div id="diqt-dict-translation-form">
+        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
+        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
+        <p><a id="diqt-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
+        </div>`
+    }
+    return translationForm
 }
 
 // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
@@ -358,9 +650,9 @@ function liknToImproveHtml(url, label) {
 }
 
 // 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
-function notFoundFormHtml(keyword) {
+function notFoundFormHtml(keyword, dictionary) {
     let notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`;
-    let createNewWord = `<a href="https://www.diqt.net/ja/words/new?dict_uid=c6bbf748&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
+    let createNewWord = `<a href="https://www.diqt.net/ja/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
                 <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
     let searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
             <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
@@ -558,252 +850,6 @@ function renderUserStatus() {
 
 }
 
-/////// 復習設定関係の処理 ///////
-// 拡張内で非同期で設定できる復習メニューを表示する
-function asyncReviewReviewSetting(item) {
-    /* 項目の復習設定 */
-    let wordQuizId = item['quiz']['id']
-    let reviewBtn = document.querySelector("#diqt-dict-review-" + wordQuizId);
-    let reviewForm = reviewBtn.nextSibling;
-    reviewBtn.addEventListener('click', function () {
-        reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-        renderReviewForm(wordQuizId);
-    });
-    /* 例文の復習設定 */
-    if (item['sentence'] == null) return;
-
-    let sentenceQuizId = item['sentence']['quiz']['id'];
-    let sentenceReviewBtn = document.querySelector("#diqt-dict-review-" + sentenceQuizId);
-    let sentenceReviewForm = sentenceReviewBtn.nextSibling;
-    sentenceReviewBtn.addEventListener('click', function () {
-        sentenceReviewForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-        renderReviewForm(sentenceQuizId);
-    });
-    
-};
-
-// 復習設定フォームをレンダリングする。
-function renderReviewForm(quizId) {
-    let reviewForm = document.querySelector("#diqt-dict-review-form-" + quizId);
-    let port = chrome.runtime.connect({ name: "renderReviewForm" });
-    port.postMessage({ action: "renderReviewForm", quizId: quizId });
-    port.onMessage.addListener(function (msg) {
-        let response = msg.data;
-        if (response.status == '401') {
-            reviewForm.innerHTML = `<p style="font-size: 12px; margin: 16px 0; color: #ee5a5aff;">${response.message}</p>`
-        } else {
-            let data = response.data;
-            reviewForm.innerHTML = reviewFormHtml(data);
-            addEventToForm(data);
-        }
-    });
-}
-
-
-// 復習設定フォームのHTMLを返す関数。
-function reviewFormHtml(data) {
-    let quizId = data.quiz_id;
-    let html;
-    if (data.reminder_id) {
-        html = `
-        <div class="boqqs-dict-reminder-status">
-        <p>復習予定：${data.review_day}</p>
-        <p>復習設定：${reviewInterval(data.setting)}に復習する</p>  
-        <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
-        </div>      
-<div class="diqt-dict-select-form cp_sl01">
-<select id="diqt-dict-select-form-${quizId}" style="height: 40px;" required>
-	${createOptions(data)}
-</select>
-</div>
-<button class="diqt-dict-submit-review-btn" id="diqt-dict-update-review-btn-${quizId}">設定する</button>
-<div class="diqt-dict-recommend-premium" id="diqt-dict-recommend-premium-${quizId}"></div>`
-    } else {
-        html = `      
-<div class="diqt-dict-select-form cp_sl01">
-<select id="diqt-dict-select-form-${quizId}" style="height: 40px;" required>
-	${createOptions(data)}
-</select>
-</div>
-<button class="diqt-dict-submit-review-btn" id="diqt-dict-create-review-btn-${quizId}">設定する</button>
-<div class="diqt-dict-recommend-premium" id="diqt-dict-recommend-premium-${quizId}"></div>`
-    }
-    return html;
-}
-
-// settingの番号を復習間隔に変換する関数
-function reviewInterval(setting) {
-    setting = Number(setting);
-    let interval = '';
-    switch (setting) {
-        case 0:
-            interval = `明日`;
-            break;
-        case 1:
-            interval = '3日後';
-            break;
-        case 2:
-            interval = '１週間後';
-            break;
-        case 3:
-            interval = '２週間後';
-            break;
-        case 4:
-            interval = '３週間後';
-            break;
-        case 5:
-            interval = '１ヶ月後';
-            break;
-        case 6:
-            interval = '２ヶ月後';
-            break;
-        case 7:
-            interval = '３ヶ月後';
-            break;
-        case 8:
-            interval = '６ヶ月後';
-            break;
-        case 9:
-            interval = '1年後';
-            break
-    }
-    return interval;
-}
-
-// 復習間隔を選択するためのoptionを作成する関数
-function createOptions(data) {
-    let selectedNumber = 0;
-    if (data.setting) {
-        selectedNumber = Number(data.setting);
-    }
-    let html = ``
-    for (let i = 0; i < 10; i++) {
-        let icon = '';
-        if (i != 0 && data.premium == 'false') {
-            icon = '🔒 '
-        }
-        if (i == selectedNumber) {
-            html = html + `<option value="${i}" selected>${icon}${reviewInterval(i)}に復習する</option>`
-        } else {
-            html = html + `<option value="${i}">${icon}${reviewInterval(i)}に復習する</option>`
-        }
-    }
-    return html
-}
-
-// 復習設定フォームにイベントを設定する。
-function addEventToForm(data) {
-    let quizId = data.quiz_id;
-    if (data.reminder_id) {
-        // 復習設定を更新するための設定
-        updateReviewSetting(quizId);
-        // 復習設定を削除するための設定
-        destroyReviewSetting(quizId);
-    } else {
-        // 復習設定を新規作成するための設定
-        createReviewSetting(quizId);
-    }
-
-    if (data.premium == 'false') {
-        // 有料機能にロックをかける。また無料会員がプレミアム会員向けのoptionを選択したときにプレミアムプランを紹介する。
-        recommendPremium(quizId);
-    }
-}
-
-// 復習設定を新規作成する
-function createReviewSetting(quizId) {
-    let submitBtn = document.querySelector("#diqt-dict-create-review-btn-" + quizId);
-    submitBtn.addEventListener('click', function () {
-        submitBtn.textContent = '設定中...'
-        let settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
-        let port = chrome.runtime.connect({ name: "createReminder" });
-        port.postMessage({ action: "createReminder", quizId: quizId, settingNumber: settingNumber });
-        port.onMessage.addListener(function (msg) {
-            let response = msg.data
-            if (response.status == '401') {
-                submitBtn.textContent = response.message;
-                return
-            }
-            let data = response.data;
-            let reviewForm = document.querySelector("#diqt-dict-review-form-" + data.quiz_id);
-            reviewForm.innerHTML = '';
-            let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${reviewInterval(data.setting)}に復習する`
-        });
-    });
-}
-
-// 復習設定を更新する
-function updateReviewSetting(quizId) {
-    let submitBtn = document.querySelector("#diqt-dict-update-review-btn-" + quizId);
-    submitBtn.addEventListener('click', function () {
-        submitBtn.textContent = '設定中...'
-        let settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
-        let port = chrome.runtime.connect({ name: "updateReminder" });
-        port.postMessage({ action: "updateReminder", quizId: quizId, settingNumber: settingNumber });
-        port.onMessage.addListener(function (msg) {
-            let response = msg.data
-            if (response.status == '401') {
-                submitBtn.textContent = response.message;
-                return
-            }
-            let data = response.data;
-            let reviewForm = document.querySelector("#diqt-dict-review-form-" + data.quiz_id);
-            reviewForm.innerHTML = '';
-            let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${reviewInterval(data.setting)}に復習する`
-        });
-    });
-}
-
-// 復習設定を削除する
-function destroyReviewSetting(quizId) {
-    let deleteBtn = document.querySelector(`#diqt-dict-destroy-review-btn-${quizId}`);
-    deleteBtn.addEventListener('click', function () {
-        deleteBtn.textContent = '設定中...';
-        let port = chrome.runtime.connect({ name: "destroyReminder" });
-        port.postMessage({ action: "destroyReminder", quizId: quizId });
-        port.onMessage.addListener(function (msg) {
-            let response = msg.data;
-            if (response.status == '401') {
-                deleteBtn.textContent = response.message;
-                return
-            }
-            let data = response.data;
-            let reviewForm = document.querySelector("#diqt-dict-review-form-" + data.quiz_id);
-            reviewForm.innerHTML = '';
-            let reviewBtn = reviewForm.previousSibling;
-            reviewBtn.innerHTML = `<i class="far fa-alarm-clock" style="margin-right: 4px;"></i>覚える`
-        });
-    });
-}
-
-// プレミアム会員向けのoptionが選択されたときに、プレミアムプラン説明ページへのリンクを表示する。
-function recommendPremium(quizId) {
-    const textWrapper = document.querySelector(`#diqt-dict-recommend-premium-${quizId}`);
-    const submitBtn = textWrapper.previousElementSibling;
-    const select = document.querySelector(`#diqt-dict-select-form-${quizId}`);
-    let settingNumber = Number(select.value);
-    const recommendationHtml = `<p>プレミアム会員になることで、復習を自由に設定できるようになります！</p>
-    <p><a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener"><i class="far fa-crown"></i> プレミアムプランの詳細を見る</a></p>`
-
-    if (settingNumber != 0) {
-        submitBtn.classList.add("hidden");
-        textWrapper.innerHTML = recommendationHtml;
-    }
-
-    select.addEventListener('change', function () {
-        settingNumber = Number(this.value);
-        if (settingNumber == 0) {
-            submitBtn.classList.remove("hidden");
-            textWrapper.innerHTML = '';
-        } else {
-            submitBtn.classList.add("hidden");
-            textWrapper.innerHTML = recommendationHtml;
-        }
-    });
-}
-
 
 // テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
 function displayPopupWhenSelected() {
@@ -825,7 +871,7 @@ function displayPopupWhenSelected() {
                 const sel = window.getSelection()
                 const range = sel.getRangeAt(0)
                 const textRange = document.createRange()
-    
+
                 // offsetが0だと -1 したときに429496729となりエラーが発生する。
                 if (range.endOffset == 0) {
                     return;
@@ -833,7 +879,7 @@ function displayPopupWhenSelected() {
                 textRange.setStart(range.endContainer, range.endOffset - 1)
                 textRange.setEnd(range.endContainer, range.endOffset)
                 const textRect = textRange.getBoundingClientRect();
-    
+
                 // テキストエリアでは選択位置の座標が取得できないので、ポップアップも表示しないようにする。
                 if (textRect.top == 0 && textRect.left == 0) {
                     return;
