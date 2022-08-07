@@ -1,6 +1,6 @@
 {
-    "name": "DiQt拡張機能 - 出会った単語を忘れない英和辞書",
-    "version": "1.0.2.3",
+    "name": "DiQt拡張機能 - 絶対に忘れない英和辞書",
+    "version": "1.0.2.4",
     "manifest_version": 3,
     "description": "調べた単語に復習を設定することで、記憶の定着をサポートする英和辞書",
     "icons": {

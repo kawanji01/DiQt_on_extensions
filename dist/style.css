@@ -83,6 +83,17 @@ input#diqt-dict-search-form {
   text-align: left;
 }
 
+#diqt-dict-extension-wrapper .diqt-dict-meaning .diqt-item-label {
+  display: inline-block;
+  font-size: 0.8em;
+  border: 1px solid #6e6e6e;
+  border-radius: 4px;
+  padding: 0 4px;
+  margin-right: 4px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
 /* 解説 */
 
 #diqt-dict-extension-wrapper .diqt-dict-explanation {
@@ -93,6 +104,22 @@ input#diqt-dict-search-form {
   margin-bottom: 8px;
   text-align: left;
 }
+
+/* #diqt-dict-extension-wrapper a.diqt-dict-explanation-btn {
+  cursor: pointer;
+  color: #6e6e6e;
+  font-size: 12px;
+  font-weight: normal;
+  text-decoration: none;
+  background: white;
+  border-radius: 5px;
+  border: 1px #6e6e6e solid;
+  position: relative;
+  display: block;
+  padding: 8px;
+  text-align: center;
+  margin: 10px 0;
+} */
 
 /* 復習ボタン */
 
