@@ -1,6 +1,6 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = 'https://www.diqt.net';
-//const diqtRootUrl = 'https://57c9-202-177-82-121.ngrok.io';
+//const diqtRootUrl = 'https://www.diqt.net';
+const diqtRootUrl = 'https://74b5-117-18-195-105.ngrok.io';
 
 
 // アクセスして一番最初に実行する関数。

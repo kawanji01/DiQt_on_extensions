@@ -235,7 +235,7 @@ function searchSuccess(data) {
                 }
             });
             // 解説のクリックサーチを有効にする
-            activateClickSearch(resultForm);
+            // activateClickSearch(resultForm);
             // 項目の読み上げを有効にする。
             enableTTS(resultForm);
             // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
@@ -291,30 +291,37 @@ function createWordHtml(word, loginToken) {
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
     /* 意味 */
-    let meaning = `<div class="diqt-dict-meaning">${word.meaning}</div>`;
+    let meaning = `<div class="diqt-dict-meaning">${markItemLabel(word.meaning)}</div>`;
     /* 復習ボタン */
     let review = word.quiz.review;
     let quizId = word.quiz.id;
     let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
 
     /* 解説 */
-    let explanationLabel = '';
-    let explanation = '';
-    if (word.explanation) {
-        explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">解説</div></div>`
-        explanation = `<div class="diqt-dict-explanation">${markNotation(word.explanation)}</div>`
-    }
+    //let explanationLabel = '';
+    //let explanation = '';
+    //if (word.explanation) {
+    //    explanationLabel = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">解説</div></div>`
+    //    explanation = `<div class="diqt-dict-explanation">${markNotation(word.explanation)}</div>`
+    //}
+    //let explanationBtn = `<a href="${wordURL}" target="_blank" rel="noopener" class="diqt-dict-explanation-btn">詳細を見る</a>`;
     /* 例文 */
     let sentenceHtml = createSentenceHtml(word, loginToken);
-    /* 項目の改善ボタン */
-    let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を改善する');
-    /* 項目改善ボタンの上の余白 */
+    /* 項目の編集ボタン */
+    let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を編集する');
+    /* 項目編集ボタンの上の余白 */
     let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
     /* 項目と次の項目の間の余白 */
     let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
     /* 項目のレンダリング */
-    let wordHtml = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
+    //let wordHtml = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
+    let wordHtml = tags + entry + meaning + reviewBtn + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
     return wordHtml;
+}
+
+function markItemLabel(text) {
+    let textWithItemLabel = text.replace(/\{\[(.+?)\]\}/g, "<span class='diqt-item-label'>$1</span>");
+    return textWithItemLabel;
 }
 
 // 例文のHTMLを作成する
@@ -322,7 +329,8 @@ function createSentenceHtml(word, loginToken) {
     let sentence = word.sentence;
     if (sentence == null) {
         // 例文がない場合は、例文を追加するリンクための項目の編集リンクを返す
-        return liknToImproveHtml(`https://www.diqt.net/ja/words/${word.id}/edit`, '例文を追加する');;
+        //return liknToImproveHtml(`https://www.diqt.net/ja/words/${word.id}/edit`, '例文を追加する');
+        return '';
     }
     // 例文と翻訳
     let label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">例文</div></div>`;
@@ -332,9 +340,9 @@ function createSentenceHtml(word, loginToken) {
     let quizId = sentence.quiz.id;
     let review = sentence.quiz.review;
     let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
-    /* 例文の改善ボタン */
-    let editUrl = `https://www.diqt.net/ja/sentences/${sentence.id}/edit`
-    let linkToImproveSentence = liknToImproveHtml(editUrl, 'この例文を改善する');
+    /* 例文の編集ボタン */
+    let sentenceUrl = `https://www.diqt.net/ja/sentences/${sentence.id}`
+    let linkToImproveSentence = liknToImproveHtml(sentenceUrl, 'この例文を編集する');
     // 例文のHTML
     let sentenceHtml = label + original + translation + reviewBtn + linkToImproveSentence;
     return sentenceHtml;
@@ -740,7 +748,7 @@ function markNotation(text) {
     })
     return processedArray.join('')
 }
-
+/* 
 // wiki記法でリンクになっている単語をクリックすると、自動で辞書を検索するようにする。
 function activateClickSearch(results) {
     const links = results.querySelectorAll('.diqt-notation-link')
@@ -757,7 +765,7 @@ function activateClickSearch(results) {
             return false;
         });
     })
-}
+} */
 
 // 項目を読み上げさせる。
 function enableTTS(results) {
