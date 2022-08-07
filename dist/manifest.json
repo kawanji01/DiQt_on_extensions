@@ -1,8 +1,8 @@
 {
     "name": "DiQt拡張機能 - 絶対に忘れない英和辞書",
-    "version": "1.0.2.3",
+    "version": "1.0.2.4",
     "manifest_version": 3,
-    "description": "DiQtの英和辞書がWeb上でいつでもどこでも利用できるようになるブラウザ拡張です。",
+    "description": "調べた単語に復習を設定することで、記憶の定着をサポートする英和辞書",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",
