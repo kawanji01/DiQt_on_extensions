@@ -19,6 +19,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             displayPopupWhenSelected();
             break;
     }
+    return true;
 });
 
 // ショートカットキー操作
@@ -209,6 +210,7 @@ function searchWord(keyword) {
     port.onMessage.addListener(function (msg) {
         let data = msg['data'];
         searchSuccess(data);
+        return true;
     });
 }
 
@@ -227,12 +229,12 @@ function searchSuccess(data) {
                 let wordHtml = createWordHtml(word, loginToken);
                 resultForm.insertAdjacentHTML('beforeend', wordHtml);
                 // 復習ボタンのイベントを設定する
-                setEventToReviewBtn(word.quiz.id, word.quiz.review, loginToken);
+                setEventToReviewBtn(word.quiz.id, word.review, loginToken);
                 // 例文の復習ボタンのイベントを設定する
-                let sentence = word.sentence;
-                if (sentence) {
-                    setEventToReviewBtn(sentence.quiz.id, sentence.quiz.review, loginToken);
-                }
+                //let sentence = word.sentence;
+                //if (sentence) {
+                //    setEventToReviewBtn(sentence.quiz.id, sentence.quiz.review, loginToken);
+                //}
             });
             // 解説のクリックサーチを有効にする
             // activateClickSearch(resultForm);
@@ -241,14 +243,16 @@ function searchSuccess(data) {
             // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
             let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
             if (words[0]['entry'] != keyword) {
-                let notFound = notFoundFormHtml(keyword);
-                resultForm.insertAdjacentHTML('beforeend', notFound);
+                resultForm.insertAdjacentHTML('beforeend', notFoundFormHtml(keyword, dictionary));
+            } else {
+                resultForm.insertAdjacentHTML('beforeend', newWordHtml(keyword, dictionary));
             }
 
             // 翻訳ボタンを末尾に置き、イベントを付与
             let translationFrom = createTranslationForm(loginToken);
             resultForm.insertAdjacentHTML('beforeend', translationFrom);
             addEventToTranslationForm(loginToken, keyword);
+            console.log('Add tranlsation');
 
         } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
             /////// CORSエラーの再現方法 ////////
@@ -261,7 +265,9 @@ function searchSuccess(data) {
             // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
             let optionBtn = document.querySelector('#diqt-dict-option-btn');
             optionBtn.addEventListener('click', function () {
-                chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                // 
+                let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                rtnPromise.then((response)=> {}).catch((error)=> {});
             });
         } else {
             // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
@@ -284,16 +290,16 @@ function searchSuccess(data) {
 
 // WordのHTMLを作成する
 function createWordHtml(word, loginToken) {
-    let tags = createTagsHtml(word.tags);
+    //let tags = createTagsHtml(word.tags);
     let wordURL = `https://www.diqt.net/ja/words/${word.id}`;
     /* タイトル */
     let entry = `<div class="diqt-dict-entry">
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
     /* 意味 */
-    let meaning = `<div class="diqt-dict-meaning">${markItemLabel(word.meaning)}</div>`;
+    let meaning = `<div class="diqt-dict-meaning">${word.meaning}</div>`;
     /* 復習ボタン */
-    let review = word.quiz.review;
+    let review = word.review;
     let quizId = word.quiz.id;
     let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
 
@@ -306,26 +312,22 @@ function createWordHtml(word, loginToken) {
     //}
     //let explanationBtn = `<a href="${wordURL}" target="_blank" rel="noopener" class="diqt-dict-explanation-btn">詳細を見る</a>`;
     /* 例文 */
-    let sentenceHtml = createSentenceHtml(word, loginToken);
+    // let sentenceHtml = createSentenceHtml(word, loginToken);
     /* 項目の編集ボタン */
     let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を編集する');
     /* 項目編集ボタンの上の余白 */
-    let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
+    // let spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
     /* 項目と次の項目の間の余白 */
     let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
     /* 項目のレンダリング */
-    //let wordHtml = tags + entry + meaning + reviewBtn + explanationLabel + explanation + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
-    let wordHtml = tags + entry + meaning + reviewBtn + sentenceHtml + spaceBeforeImproveWordBtn + linkToImproveWord + bottomSpace;
+    let wordHtml = entry + meaning + reviewBtn + linkToImproveWord + bottomSpace;
     return wordHtml;
 }
 
-function markItemLabel(text) {
-    let textWithItemLabel = text.replace(/\{\[(.+?)\]\}/g, "<span class='diqt-item-label'>$1</span>");
-    return textWithItemLabel;
-}
+
 
 // 例文のHTMLを作成する
-function createSentenceHtml(word, loginToken) {
+/* function createSentenceHtml(word, loginToken) {
     let sentence = word.sentence;
     if (sentence == null) {
         // 例文がない場合は、例文を追加するリンクための項目の編集リンクを返す
@@ -336,17 +338,17 @@ function createSentenceHtml(word, loginToken) {
     let label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">例文</div></div>`;
     let original = `<div class="diqt-dict-explanation">${markNotation(sentence.original)}</div>`;
     let translation = `<div class="diqt-dict-explanation">${sentence.translation}</div>`;
-    /* 例文の復習ボタン */
+    // 例文の復習ボタン 
     let quizId = sentence.quiz.id;
     let review = sentence.quiz.review;
     let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
-    /* 例文の編集ボタン */
+    // 例文の編集ボタン
     let sentenceUrl = `https://www.diqt.net/ja/sentences/${sentence.id}`
     let linkToImproveSentence = liknToImproveHtml(sentenceUrl, 'この例文を編集する');
     // 例文のHTML
     let sentenceHtml = label + original + translation + reviewBtn + linkToImproveSentence;
     return sentenceHtml;
-}
+} */
 
 
 //////// 復習に関する処理 START ////////
@@ -390,7 +392,9 @@ function setSignInToReviewBtn(quizId) {
     if (notLoggedInReviewBtn) {
         notLoggedInReviewBtn.addEventListener('click', function () {
             // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            rtnPromise.then((response)=> {}).catch((error)=> {});
+            return true;
         });
     }
 }
@@ -398,7 +402,7 @@ function setSignInToReviewBtn(quizId) {
 
 
 // 復習設定の新規作成イベントをセット
-function setCreateToReviewBtn(word) {
+/* function setCreateToReviewBtn(word) {
     let wordQuizId = word['quiz']['id']
     let reviewBtn = document.querySelector("#diqt-dict-review-" + wordQuizId);
     let reviewForm = reviewBtn.nextSibling;
@@ -406,7 +410,7 @@ function setCreateToReviewBtn(word) {
         reviewForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
         renderReviewForm(wordQuizId);
     });
-}
+} */
 
 
 // 復習設定フォームをレンダリングする。
@@ -532,9 +536,9 @@ function createReviewSetting(quizId) {
                 let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
                 reviewBtnWrapper.innerHTML = editBtn;
                 editReviewSetting(quizId, review);
+                return true;
             });
         });
-
     }
 }
 
@@ -567,6 +571,7 @@ function updateReviewSetting(quizId, review) {
             let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
             reviewBtnWrapper.innerHTML = editBtn;
             editReviewSetting(quizId, review);
+            return true;
         });
     });
 }
@@ -588,6 +593,7 @@ function destroyReviewSetting(quizId, review) {
             let reviewBtnWrapper = document.querySelector(`#diqt-dict-review-btn-wrapper-${quizId}`);
             reviewBtnWrapper.innerHTML = createBtn;
             createReviewSetting(quizId);
+            return true;
         });
     });
 }
@@ -668,6 +674,16 @@ function notFoundFormHtml(keyword, dictionary) {
     return html;
 }
 
+// 辞書の追加とWeb検索ボタン
+function newWordHtml(keyword, dictionary) {
+    let createNewWord = `<a href="https://www.diqt.net/ja/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
+                <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
+    let searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
+            <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+            let html =  createNewWord + searchWeb;
+    return html;
+}
+
 // 翻訳フォームにイベントを付与
 function addEventToTranslationForm(loginToken, keyword) {
     const googleTranslationForm = document.querySelector('#diqt-dict-google-translation');
@@ -688,6 +704,7 @@ function addEventToTranslationForm(loginToken, keyword) {
                     let message = `<p style="margin: 24px 0;"><a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
                     googleTranslationForm.innerHTML = message;
                 }
+                return true;
             });
         });
         // DeepL翻訳
@@ -705,6 +722,7 @@ function addEventToTranslationForm(loginToken, keyword) {
                     let message = `<p style="margin: 24px 0;"><a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
                     deeplTranslationForm.innerHTML = message;
                 }
+                return true;
             });
         });
 
@@ -712,14 +730,17 @@ function addEventToTranslationForm(loginToken, keyword) {
         // options.htmlへのリンクを設定する。
         googleTranslationForm.addEventListener('click', function () {
             // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            rtnPromise.then((response)=> {}).catch((error)=> {});
         });
         deeplTranslationForm.addEventListener('click', function () {
-            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            rtnPromise.then((response)=> {}).catch((error)=> {});
         });
         const loginBtn = document.querySelector('#diqt-dict-login-for-translation');
         loginBtn.addEventListener('click', function () {
-            chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            rtnPromise.then((response)=> {}).catch((error)=> {});
         });
     }
 }
@@ -796,7 +817,7 @@ function enableTTS(results) {
 }
 
 // タグのhtmlを作成する
-function createTagsHtml(text) {
+/* function createTagsHtml(text) {
     if (text == null) {
         return `<div class="diqt-dict-word-tags-wrapper"></div>`
     }
@@ -828,7 +849,7 @@ function createTagsHtml(text) {
         tagsHtmlArray.push(phave);
     }
     return `<div class="diqt-dict-word-tags-wrapper">${tagsHtmlArray.join('')}</div>`
-}
+} */
 
 
 // ユーザーがログインしているか検証し、ログイン済みならユーザー名を、そうでないならログインフォームへのリンクを表示する。
@@ -848,12 +869,14 @@ function renderUserStatus() {
         } else {
             userData.innerHTML = '<i class="fal fa-user"></i> ログインする';
         }
+        return true;
     });
 
     // ユーザーのステータス情報にoptions.htmlへのリンクを設定する。
     document.querySelector('#diqt-dict-logged-in-user').addEventListener('click', function () {
         // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-        chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        rtnPromise.then((response)=> {}).catch((error)=> {});
     });
 
 }
