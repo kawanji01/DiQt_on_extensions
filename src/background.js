@@ -1,15 +1,21 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
 const diqtRootUrl = 'https://www.diqt.net';
-// const diqtRootUrl = 'https://74b5-117-18-195-105.ngrok.io';
+//const diqtRootUrl = 'https://46b2-202-177-82-121.ngrok.io';
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
-    chrome.tabs.sendMessage(tab.id, "Action");
+    // Could not establish connection. Receiving end does not exist.の解決
+    // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
+    let rtnPromise = chrome.tabs.sendMessage(tab.id, "Action");
+    rtnPromise.then((response)=> {}).catch((error)=> {});
 });
 
 // タブがアップデート（画面遷移など）されたことをcontent_scriptsに伝える。参考：https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
 chrome.tabs.onUpdated.addListener(function (tabId) {
-    chrome.tabs.sendMessage(tabId, "Updated");
+    // Could not establish connection. Receiving end does not exist.の解決
+    // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
+    let rtnPromise = chrome.tabs.sendMessage(tabId, "Updated");
+    rtnPromise.then((response)=> {}).catch((error)=> {});
 });
 
 
@@ -290,12 +296,12 @@ async function respondDeepLTranslation(port, keyword) {
 ////// 検索 //////
 function requestSearch(keyword) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/api/v1/extensions/words/search`;
+        let url = `${diqtRootUrl}/api/v1/extensions/dictionaries/1/search`;
         let params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
-            body: JSON.stringify({ keyword: keyword, dictionary_id: 1 }),
+            body: JSON.stringify({ keyword: keyword }),
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
