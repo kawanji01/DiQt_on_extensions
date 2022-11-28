@@ -1,6 +1,6 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = 'https://www.diqt.net';
-//const diqtRootUrl = 'https://46b2-202-177-82-121.ngrok.io';
+// const diqtRootUrl = 'https://www.diqt.net';
+const diqtRootUrl = 'https://819c-202-177-91-144.ngrok.io/';
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
