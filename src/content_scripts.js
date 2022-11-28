@@ -231,10 +231,10 @@ function searchSuccess(data) {
                 // 復習ボタンのイベントを設定する
                 setEventToReviewBtn(word.quiz.id, word.review, loginToken);
                 // 例文の復習ボタンのイベントを設定する
-                //let sentence = word.sentence;
-                //if (sentence) {
-                //    setEventToReviewBtn(sentence.quiz.id, sentence.quiz.review, loginToken);
-                //}
+                let sentence = word.sentence;
+                if (sentence) {
+                    setEventToReviewBtn(word.sentence_quiz.id, word.sentence_review, loginToken);
+                }
             });
             // 解説のクリックサーチを有効にする
             // activateClickSearch(resultForm);
@@ -312,7 +312,7 @@ function createWordHtml(word, loginToken) {
     //}
     //let explanationBtn = `<a href="${wordURL}" target="_blank" rel="noopener" class="diqt-dict-explanation-btn">詳細を見る</a>`;
     /* 例文 */
-    // let sentenceHtml = createSentenceHtml(word, loginToken);
+    let sentenceHtml = createSentenceHtml(word, loginToken);
     /* 項目の編集ボタン */
     let linkToImproveWord = liknToImproveHtml(wordURL, 'この項目を編集する');
     /* 項目編集ボタンの上の余白 */
@@ -320,16 +320,18 @@ function createWordHtml(word, loginToken) {
     /* 項目と次の項目の間の余白 */
     let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
     /* 項目のレンダリング */
-    let wordHtml = entry + meaning + reviewBtn + linkToImproveWord + bottomSpace;
+    let wordHtml = entry + meaning + reviewBtn + sentenceHtml + linkToImproveWord + bottomSpace;
     return wordHtml;
 }
 
 
 
 // 例文のHTMLを作成する
-/* function createSentenceHtml(word, loginToken) {
+function createSentenceHtml(word, loginToken) {
     let sentence = word.sentence;
-    if (sentence == null) {
+    let quiz = word.sentence_quiz;
+    let review = word.sentence_review;
+    if (sentence == null || quiz == null) {
         // 例文がない場合は、例文を追加するリンクための項目の編集リンクを返す
         //return liknToImproveHtml(`https://www.diqt.net/ja/words/${word.id}/edit`, '例文を追加する');
         return '';
@@ -339,8 +341,8 @@ function createWordHtml(word, loginToken) {
     let original = `<div class="diqt-dict-explanation">${markNotation(sentence.original)}</div>`;
     let translation = `<div class="diqt-dict-explanation">${sentence.translation}</div>`;
     // 例文の復習ボタン 
-    let quizId = sentence.quiz.id;
-    let review = sentence.quiz.review;
+    let quizId = quiz.id;
+    //let review = sentence.quiz.review;
     let reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${createReviewBtnHtml(quizId, review, loginToken)}</div>`;
     // 例文の編集ボタン
     let sentenceUrl = `https://www.diqt.net/ja/sentences/${sentence.id}`
@@ -348,7 +350,7 @@ function createWordHtml(word, loginToken) {
     // 例文のHTML
     let sentenceHtml = label + original + translation + reviewBtn + linkToImproveSentence;
     return sentenceHtml;
-} */
+}
 
 
 //////// 復習に関する処理 START ////////
