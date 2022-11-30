@@ -294,9 +294,11 @@ async function respondDeepLTranslation(port, keyword) {
 
 
 ////// 検索 //////
-function requestSearch(keyword) {
+function requestSearch(keyword, dictionaryId) {
+    console.log(dictionaryId);
+
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/api/v1/extensions/dictionaries/1/search`;
+        let url = `${diqtRootUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -319,10 +321,21 @@ function requestSearch(keyword) {
                 resolve(error);
             });
     });
+
+    
 }
 
 async function respondSearch(port, keyword) {
-    const data = await requestSearch(keyword);
-    port.postMessage({ data: data });
+    chrome.storage.local.get(['diqtDictDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtDictDictionaryId;
+        console.log(dictionaryId);
+        if (dictionaryId == '') {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
+        }
+        console.log(`respondSearch: ${dictionaryId}`);
+        const data = await requestSearch(keyword, dictionaryId);
+        port.postMessage({ data: data });
+    });
 }
 ////// 検索 //////

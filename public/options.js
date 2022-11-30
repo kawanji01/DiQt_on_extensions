@@ -42,12 +42,20 @@ function renderMypage() {
     let uid = '';
     let iconUrl = '';
     let userName = '';
+    let dictionaryId = '' ;
     let popupDisplayed = '';
-    chrome.storage.local.get(['diqtDictPublicUid', 'diqtDictIconUrl', 'diqtDictUserName', 'diqtDictPopupDisplayed'], function (result) {
+    chrome.storage.local.get(['diqtDictPublicUid', 'diqtDictIconUrl', 'diqtDictUserName', 'diqtDictDictionaryId', 'diqtDictPopupDisplayed'], function (result) {
         uid = result.diqtDictPublicUid;
         iconUrl = result.diqtDictIconUrl;
         userName = result.diqtDictUserName;
+        dictionaryId = result.diqtDictDictionaryId;
         popupDisplayed = result.diqtDictPopupDisplayed;
+        if (dictionaryId == '') {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
+        } else {
+            dictionaryId = Number(dictionaryId);
+        }
         let checked = ''
         if (popupDisplayed) {
             checked = 'checked';
@@ -67,12 +75,17 @@ function renderMypage() {
       ${userName}
     </h1>
 
+    ${createDictionarySelectForm(dictionaryId)}
+    
+
     <dic class="block my-3">
-<label class="checkbox" id="diqt-dict-popup-displayed">
-  <input type="checkbox" id="diqt-dict-popup-displayed-checkbox" ${checked}>
-  <span id="diqt-dict-popup-displayed-text">テキストを選択したときにポップアップを表示する。</span>
-</label>
+        <label class="checkbox" id="diqt-dict-popup-displayed">
+            <input type="checkbox" id="diqt-dict-popup-displayed-checkbox" ${checked}>
+            <span id="diqt-dict-popup-displayed-text">テキストを選択したときにポップアップを表示する。</span>
+        </label>
     </div>
+
+    
   
 <div class="block has-text-centered">
   <a href="https://www.diqt.net/ja/users/${uid}" target="_blank" rel="noopener">
@@ -87,10 +100,43 @@ function renderMypage() {
 </div>`
         let userPage = document.querySelector("#user-page");
         userPage.innerHTML = profileHtml;
+        addEventToSelectForm();
         addEventToLogout();
         AddEventToPopupDisplayed();
     });
 }
+
+// 辞書のセレクトフォームを作成
+function createDictionarySelectForm(value) {
+    let createOption = function(dictId, selectedDictId) {
+        if (dictId === selectedDictId) {
+            return 'selected';
+        } else {
+            return ''
+        }
+    }
+    return `<div class="block has-text-centered mt-5">
+    <div class="select">
+        <select id="dictionary-select-form">
+            <option value="1" class="has-text-weight-bold" ${createOption(1, value)}>英和辞書</option>
+            <option value="5" class="has-text-weight-bold" ${createOption(5, value)}>英英辞書</option>
+        </select>
+    </div>
+</div>`
+}
+
+// 辞書の切り替え
+function addEventToSelectForm() {
+    let selectForm = document.getElementById('dictionary-select-form');
+    let setDictionaryId = function(event) {
+        let dictionaryId = `${event.currentTarget.value}`
+        chrome.storage.local.set({ diqtDictDictionaryId: dictionaryId });
+    }
+    selectForm.addEventListener('change', setDictionaryId);
+}
+
+
+
 
 // プロフィールページのログアウトボタンにイベントを追加
 function addEventToLogout() {
@@ -124,6 +170,9 @@ function addEventToLogout() {
     }
     logoutBtn.addEventListener("click", logoutRequest, false);
 }
+
+
+
 
 // ポップアップの表示・非表示チェックボックスにイベントを追加
 function AddEventToPopupDisplayed() {
