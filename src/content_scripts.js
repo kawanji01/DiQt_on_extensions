@@ -228,6 +228,8 @@ function searchSuccess(data) {
                 // 辞書の項目のHTMLを作成して、画面に挿入する
                 let wordHtml = createWordHtml(word, loginToken);
                 resultForm.insertAdjacentHTML('beforeend', wordHtml);
+                // 意味の翻訳ボタンのイベントを設定する
+                setMeaningTranslation(word, loginToken);
                 // 復習ボタンのイベントを設定する
                 setEventToReviewBtn(word.quiz.id, word.review, loginToken);
                 // 例文の復習ボタンのイベントを設定する
@@ -298,6 +300,8 @@ function createWordHtml(word, loginToken) {
                              </div>`;
     /* 意味 */
     let meaning = `<div class="diqt-dict-meaning">${word.meaning}</div>`;
+    /* 意味の翻訳ボタン */
+    let meaningTranslation = createMeaningTranslation(word);
     /* 復習ボタン */
     let review = word.review;
     let quizId = word.quiz.id;
@@ -320,9 +324,91 @@ function createWordHtml(word, loginToken) {
     /* 項目と次の項目の間の余白 */
     let bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
     /* 項目のレンダリング */
-    let wordHtml = entry + meaning + reviewBtn + sentenceHtml + linkToImproveWord + bottomSpace;
+    let wordHtml = entry + meaning + meaningTranslation + reviewBtn + sentenceHtml + linkToImproveWord + bottomSpace;
     return wordHtml;
 }
+
+// 意味の翻訳ボタンを作成する
+function createMeaningTranslation(word) {
+    if (word.lang_number_of_entry == word.lang_number_of_meaning) {
+        return `<div id="small-translation-buttons-word-${word.id}" style="padding-left: 4px;">
+                    <span class="diqt-google-translation-btn-wrapper">
+                        <a href="#" class="diqt-google-translation-btn" style="color: #27ae60;"><u>Google翻訳</u></a>
+                    </span>
+                    <span >/</span>
+                    <span class="diqt-deepl-translation-btn-wrapper">
+                        <a href="#" class="diqt-deepl-translation-btn" style="color: #27ae60;"><u>DeepL翻訳</u></a>
+                    </span>
+                    <p class="diqt-google-translation-form"></p>
+                    <p class="diqt-deepl-translation-form"></p>
+                </div>`;
+    }
+    return '';
+}
+
+//  意味の翻訳イベントを設定する。
+function setMeaningTranslation(word, loginToken) {
+    if (word.lang_number_of_entry == word.lang_number_of_meaning) {
+        let buttons = document.getElementById(`small-translation-buttons-word-${word.id}`);
+        // google翻訳
+        let googleButton = buttons.querySelector('.diqt-google-translation-btn');
+        let googleWrapper = buttons.querySelector('.diqt-google-translation-btn-wrapper');
+        let googleTranslationForm = buttons.querySelector('.diqt-google-translation-form');
+        googleButton.addEventListener('click', function () {
+            if (loginToken) {
+                googleWrapper.innerHTML = '<span>翻訳中...</span>';
+                let port = chrome.runtime.connect({ name: "googleTranslation" });
+                port.postMessage({ action: "googleTranslation", keyword: word.meaning });
+                port.onMessage.addListener(function (msg) {
+                let data = msg['data'];
+                googleWrapper.innerHTML = '<span>完了</span>';
+                if (data['status'] == "200") {
+                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
+                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
+                    googleTranslationForm.innerHTML = translation;
+                } else {
+                    googleTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                }
+                return true;
+            });
+            } else {
+                // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+                let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                rtnPromise.then((response)=> {}).catch((error)=> {});
+                return true;  
+            }
+        });
+        // Deepl翻訳
+        let deeplButton = buttons.querySelector('.diqt-deepl-translation-btn');
+        let deeplWrapper = buttons.querySelector('.diqt-deepl-translation-btn-wrapper');
+        let deeplTranslationForm = buttons.querySelector('.diqt-deepl-translation-form');
+        deeplButton.addEventListener('click', function () {
+            if (loginToken) {
+                deeplWrapper.innerHTML = '<span>翻訳中...</span>';
+            let port = chrome.runtime.connect({ name: "deeplTranslation" });
+            port.postMessage({ action: "deeplTranslation", keyword: word.meaning });
+            port.onMessage.addListener(function (msg) {
+                let data = msg['data'];
+                deeplWrapper.innerHTML = '<span>完了</span>';
+                if (data['status'] == "200") {
+                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
+                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
+                    deeplTranslationForm.innerHTML = translation;
+                } else {
+                    deeplTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                }
+                return true;
+            });
+            } else {
+                // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+                let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+                rtnPromise.then((response)=> {}).catch((error)=> {});
+                return true;  
+            }
+        });
+    }
+}
+
 
 
 
@@ -866,7 +952,7 @@ function renderUserStatus() {
         let data = msg['data'];
         if (data) {
             chrome.storage.local.get(['diqtDictUserName'], function (result) {
-                userData.innerHTML = `<i class="fal fa-user"></i> ${result.diqtDictUserName}`
+                userData.innerHTML = `<i class="fal fa-user"></i> ${result.diqtDictUserName} / 設定`
             });
         } else {
             userData.innerHTML = '<i class="fal fa-user"></i> ログインする';
