@@ -239,7 +239,7 @@ function searchSuccess(data) {
                 }
             });
             // 解説のクリックサーチを有効にする
-            // activateClickSearch(resultForm);
+            activateClickSearch(resultForm);
             // 項目の読み上げを有効にする。
             enableTTS(resultForm);
             // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
@@ -299,7 +299,7 @@ function createWordHtml(word, loginToken) {
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
     /* 意味 */
-    let meaning = `<div class="diqt-dict-meaning">${word.meaning}</div>`;
+    let meaning = `<div class="diqt-dict-meaning">${markNotation(word.meaning)}</div>`;
     /* 意味の翻訳ボタン */
     let meaningTranslation = createMeaningTranslation(word);
     /* 復習ボタン */
@@ -857,7 +857,7 @@ function markNotation(text) {
     })
     return processedArray.join('')
 }
-/* 
+
 // wiki記法でリンクになっている単語をクリックすると、自動で辞書を検索するようにする。
 function activateClickSearch(results) {
     const links = results.querySelectorAll('.diqt-notation-link')
@@ -874,7 +874,7 @@ function activateClickSearch(results) {
             return false;
         });
     })
-} */
+}
 
 // 項目を読み上げさせる。
 function enableTTS(results) {
