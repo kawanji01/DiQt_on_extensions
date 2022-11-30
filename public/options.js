@@ -50,7 +50,7 @@ function renderMypage() {
         userName = result.diqtDictUserName;
         dictionaryId = result.diqtDictDictionaryId;
         popupDisplayed = result.diqtDictPopupDisplayed;
-        if (dictionaryId == '') {
+        if (dictionaryId == '' || dictionaryId  == undefined) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
         } else {

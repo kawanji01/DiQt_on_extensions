@@ -329,7 +329,7 @@ async function respondSearch(port, keyword) {
     chrome.storage.local.get(['diqtDictDictionaryId'], async function (result) {
         let dictionaryId = result.diqtDictDictionaryId;
         console.log(dictionaryId);
-        if (dictionaryId == '') {
+        if (dictionaryId == '' || dictionaryId  == undefined) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
         }
