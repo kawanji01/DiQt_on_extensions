@@ -1,13 +1,22 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = 'https://www.diqt.net';
-//const diqtRootUrl = 'https://819c-202-177-91-144.ngrok.io/';
+
+//let diqtRootUrl = process.env.DIQT_ROOT_URL;
+let diqtRootUrl = process.env.ROOT_URL;
+let apiKey = process.env.API_KEY;
+let secret = process.env.SECRET_KEY;
+//let text = apiKey + ":" + secret;
+//let bytes = new TextEncoder().encode(text);
+//let base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
+//let basicAuth = "Basic " + base64;
+let basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
+
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
     // Could not establish connection. Receiving end does not exist.の解決
     // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
     let rtnPromise = chrome.tabs.sendMessage(tab.id, "Action");
-    rtnPromise.then((response)=> {}).catch((error)=> {});
+    rtnPromise.then((response) => { }).catch((error) => { });
 });
 
 // タブがアップデート（画面遷移など）されたことをcontent_scriptsに伝える。参考：https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
@@ -15,7 +24,7 @@ chrome.tabs.onUpdated.addListener(function (tabId) {
     // Could not establish connection. Receiving end does not exist.の解決
     // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
     let rtnPromise = chrome.tabs.sendMessage(tabId, "Updated");
-    rtnPromise.then((response)=> {}).catch((error)=> {});
+    rtnPromise.then((response) => { }).catch((error) => { });
 });
 
 
@@ -70,7 +79,8 @@ function fetchCurrentUser() {
             credentials: 'include',
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -129,7 +139,8 @@ function postCreateReview(quizId) {
             body: JSON.stringify({ quiz_id: quizId }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -164,7 +175,8 @@ function postUpdateReview(reviewId, settingNumber) {
             body: JSON.stringify({ interval_setting: settingNumber }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -198,7 +210,8 @@ function requestDestroyReview(reviewId) {
             credentials: 'include',
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -233,7 +246,8 @@ function requestGoogleTranslation(keyword) {
             body: JSON.stringify({ keyword: keyword }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -269,7 +283,8 @@ function requestDeeplTranslation(keyword) {
             body: JSON.stringify({ keyword: keyword }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -295,7 +310,7 @@ async function respondDeepLTranslation(port, keyword) {
 
 ////// 検索 //////
 function requestSearch(keyword, dictionaryId) {
-    console.log(dictionaryId);
+    // console.log(dictionaryId);
 
     return new Promise(resolve => {
         let url = `${diqtRootUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
@@ -307,6 +322,7 @@ function requestSearch(keyword, dictionaryId) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
         fetch(url, params)
@@ -317,23 +333,23 @@ function requestSearch(keyword, dictionaryId) {
                 resolve(data);
             })
             .catch((error) => {
-                console.log(error)
+                //console.log(error)
                 resolve(error);
             });
     });
 
-    
+
 }
 
 async function respondSearch(port, keyword) {
     chrome.storage.local.get(['diqtDictDictionaryId'], async function (result) {
         let dictionaryId = result.diqtDictDictionaryId;
-        console.log(dictionaryId);
-        if (dictionaryId == '' || dictionaryId  == undefined) {
+        // console.log(dictionaryId);
+        if (dictionaryId == '' || dictionaryId == undefined) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
         }
-        console.log(`respondSearch: ${dictionaryId}`);
+        // console.log(`respondSearch: ${dictionaryId}`);
         const data = await requestSearch(keyword, dictionaryId);
         port.postMessage({ data: data });
     });
