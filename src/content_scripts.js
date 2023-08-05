@@ -6,7 +6,6 @@
 // 挫折：mini-css-extract-pluginを使って上記の方法でcssをimportしようとすると、JSframeが呼び出せなくなる。
 
 
-
 // Backgroundからタブに送られたメッセージを受信し、タブ内でメッセージに応じた処理を実行する。
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     switch (request) {
@@ -269,7 +268,7 @@ function searchSuccess(data) {
             optionBtn.addEventListener('click', function () {
                 // 
                 let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response)=> {}).catch((error)=> {});
+                rtnPromise.then((response) => { }).catch((error) => { });
             });
         } else {
             // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
@@ -360,22 +359,22 @@ function setMeaningTranslation(word, loginToken) {
                 let port = chrome.runtime.connect({ name: "googleTranslation" });
                 port.postMessage({ action: "googleTranslation", keyword: word.meaning });
                 port.onMessage.addListener(function (msg) {
-                let data = msg['data'];
-                googleWrapper.innerHTML = '<span>完了</span>';
-                if (data['status'] == "200") {
-                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
+                    let data = msg['data'];
+                    googleWrapper.innerHTML = '<span>完了</span>';
+                    if (data['status'] == "200") {
+                        let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                    googleTranslationForm.innerHTML = translation;
-                } else {
-                    googleTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                }
-                return true;
-            });
+                        googleTranslationForm.innerHTML = translation;
+                    } else {
+                        googleTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                    }
+                    return true;
+                });
             } else {
                 // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
                 let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response)=> {}).catch((error)=> {});
-                return true;  
+                rtnPromise.then((response) => { }).catch((error) => { });
+                return true;
             }
         });
         // Deepl翻訳
@@ -385,25 +384,25 @@ function setMeaningTranslation(word, loginToken) {
         deeplButton.addEventListener('click', function () {
             if (loginToken) {
                 deeplWrapper.innerHTML = '<span>翻訳中...</span>';
-            let port = chrome.runtime.connect({ name: "deeplTranslation" });
-            port.postMessage({ action: "deeplTranslation", keyword: word.meaning });
-            port.onMessage.addListener(function (msg) {
-                let data = msg['data'];
-                deeplWrapper.innerHTML = '<span>完了</span>';
-                if (data['status'] == "200") {
-                    let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
+                let port = chrome.runtime.connect({ name: "deeplTranslation" });
+                port.postMessage({ action: "deeplTranslation", keyword: word.meaning });
+                port.onMessage.addListener(function (msg) {
+                    let data = msg['data'];
+                    deeplWrapper.innerHTML = '<span>完了</span>';
+                    if (data['status'] == "200") {
+                        let translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                    deeplTranslationForm.innerHTML = translation;
-                } else {
-                    deeplTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                }
-                return true;
-            });
+                        deeplTranslationForm.innerHTML = translation;
+                    } else {
+                        deeplTranslationForm.innerHTML = `<a href="https://www.diqt.net/ja/select_plan" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                    }
+                    return true;
+                });
             } else {
                 // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
                 let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response)=> {}).catch((error)=> {});
-                return true;  
+                rtnPromise.then((response) => { }).catch((error) => { });
+                return true;
             }
         });
     }
@@ -481,7 +480,7 @@ function setSignInToReviewBtn(quizId) {
         notLoggedInReviewBtn.addEventListener('click', function () {
             // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
             let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-            rtnPromise.then((response)=> {}).catch((error)=> {});
+            rtnPromise.then((response) => { }).catch((error) => { });
             return true;
         });
     }
@@ -768,7 +767,7 @@ function newWordHtml(keyword, dictionary) {
                 <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
     let searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
             <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
-            let html =  createNewWord + searchWeb;
+    let html = createNewWord + searchWeb;
     return html;
 }
 
@@ -819,16 +818,16 @@ function addEventToTranslationForm(loginToken, keyword) {
         googleTranslationForm.addEventListener('click', function () {
             // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
             let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-            rtnPromise.then((response)=> {}).catch((error)=> {});
+            rtnPromise.then((response) => { }).catch((error) => { });
         });
         deeplTranslationForm.addEventListener('click', function () {
             let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-            rtnPromise.then((response)=> {}).catch((error)=> {});
+            rtnPromise.then((response) => { }).catch((error) => { });
         });
         const loginBtn = document.querySelector('#diqt-dict-login-for-translation');
         loginBtn.addEventListener('click', function () {
             let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-            rtnPromise.then((response)=> {}).catch((error)=> {});
+            rtnPromise.then((response) => { }).catch((error) => { });
         });
     }
 }
@@ -964,7 +963,7 @@ function renderUserStatus() {
     document.querySelector('#diqt-dict-logged-in-user').addEventListener('click', function () {
         // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
         let rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-        rtnPromise.then((response)=> {}).catch((error)=> {});
+        rtnPromise.then((response) => { }).catch((error) => { });
     });
 
 }

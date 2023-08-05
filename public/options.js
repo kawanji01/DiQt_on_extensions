@@ -1,6 +1,8 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = 'https://www.diqt.net';
-//const diqtRootUrl = 'https://819c-202-177-91-144.ngrok.io/';
+let diqtRootUrl = process.env.ROOT_URL;
+let apiKey = process.env.API_KEY;
+let secret = process.env.SECRET_KEY;
+let basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
 
 
 // アクセスして一番最初に実行する関数。
@@ -42,7 +44,7 @@ function renderMypage() {
     let uid = '';
     let iconUrl = '';
     let userName = '';
-    let dictionaryId = '' ;
+    let dictionaryId = '';
     let popupDisplayed = '';
     chrome.storage.local.get(['diqtDictPublicUid', 'diqtDictIconUrl', 'diqtDictUserName', 'diqtDictDictionaryId', 'diqtDictPopupDisplayed'], function (result) {
         uid = result.diqtDictPublicUid;
@@ -50,7 +52,7 @@ function renderMypage() {
         userName = result.diqtDictUserName;
         dictionaryId = result.diqtDictDictionaryId;
         popupDisplayed = result.diqtDictPopupDisplayed;
-        if (dictionaryId == '' || dictionaryId  == undefined) {
+        if (dictionaryId == '' || dictionaryId == undefined) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
         } else {
@@ -108,7 +110,7 @@ function renderMypage() {
 
 // 辞書のセレクトフォームを作成
 function createDictionarySelectForm(value) {
-    let createOption = function(dictId, selectedDictId) {
+    let createOption = function (dictId, selectedDictId) {
         if (dictId === selectedDictId) {
             return 'selected';
         } else {
@@ -128,7 +130,7 @@ function createDictionarySelectForm(value) {
 // 辞書の切り替え
 function addEventToSelectForm() {
     let selectForm = document.getElementById('dictionary-select-form');
-    let setDictionaryId = function(event) {
+    let setDictionaryId = function (event) {
         let dictionaryId = `${event.currentTarget.value}`
         chrome.storage.local.set({ diqtDictDictionaryId: dictionaryId });
     }
@@ -150,7 +152,8 @@ function addEventToLogout() {
             credentials: 'include',
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         }
 
@@ -188,7 +191,8 @@ function AddEventToPopupDisplayed() {
             credentials: 'include',
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         }
 
@@ -308,7 +312,8 @@ function addEventToLoginForm() {
             body: JSON.stringify({ email: email, password: password }),
             dataType: 'json',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
             }
         };
 
