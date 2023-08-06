@@ -1,6 +1,8 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
 
-const diqtRootUrl = process.env.ROOT_URL;
+const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
+const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
+const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
 const apiKey = process.env.API_KEY;
 const secret = process.env.SECRET_KEY;
 const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
@@ -67,7 +69,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 ///////// 現在のユーザーを取得する ///////
 function fetchCurrentUser() {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/users/current`;
+        const url = `${diqtUrl}/api/v1/extensions/users/current`;
         const params = {
             method: "GET",
             mode: 'cors',
@@ -125,7 +127,7 @@ async function inspectCurrentUser(port) {
 /////// 復習設定の新規作成 ///////
 function postCreateReview(quizId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/reviews`;
+        const url = `${diqtUrl}/api/v1/extensions/reviews`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -161,7 +163,7 @@ async function respondCreateReview(port, quizId) {
 /////// 復習設定の更新 ///////
 function postUpdateReview(reviewId, settingNumber) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
+        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
         const params = {
             method: "PATCH",
             mode: 'cors',
@@ -197,7 +199,7 @@ async function respondUpdateReview(port, quizId, settingNumber) {
 ////// 復習設定の削除 ///////
 function requestDestroyReview(reviewId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
+        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
         const params = {
             method: "DELETE",
             mode: 'cors',
@@ -232,7 +234,7 @@ async function respondDestroyReview(port, reviewId) {
 ///// Google翻訳 /////
 function requestGoogleTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -278,7 +280,7 @@ async function respondGoogleTranslation(port, keyword) {
 ///// Deepl翻訳 /////
 function requestDeeplTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -324,7 +326,7 @@ function requestSearch(keyword, dictionaryId) {
     // console.log(dictionaryId);
 
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
         const params = {
             method: "POST",
             mode: 'cors',

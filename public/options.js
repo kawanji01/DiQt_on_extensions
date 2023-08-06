@@ -1,5 +1,7 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-const diqtRootUrl = process.env.ROOT_URL;
+const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
+const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
+const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
 const apiKey = process.env.API_KEY;
 const secret = process.env.SECRET_KEY;
 const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
@@ -77,6 +79,12 @@ function renderMypage() {
     </h1>
 
     ${createDictionarySelectForm(result.diqtDictionaries, selectedDictionaryId)}
+
+    <div class="block has-text-centered">
+        <a href="${diqtUrl}" target="_blank" rel="noopener">
+            <button class="button is-warning is-light">辞書の追加・削除</button>
+        </a>
+    </div>
     
 
     <dic class="block my-3">
@@ -89,7 +97,7 @@ function renderMypage() {
     
   
 <div class="block has-text-centered">
-  <a href="https://www.diqt.net/ja/users/${uid}" target="_blank" rel="noopener">
+  <a href="${diqtUrl}/users/${uid}" target="_blank" rel="noopener">
   <button class="button is-warning is-light">マイページ</button>
   </a>
 </div>
@@ -145,7 +153,7 @@ function addEventToLogout() {
     let logoutBtn = document.querySelector("#logout-btn");
     let logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/sessions/logout`;
+        let url = `${diqtUrl}/api/v1/extensions/sessions/logout`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -184,7 +192,7 @@ function AddEventToPopupDisplayed() {
     let checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
     let toggleRequest = () => {
         checkboxText.textContent = '設定中...';
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/users/update_popup_displayed`;
+        let url = `${diqtUrl}/api/v1/extensions/users/update_popup_displayed`;
         let params = {
             method: "POST",
             mode: 'cors',
@@ -267,21 +275,21 @@ function renderLoginForm() {
 </h3>
 <div class="columns has-text-centered">
   <div class="column is-three-fifths is-offset-one-fifth">
-    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="${diqtUrl}/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-danger my-3 is-medium is-fullwidth has-text-weight-bold">Googleで続ける</button>
     </a>
 
-    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="${diqtUrl}/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-info my-3 is-medium is-fullwidth has-text-weight-bold">Twitterで続ける</button>
     </a>
 
-    <a href="https://www.diqt.net/ja/login?authentication=sns" target="_blank" rel="noopener">
+    <a href="${diqtUrl}/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-black my-3 is-medium is-fullwidth has-text-weight-bold">Appleで続ける</button>
     </a>
 
     <p>　</p>
     <p class="my-5 has-text-weight-bold">
-        アカウントを持っていませんか？ <a href="https://www.diqt.net/ja/users/new" target="_blank" rel="noopener" style="color: #f79c4f;">新規登録</a
+        アカウントを持っていませんか？ <a href="${diqtUrl}/users/new" target="_blank" rel="noopener" style="color: #f79c4f;">新規登録</a
         >
     </p>
 
@@ -304,7 +312,7 @@ function addEventToLoginForm() {
         // let encodedEmail = encodeURIComponent(email);
         let password = document.querySelector("#diqt-password").value;
         // let encodedPassword = encodeURIComponent(password);
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/sessions/sign_in`;
+        let url = `${diqtUrl}/api/v1/extensions/sessions/sign_in`;
         let params = {
             method: "POST",
             mode: 'cors',
