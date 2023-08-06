@@ -230,9 +230,9 @@ async function respondDestroyReview(port, reviewId) {
 
 
 ///// Google翻訳 /////
-function requestGoogleTranslation(keyword) {
+function requestGoogleTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/words/google_translate`;
+        const url = `${diqtRootUrl}/ja/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -259,17 +259,26 @@ function requestGoogleTranslation(keyword) {
 }
 
 async function respondGoogleTranslation(port, keyword) {
-    const data = await requestGoogleTranslation(keyword);
-    port.postMessage({ data: data });
+    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtSelectedDictionaryId;
+        // console.log(dictionaryId);
+        if (dictionaryId == '' || dictionaryId == undefined) {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
+        }
+        const data = await requestGoogleTranslation(keyword, dictionaryId);
+        port.postMessage({ data: data });
+    });
+
 }
 ///// Google翻訳 /////
 
 
 
 ///// Deepl翻訳 /////
-function requestDeeplTranslation(keyword) {
+function requestDeeplTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        const url = `${diqtRootUrl}/ja/api/v1/extensions/words/deepl_translate`;
+        const url = `${diqtRootUrl}/ja/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -296,8 +305,16 @@ function requestDeeplTranslation(keyword) {
 }
 
 async function respondDeepLTranslation(port, keyword) {
-    const data = await requestDeeplTranslation(keyword);
-    port.postMessage({ data: data });
+    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtSelectedDictionaryId;
+        // console.log(dictionaryId);
+        if (dictionaryId == '' || dictionaryId == undefined) {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
+        }
+        const data = await requestDeeplTranslation(keyword, dictionaryId);
+        port.postMessage({ data: data });
+    });
 }
 ///// Deepl翻訳 /////
 
