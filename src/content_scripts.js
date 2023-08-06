@@ -51,7 +51,7 @@ function toggleFloatingWindow() {
         <a>
         <div id="diqt-dict-logged-in-user" style="font-size: 10px;">　</div>
         </a>
-        <div id="diqt-dict-dictionary-select-form-wrapper" style="font-size: 12px;">　</div>
+        <div id="diqt-dict-dictionary-select-form-wrapper">　</div>
         <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form"></form>
         <div id="diqt-dict-search-status" style="text-align: left; color: #6e6e6e;">
         "<span id="diqt-dict-search-keyword" style="font-size: 12px;"></span>"<span id="diqt-dict-search-status-text"></span>
@@ -347,20 +347,16 @@ function createDictionarySelectForm(dictionaries, value) {
     dictionaryId = Number(dictionaryId);
     const dictionaryAry = JSON.parse(dictionaries);
     const optionsHtml = dictionaryAry.map(item => createOption(item, dictionaryId)).join('');
-    return `<div class="block has-text-centered mt-5">
-    <div class="select">
-        <select id="diqt-dictionary-select-form">
-            ${optionsHtml}
-        </select>
-    </div>
-</div>`
+    return `<select id="diqt-dictionary-select-form">
+                ${optionsHtml}
+            </select>`
 }
 // 辞書のセレクトフォームのオプションを作成
 function createOption(item, value) {
     // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
     // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
     const isSelected = item[0] === value ? 'selected' : '';
-    return `<option value="${item[0]}" class="has-text-weight-bold" ${isSelected}>${item[1]}</option>`;
+    return `<option value="${item[0]}" class="diqt-dictionary-select-option" ${isSelected}>${item[1]}</option>`;
 }
 
 // 辞書の切り替え
@@ -412,7 +408,7 @@ function displayPopupWhenSelected() {
                 const topPx = window.pageYOffset + textRect.top + 32;
                 const leftPx = window.pageXOffset + textRect.left;
                 const popupHtml = `<button id="diqt-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border: 0; border-radius: 4px; padding: 0; margin: 0;">
-                    <img src="https://kawanji.s3.ap-northeast-1.amazonaws.com/assets/diqt_logo.svg" alt="diqt Icon" style="height: 24px;width: 24px; margin: 4px 2px 2px 3px; padding: 0;">
+                    <img src="https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/diqt_logo.svg" alt="diqt Icon" style="height: 24px;width: 24px; margin: 4px 2px 2px 3px; padding: 0;">
                     </button>`
                 const bodyElement = document.querySelector('html body');
                 bodyElement.insertAdjacentHTML('beforeend', popupHtml);

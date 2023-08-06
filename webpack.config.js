@@ -29,7 +29,7 @@ module.exports = {
     // トランスパイル対象のファイルを entry で指定する。
     // jsframeのようなライブラリをトランスパイルすると、他のファイルから変数や関数を参照できなくなるので対象から外す。/ 参照： https://teratail.com/questions/190709
     entry: {
-        main: [path.join(__dirname, "src/content_scripts.js")],
+        main: [path.join(__dirname, "src/content_scripts.js"), path.join(__dirname, "src/style.scss")],
         background: path.join(__dirname, "src/background.js"),
         options: path.join(__dirname, "public/options.js"),
     },

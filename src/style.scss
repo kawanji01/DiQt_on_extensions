@@ -1,0 +1,550 @@
+/* 余白 */
+
+$brand-green: #27ae60;
+$text-black: #6e6e6e;
+$box-border: #c5c3c3;
+
+#diqt-dict-extension-wrapper {
+
+  /* リセットCSS START */
+  html,
+  body,
+  div,
+  span,
+  applet,
+  object,
+  iframe,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  pre,
+  a,
+  abbr,
+  acronym,
+  address,
+  big,
+  cite,
+  code,
+  del,
+  dfn,
+  em,
+  img,
+  ins,
+  kbd,
+  q,
+  s,
+  samp,
+  small,
+  strike,
+  strong,
+  sub,
+  sup,
+  tt,
+  var,
+  b,
+  u,
+  //i,
+  center,
+  dl,
+  dt,
+  dd,
+  ol,
+  ul,
+  li,
+  fieldset,
+  form,
+  label,
+  legend,
+  table,
+  caption,
+  tbody,
+  tfoot,
+  thead,
+  tr,
+  th,
+  td,
+  article,
+  aside,
+  canvas,
+  details,
+  embed,
+  figure,
+  figcaption,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  output,
+  ruby,
+  section,
+  summary,
+  time,
+  mark,
+  audio,
+  video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+  }
+
+  /* HTML5 display-role reset for older browsers */
+  article,
+  aside,
+  details,
+  figcaption,
+  figure,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  section {
+    display: block;
+  }
+
+  body {
+    line-height: 1;
+  }
+
+  ol,
+  ul {
+    list-style: none;
+  }
+
+  blockquote,
+  q {
+    quotes: none;
+  }
+
+  blockquote:before,
+  blockquote:after,
+  q:before,
+  q:after {
+    content: '';
+    content: none;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* リセットCSS END */
+
+
+  /* カスタマイズ START */
+  padding: 8px;
+
+  /* Wiki記法による辞書へのリンク */
+  a.diqt-notation-link {
+    color: $brand-green;
+  }
+
+  /* ログインボタン・ログインユーザー名の表示 */
+  #diqt-dict-logged-in-user {
+    color: $brand-green;
+    text-align: left;
+  }
+
+  #diqt-dict-dictionary-select-form-wrapper {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    text-align: left;
+    font-size: 10;
+    color: $text-black;
+
+    #diqt-dictionary-select-form {
+      display: block;
+      width: 100%;
+      min-height: 24px;
+      max-width: none;
+      border-radius: 3px;
+      border: 1px solid $box-border;
+      box-sizing: border-box;
+      padding: 6px 6px;
+
+      option {
+        font-size: 10px;
+      }
+
+    }
+  }
+
+
+
+  /* 検索ボックスのデザイン */
+  #diqt-dict-search-form {
+    width: 100%;
+    min-height: 24px;
+    padding: 6px 6px;
+    /*ボックスを大きくする*/
+    font-size: 14px;
+    border-radius: 3px;
+    border: 1px solid $box-border;
+    /*枠線*/
+    box-sizing: border-box;
+    /*横幅の解釈をpadding, borderまでとする*/
+    margin-top: 8px;
+    margin-bottom: 16px;
+
+    &:focus {
+      border: 1px solid #2ecc71;
+      outline: 0;
+    }
+  }
+
+  input#diqt-dict-search-form {
+    width: 100%;
+    min-height: 24px;
+    max-width: none;
+  }
+
+
+  /* 見出し */
+  .diqt-dict-entry {
+    color: $brand-green;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 8px 0 8px 4px;
+    text-align: left;
+  }
+
+  /* 見出しの読み上げボタン */
+  .diqt-dict-speech-btn {
+    /* buttonのcssリセット */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    appearance: none;
+    /* buttonのcssリセット */
+
+    margin-left: 8px;
+    border-radius: 50%;
+    color: $text-black;
+  }
+
+  /* 意味 */
+  .diqt-dict-meaning {
+    color: $text-black;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 8px 0 8px 4px;
+    text-align: left;
+
+    // ラベル
+    .diqt-item-label {
+      display: inline-block;
+      font-size: 0.8em;
+      border: 1px solid $text-black;
+      border-radius: 4px;
+      padding: 0 4px;
+      margin-right: 4px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+  }
+
+  /* 解説 */
+  .diqt-dict-explanation {
+    color: $text-black;
+    font-size: 12px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+
+  /* 復習ボタン */
+  .diqt-dict-review-btn {
+    color: $brand-green;
+    font-size: 12px;
+    position: relative;
+    display: inline-block;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    margin-bottom: 16px;
+
+    &:before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      right: 0;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 25px;
+      border: 1px solid;
+      transition: all 0.3s;
+    }
+
+    &:hover {
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+
+    }
+
+    &:hover:before {
+      right: 0;
+      transform: scale(1.2);
+      background: $brand-green;
+    }
+  }
+
+  .diqt-dict-review-btn.diqt-already-set {
+    color: white;
+    background-color: $brand-green;
+    border-radius: 25px;
+    border: 1.5px solid $brand-green;
+
+    &:before {
+      border: 1px solid $brand-green;
+    }
+  }
+
+
+  /* 復習設定フォームのステータス */
+  .boqqs-dict-reminder-status {
+    width: 90%;
+    display: block;
+    margin: 16px auto;
+    font-size: 12px;
+    color: $text-black;
+    text-align: left;
+
+    p {
+      font-size: 12px;
+      margin: 8px 0;
+    }
+  }
+
+  /* 復習設定の削除ボタン */
+  .diqt-dict-destroy-review-btn {
+    display: block;
+    color: #ee5a5aff;
+    cursor: pointer;
+    margin-top: 8px auto;
+  }
+
+  /* 復習のセレクトメニュー */
+  .diqt-dict-select-form {
+    overflow: hidden;
+    width: 90%;
+    margin: 2em auto;
+    text-align: center;
+
+    select {
+      width: 100%;
+      padding-right: 1em;
+      cursor: pointer;
+      text-indent: 0.01px;
+      text-overflow: ellipsis;
+      border: none;
+      outline: none;
+      background: transparent;
+      background-image: none;
+      box-shadow: none;
+      -webkit-appearance: none;
+      appearance: none;
+      font-size: 14px;
+    }
+
+    select::-ms-expand {
+      display: none;
+    }
+  }
+
+  .diqt-dict-select-form.cp_sl01 {
+    position: relative;
+    border: 1px solid #bbbbbb;
+    border-radius: 4px;
+    background: #ffffff;
+
+    select {
+      padding: 8px 38px 8px 8px !important;
+      color: #666666;
+    }
+  }
+
+  .diqt-dict-select-form.cp_sl01::before {
+    position: absolute;
+    top: 14px;
+    right: 8px;
+    width: 0;
+    height: 0;
+    padding: 0;
+    content: "";
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #666666;
+    pointer-events: none;
+  }
+
+  /* 復習設定のsubmitボタン */
+  .diqt-dict-submit-review-btn {
+    /* buttonのcssリセット */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    appearance: none;
+    /* buttonのcssリセット */
+
+    display: block;
+    width: 90%;
+    margin: 16px auto;
+    text-align: center;
+    color: #fff;
+    background-color: $brand-green;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 2px;
+
+    &:hover {
+      background-color: #259755;
+    }
+  }
+
+  .diqt-dict-submit-review-btn.hidden {
+    display: none;
+  }
+
+  /* プレミアム会員限定のoptionを設定したときに表示する、プレミアムプランへの誘導 */
+  .diqt-dict-recommend-premium {
+    display: block;
+    width: 90%;
+    margin: 16px auto;
+    font-size: 12px;
+
+    a {
+      color: $brand-green;
+    }
+  }
+
+
+
+
+
+
+
+
+  /* 項目の改善リンク */
+  .diqt-dict-link-to-improve {
+    color: $text-black;
+    font-size: 10px;
+    display: inline-block;
+    margin-top: 16px;
+    margin-bottom: 24px;
+
+    &:hover {
+      color: $brand-green;
+    }
+  }
+
+  /* タグ（頻出語のタグや、解説や例文などの前にラベルとして利用するタグ） */
+  .diqt-dict-word-tags-wrapper {
+    margin-top: 8px;
+    text-align: right;
+  }
+
+  a.diqt-dict-word-tag {
+    color: $text-black;
+    font-size: 9px;
+    border-radius: 8px;
+    border: 1px solid #9b9999;
+    padding: 4px 6px;
+    text-decoration: none;
+    margin-left: 4px;
+
+    &:hover {
+      color: $brand-green;
+      border: 1px solid $brand-green;
+      text-decoration: none;
+    }
+
+    i {
+      margin-right: 2px;
+    }
+  }
+
+  /* ラベル（例文や解説などカテゴリーを示す） */
+  .diqt-dict-label {
+    display: inline-block;
+    font-weight: bold;
+    color: $text-black;
+    font-size: 8px;
+    border-radius: 6px;
+    border: 1px solid #9b9999;
+    padding: 3px 5px;
+    text-decoration: none;
+    margin-left: 4px;
+  }
+
+  /* loader / 参照：https://loading.io/css/ */
+  .center {
+    text-align: center;
+  }
+
+
+  .lds-ripple-diqt-dict {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-top: 24px;
+  }
+
+  .lds-ripple-diqt-dict div {
+    position: absolute;
+    border: 4px solid $brand-green;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  .lds-ripple-diqt-dict div:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+
+  @keyframes lds-ripple {
+    0% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 72px;
+      height: 72px;
+      opacity: 0;
+    }
+  }
+
+
+
+}
