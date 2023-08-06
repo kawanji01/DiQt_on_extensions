@@ -9,7 +9,7 @@ const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + sec
 
 // アクセスして一番最初に実行する関数。
 function initializePage() {
-    let port = chrome.runtime.connect({ name: "inspectCurrentUser" });
+    const port = chrome.runtime.connect({ name: "inspectCurrentUser" });
     port.postMessage({ action: "inspectCurrentUser" });
     port.onMessage.addListener(function (msg) {
         const data = msg['data'];
@@ -64,7 +64,7 @@ function renderMypage() {
             checked = 'checked';
         }
 
-        let profileHtml = `
+        const profileHtml = `
 <div class="content has-text-centered">
   
     <figure class="mt-5 image is-128x128 mx-auto">
@@ -107,7 +107,7 @@ function renderMypage() {
 </div>
 
 </div>`
-        let userPage = document.querySelector("#user-page");
+        const userPage = document.querySelector("#user-page");
         userPage.innerHTML = profileHtml;
         addEventToSelectForm();
         addEventToLogout();
@@ -137,9 +137,9 @@ function createOption(item, value) {
 
 // 辞書の切り替え
 function addEventToSelectForm() {
-    let selectForm = document.getElementById('dictionary-select-form');
-    let setDictionaryId = function (event) {
-        let selectedDictionaryId = `${event.currentTarget.value}`;
+    const selectForm = document.getElementById('dictionary-select-form');
+    const setDictionaryId = function (event) {
+        const selectedDictionaryId = `${event.currentTarget.value}`;
         chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
     }
     selectForm.addEventListener('change', setDictionaryId);
@@ -150,11 +150,11 @@ function addEventToSelectForm() {
 
 // プロフィールページのログアウトボタンにイベントを追加
 function addEventToLogout() {
-    let logoutBtn = document.querySelector("#logout-btn");
-    let logoutRequest = () => {
+    const logoutBtn = document.querySelector("#logout-btn");
+    const logoutRequest = () => {
         logoutBtn.value = 'ログアウト中...'
-        let url = `${diqtUrl}/api/v1/extensions/sessions/logout`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/sessions/logout`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -187,13 +187,13 @@ function addEventToLogout() {
 
 // ポップアップの表示・非表示チェックボックスにイベントを追加
 function AddEventToPopupDisplayed() {
-    let checkboxLabel = document.querySelector('#diqt-dict-popup-displayed');
-    let checkbox = document.querySelector('#diqt-dict-popup-displayed-checkbox');
-    let checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
-    let toggleRequest = () => {
+    const checkboxLabel = document.querySelector('#diqt-dict-popup-displayed');
+    const checkbox = document.querySelector('#diqt-dict-popup-displayed-checkbox');
+    const checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
+    const toggleRequest = () => {
         checkboxText.textContent = '設定中...';
-        let url = `${diqtUrl}/api/v1/extensions/users/update_popup_displayed`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/users/update_popup_displayed`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -222,7 +222,7 @@ function AddEventToPopupDisplayed() {
 
 // ログインフォームをレンダリングする
 function renderLoginForm() {
-    let loginFormHtml = `
+    const loginFormHtml = `
 <div class="content">
 <h1 class="mb-5 mt-3 has-text-centered is-size-2 has-text-weight-bold">
   ログイン
@@ -280,10 +280,6 @@ function renderLoginForm() {
     </a>
 
     <a href="${diqtUrl}/login?authentication=sns" target="_blank" rel="noopener">
-        <button class="button is-info my-3 is-medium is-fullwidth has-text-weight-bold">Twitterで続ける</button>
-    </a>
-
-    <a href="${diqtUrl}/login?authentication=sns" target="_blank" rel="noopener">
         <button class="button is-black my-3 is-medium is-fullwidth has-text-weight-bold">Appleで続ける</button>
     </a>
 
@@ -298,22 +294,22 @@ function renderLoginForm() {
 </div>
 
 `
-    let userPage = document.querySelector("#user-page");
+    const userPage = document.querySelector("#user-page");
     userPage.innerHTML = loginFormHtml;
     addEventToLoginForm();
 }
 
 // ログインフォームに、ログインのためのイベントを追加する
 function addEventToLoginForm() {
-    let btn = document.querySelector("#diqt-login-btn");
+    const btn = document.querySelector("#diqt-login-btn");
     const postFetch = () => {
-        let email = document.querySelector("#diqt-email").value;
+        const email = document.querySelector("#diqt-email").value;
         // emailに+が含まれていると空白文字として解釈されてしまうのでエンコードしておく。
-        // let encodedEmail = encodeURIComponent(email);
-        let password = document.querySelector("#diqt-password").value;
-        // let encodedPassword = encodeURIComponent(password);
-        let url = `${diqtUrl}/api/v1/extensions/sessions/sign_in`;
-        let params = {
+        // const encodedEmail = encodeURIComponent(email);
+        const password = document.querySelector("#diqt-password").value;
+        // const encodedPassword = encodeURIComponent(password);
+        const url = `${diqtUrl}/api/v1/extensions/sessions/sign_in`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -334,11 +330,11 @@ function addEventToLoginForm() {
                     setUserData(data['data']);
                     renderMypage();
                 } else {
-                    let errorHtml = `
+                    const errorHtml = `
                     <div class="notification is-danger is-light my-3">
                     メールアドレスとパスワードの組み合わせが正しくありません。
                     </div>`
-                    let feedback = document.querySelector('#feedback');
+                    const feedback = document.querySelector('#feedback');
                     feedback.innerHTML = errorHtml;
                 }
             })
