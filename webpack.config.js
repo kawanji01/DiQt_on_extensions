@@ -95,6 +95,9 @@ module.exports = {
             }, {
                 from: "./fonts",
                 to: "./fonts"
+            }, {
+                from: "./_locales",
+                to: "./_locales"
             }],
         }),
         // CSSファイルを外だしにするプラグイン

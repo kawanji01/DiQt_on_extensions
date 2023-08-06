@@ -1,14 +1,14 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
 
 //let diqtRootUrl = process.env.DIQT_ROOT_URL;
-let diqtRootUrl = process.env.ROOT_URL;
-let apiKey = process.env.API_KEY;
-let secret = process.env.SECRET_KEY;
+const diqtRootUrl = process.env.ROOT_URL;
+const apiKey = process.env.API_KEY;
+const secret = process.env.SECRET_KEY;
 //let text = apiKey + ":" + secret;
 //let bytes = new TextEncoder().encode(text);
 //let base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
 //let basicAuth = "Basic " + base64;
-let basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
+const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
 
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification

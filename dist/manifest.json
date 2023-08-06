@@ -2,6 +2,7 @@
     "name": "ディクト拡張機能 - 絶対に忘れない辞書",
     "version": "1.0.2.7",
     "manifest_version": 3,
+    "default_locale": "en",
     "description": "調べた単語に復習を設定することで、記憶の定着をサポートする英和辞書・英英辞書です。",
     "icons": {
         "16": "icon16.png",

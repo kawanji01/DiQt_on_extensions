@@ -1,8 +1,8 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことbackground.jsの定数をngrokのURLに書き換える。
-let diqtRootUrl = process.env.ROOT_URL;
-let apiKey = process.env.API_KEY;
-let secret = process.env.SECRET_KEY;
-let basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
+const diqtRootUrl = process.env.ROOT_URL;
+const apiKey = process.env.API_KEY;
+const secret = process.env.SECRET_KEY;
+const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
 
 
 // アクセスして一番最初に実行する関数。
