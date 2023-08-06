@@ -22,20 +22,18 @@ function initializePage() {
 
 // localStorageにユーザーデータを格納する。
 function setUserData(data) {
-    chrome.storage.local.set({ diqtDictUserName: data['name'] });
-    chrome.storage.local.set({ diqtDictIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ diqtDictPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ diqtDictToken: data['token'] });
-    chrome.storage.local.set({ diqtDictPopupDisplayed: data['popup_displayed'] });
+    chrome.storage.local.set({ diqtUserName: data['name'] });
+    chrome.storage.local.set({ diqtUserIconUrl: data['icon_url'] });
+    chrome.storage.local.set({ diqtUserPublicUid: data['public_uid'] });
+    chrome.storage.local.set({ diqtPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
 function resetUserData() {
-    chrome.storage.local.set({ diqtDictUserName: '' });
-    chrome.storage.local.set({ diqtDictIconUrl: '' });
-    chrome.storage.local.set({ diqtDictPublicUid: '' });
-    chrome.storage.local.set({ diqtDictToken: '' });
-    chrome.storage.local.set({ diqtDictPopupDisplayed: '' });
+    chrome.storage.local.set({ diqtUserName: '' });
+    chrome.storage.local.set({ diqtUserIconUrl: '' });
+    chrome.storage.local.set({ diqtUserPublicUid: '' });
+    chrome.storage.local.set({ diqtPopupDisplayed: '' });
 }
 
 
@@ -44,19 +42,20 @@ function renderMypage() {
     let uid = '';
     let iconUrl = '';
     let userName = '';
-    let dictionaryId = '';
+    let selectedDictionaryId = '';
     let popupDisplayed = '';
-    chrome.storage.local.get(['diqtDictPublicUid', 'diqtDictIconUrl', 'diqtDictUserName', 'diqtDictDictionaryId', 'diqtDictPopupDisplayed'], function (result) {
-        uid = result.diqtDictPublicUid;
-        iconUrl = result.diqtDictIconUrl;
-        userName = result.diqtDictUserName;
-        dictionaryId = result.diqtDictDictionaryId;
-        popupDisplayed = result.diqtDictPopupDisplayed;
-        if (dictionaryId == '' || dictionaryId == undefined) {
-            dictionaryId = 1;
-            chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
+    chrome.storage.local.get(['diqtUserPublicUid', 'diqtUserIconUrl', 'diqtUserName', 'diqtSelectedDictionaryId', 'diqtPopupDisplayed', 'diqtDictionaries'], function (result) {
+        uid = result.diqtUserPublicUid;
+        iconUrl = result.diqtUserIconUrl;
+        userName = result.diqtUserName;
+        selectedDictionaryId = result.diqtSelectedDictionaryId;
+        popupDisplayed = result.diqtPopupDisplayed;
+
+        if (selectedDictionaryId == '' || selectedDictionaryId == undefined) {
+            selectedDictionaryId = 1;
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${selectedDictionaryId}` });
         } else {
-            dictionaryId = Number(dictionaryId);
+            selectedDictionaryId = Number(selectedDictionaryId);
         }
         let checked = ''
         if (popupDisplayed) {
@@ -77,7 +76,7 @@ function renderMypage() {
       ${userName}
     </h1>
 
-    ${createDictionarySelectForm(dictionaryId)}
+    ${createDictionarySelectForm(result.diqtDictionaries, selectedDictionaryId)}
     
 
     <dic class="block my-3">
@@ -109,30 +108,31 @@ function renderMypage() {
 }
 
 // 辞書のセレクトフォームを作成
-function createDictionarySelectForm(value) {
-    let createOption = function (dictId, selectedDictId) {
-        if (dictId === selectedDictId) {
-            return 'selected';
-        } else {
-            return ''
-        }
-    }
+function createDictionarySelectForm(dictionaries, value) {
+    const dictionaryAry = JSON.parse(dictionaries);
+    const optionsHtml = dictionaryAry.map(item => createOption(item, value)).join('');
     return `<div class="block has-text-centered mt-5">
     <div class="select">
         <select id="dictionary-select-form">
-            <option value="1" class="has-text-weight-bold" ${createOption(1, value)}>英和辞書</option>
-            <option value="5" class="has-text-weight-bold" ${createOption(5, value)}>英英辞書</option>
+            ${optionsHtml}
         </select>
     </div>
 </div>`
+}
+// 辞書のセレクトフォームのオプションを作成
+function createOption(item, value) {
+    // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
+    // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
+    const isSelected = item[0] === value ? 'selected' : '';
+    return `<option value="${item[0]}" class="has-text-weight-bold" ${isSelected}>${item[1]}</option>`;
 }
 
 // 辞書の切り替え
 function addEventToSelectForm() {
     let selectForm = document.getElementById('dictionary-select-form');
     let setDictionaryId = function (event) {
-        let dictionaryId = `${event.currentTarget.value}`
-        chrome.storage.local.set({ diqtDictDictionaryId: dictionaryId });
+        let selectedDictionaryId = `${event.currentTarget.value}`;
+        chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
     }
     selectForm.addEventListener('change', setDictionaryId);
 }
@@ -203,7 +203,7 @@ function AddEventToPopupDisplayed() {
             .then((data) => {
                 checkbox.checked = data.data.popup_displayed;
                 checkboxText.textContent = 'テキストを選択したときにポップアップを表示する。'
-                chrome.storage.local.set({ diqtDictPopupDisplayed: data.data.popup_displayed });
+                chrome.storage.local.set({ diqtPopupDisplayed: data.data.popup_displayed });
             })
             .catch((error) => {
                 console.log(error);

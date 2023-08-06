@@ -46,11 +46,12 @@ function toggleFloatingWindow() {
             horizontalAlign: 'right'
         })
 
-        const form_html = `
+        const formHtml = `
         <div id="diqt-dict-extension-wrapper">
         <a>
         <div id="diqt-dict-logged-in-user" style="font-size: 10px;">　</div>
         </a>
+        <div id="diqt-dict-dictionary-select-form-wrapper" style="font-size: 12px;">　</div>
         <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form"></form>
         <div id="diqt-dict-search-status" style="text-align: left; color: #6e6e6e;">
         "<span id="diqt-dict-search-keyword" style="font-size: 12px;"></span>"<span id="diqt-dict-search-status-text"></span>
@@ -96,7 +97,7 @@ function toggleFloatingWindow() {
             style: {
                 overflow: 'auto'
             },
-            html: form_html
+            html: formHtml
         });
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
@@ -218,6 +219,12 @@ function searchWord(keyword) {
     });
 }
 
+function search() {
+    const searchForm = document.querySelector('#diqt-dict-search-form');
+    const keyword = searchForm.value;
+    searchWord(keyword);
+}
+
 // 検索結果を表示する
 function searchSuccess(data) {
     const resultForm = document.querySelector('#search-diqt-dict-results');
@@ -225,8 +232,8 @@ function searchSuccess(data) {
     const words = data.words;
     const dictionary = data.dictionary;
 
-    chrome.storage.local.get(['diqtDictToken'], function (result) {
-        const loginToken = result.diqtDictToken;
+    chrome.storage.local.get(['diqtUserPublicUid'], function (result) {
+        const loginToken = result.diqtUserPublicUid;
         if (words != null) {
             words.forEach(function (word, index, array) {
                 // 辞書の項目のHTMLを作成して、画面に挿入する
@@ -272,14 +279,14 @@ function searchSuccess(data) {
             });
         } else {
             // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
-            const keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
+            let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let notFound = ``;
             if (keyword.length < 50 && keyword.length > 0) {
                 notFound = Word.notFoundFormHtml(keyword, dictionary);
             }
 
-            const translationForm = createTranslationForm(loginToken);
+            const translationForm = Word.createTranslationForm(loginToken);
             const result = notFound + translationForm
             resultForm.insertAdjacentHTML('afterbegin', result);
             Word.addEventToTranslationForm(loginToken, keyword);
@@ -302,10 +309,14 @@ function renderUserStatus() {
     port.postMessage({ action: "inspectCurrentUser" });
     port.onMessage.addListener(function (msg) {
         const userData = document.querySelector('#diqt-dict-logged-in-user');
+        const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
         const data = msg['data'];
-        if (data) {
-            chrome.storage.local.get(['diqtDictUserName'], function (result) {
-                userData.innerHTML = `<i class="fal fa-user"></i> ${result.diqtDictUserName} / 設定`
+        if (data.status == 200) {
+            chrome.storage.local.get(['diqtUserName', 'diqtDictionaries', 'diqtSelectedDictionaryId'], function (result) {
+                userData.innerHTML = `<i class="fal fa-user"></i> ${result.diqtUserName} / 設定`
+                // 辞書フォームの作成＆表示
+                dictionaryDate.innerHTML = createDictionarySelectForm(result.diqtDictionaries, result.diqtSelectedDictionaryId);
+                addEventToSelectForm();
             });
         } else {
             userData.innerHTML = '<i class="fal fa-user"></i> ログインする';
@@ -323,11 +334,52 @@ function renderUserStatus() {
 }
 
 
+
+// 辞書のセレクトフォームを作成
+function createDictionarySelectForm(dictionaries, value) {
+    let dictionaryId = value;
+    console.log(dictionaryId);
+    // 辞書のセレクトフォームの初期値を設定
+    if (dictionaryId == '' || dictionaryId == undefined) {
+        dictionaryId = 1;
+        chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
+    }
+    dictionaryId = Number(dictionaryId);
+    const dictionaryAry = JSON.parse(dictionaries);
+    const optionsHtml = dictionaryAry.map(item => createOption(item, dictionaryId)).join('');
+    return `<div class="block has-text-centered mt-5">
+    <div class="select">
+        <select id="diqt-dictionary-select-form">
+            ${optionsHtml}
+        </select>
+    </div>
+</div>`
+}
+// 辞書のセレクトフォームのオプションを作成
+function createOption(item, value) {
+    // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
+    // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
+    const isSelected = item[0] === value ? 'selected' : '';
+    return `<option value="${item[0]}" class="has-text-weight-bold" ${isSelected}>${item[1]}</option>`;
+}
+
+// 辞書の切り替え
+function addEventToSelectForm() {
+    let selectForm = document.getElementById('diqt-dictionary-select-form');
+    let setDictionaryId = function (event) {
+        let selectedDictionaryId = `${event.currentTarget.value}`
+        chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
+        search();
+    }
+    selectForm.addEventListener('change', setDictionaryId);
+}
+
+
 // テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
 function displayPopupWhenSelected() {
-    chrome.storage.local.get(['diqtDictPopupDisplayed'], function (result) {
+    chrome.storage.local.get(['diqtPopupDisplayed'], function (result) {
         // 設定で表示がOFFになっている場合、あるいはユーザーがログインしていない場合は、ポップアップを表示しない
-        if (result.diqtDictPopupDisplayed === false || result.diqtDictPopupDisplayed === '') {
+        if (result.diqtPopupDisplayed === false || result.diqtPopupDisplayed === '') {
             return;
         }
 
