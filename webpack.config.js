@@ -9,9 +9,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 // [定数] webpack の出力オプションを指定する。参照： https://ics.media/entry/17376/
 // 'production' か 'development' を指定
-// ソースマップの利用有無(productionのときはソースマップを利用しない)
 const isDev = process.env.ENV === "development"
-const enabledSourceMap = isDev;
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -24,8 +22,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 
 module.exports = {
-    //mode: process.env.NODE_ENV || "development",
-    mode: process.env.ENV || "development",
+    mode: isDev ? "development" : "production",
+    //mode: 'production',
     // トランスパイル対象のファイルを entry で指定する。
     // jsframeのようなライブラリをトランスパイルすると、他のファイルから変数や関数を参照できなくなるので対象から外す。/ 参照： https://teratail.com/questions/190709
     entry: {
@@ -53,8 +51,8 @@ module.exports = {
                         options: {
                             // オプションでCSS内のurl()メソッドの取り込みを禁止する
                             url: false,
-                            // ソースマップの利用有無
-                            sourceMap: enabledSourceMap,
+                            // ソースマップ（デバッグを容易にする設定）の利用有無。productionのときはソースマップを有効にしない。
+                            sourceMap: isDev,
 
                             // 0 => no loaders (default);
                             // 1 => postcss-loader;
@@ -66,7 +64,7 @@ module.exports = {
                         loader: "sass-loader",
                         options: {
                             // ソースマップの利用有無
-                            sourceMap: enabledSourceMap,
+                            sourceMap: isDev,
                         },
                     },
                 ],
