@@ -49,10 +49,10 @@ function toggleFloatingWindow() {
         const formHtml = `
         <div id="diqt-dict-extension-wrapper">
         <a>
-        <div id="diqt-dict-logged-in-user" style="font-size: 10px;">　</div>
+        <div id="diqt-dict-logged-in-user" style="font-size: 10px;">Loading...</div>
         </a>
-        <div id="diqt-dict-dictionary-select-form-wrapper">　</div>
-        <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form"></form>
+        <div id="diqt-dict-dictionary-select-form-wrapper">Loading...</div>
+        <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form" placeholder="検索はこちらから..."></form>
         <div id="diqt-dict-search-status" style="text-align: left; color: #6e6e6e;">
         "<span id="diqt-dict-search-keyword" style="font-size: 12px;"></span>"<span id="diqt-dict-search-status-text"></span>
         </div>
@@ -101,22 +101,32 @@ function toggleFloatingWindow() {
         });
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
-        const searchForm = document.querySelector('#diqt-dict-search-form');
-        // ドラッグしたテキストを辞書で検索できるイベントを付与。
-        mouseupSearch();
-        // 検索フォームに、テキスト入力から検索できるイベントを付与。
-        searchViaForm(searchForm);
-        // 検索フォームへのエンターを無効にする。
-        preventEnter(searchForm);
         // ウィンドウをページの最上部に持ってくる。
         extensionWrapper = frame.$('#diqt-dict-extension-wrapper');
         const frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
         // z-indexを限界値に設定し、frameを最前面に表示する。
         frameDom.style.zIndex = '2147483647';
-        // （ウィンドウを開いた瞬間に）画面の選択されているテキストを検索する
-        searchSelectedText();
-        // フォーム直上にユーザーステータス（ログイン状態など）を表示する。
-        renderUserStatus();
+        chrome.storage.local.get(['diqtUserPublicUid'], function (result) {
+            if (result.diqtUserPublicUid) {
+                // ログイン情報がローカルストレージにある場合
+                const searchForm = document.querySelector('#diqt-dict-search-form');
+                // ドラッグしたテキストを辞書で検索できるイベントを付与。
+                mouseupSearch();
+                // 検索フォームに、テキスト入力から検索できるイベントを付与。
+                searchViaForm(searchForm);
+                // 検索フォームへのエンターを無効にする。
+                preventEnter(searchForm);
+                // （ウィンドウを開いた瞬間に）画面の選択されているテキストを検索する
+                searchSelectedText();
+                // フォーム直上にユーザーステータス（ログイン状態など）を表示する。
+                renderUserStatus();
+            } else {
+                // ログイン情報がローカルストレージにない場合は、APIにリクエストを送り、ログイン情報を取得する。
+                renderUserStatus();
+            }
+        });
+
+
     } else {
         const frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
         frameDom.remove()
@@ -308,29 +318,53 @@ function renderUserStatus() {
     const port = chrome.runtime.connect({ name: "inspectCurrentUser" });
     port.postMessage({ action: "inspectCurrentUser" });
     port.onMessage.addListener(function (msg) {
-        const userData = document.querySelector('#diqt-dict-logged-in-user');
-        const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
         const data = msg['data'];
         if (data.status == 200) {
+            // ログイン時の処理
             chrome.storage.local.get(['diqtUserName', 'diqtDictionaries', 'diqtSelectedDictionaryId'], function (result) {
-                userData.innerHTML = `<i class="fal fa-user"></i> ${result.diqtUserName} / 設定`
-                // 辞書フォームの作成＆表示
-                dictionaryDate.innerHTML = createDictionarySelectForm(result.diqtDictionaries, result.diqtSelectedDictionaryId);
-                addEventToSelectForm();
+                loggedInUser(result.diqtUserName, result.diqtDictionaries, result.diqtSelectedDictionaryId);
             });
+        } else if (data.status == 401) {
+            // 未ログイン時の処理
+            notLoggedInUser();
         } else {
-            userData.innerHTML = '<i class="fal fa-user"></i> ログインする';
+            // その他のエラー時の処理
+            const userData = document.querySelector('#diqt-dict-logged-in-user');
+            userData.innerHTML = `<i class="fal fa-user"></i> Error`
+            const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
+            dictionaryDate.innerHTML = `<p>エラーが発生しました。しばらく経った後、またお試しください。</p>`
         }
         return true;
     });
-
     // ユーザーのステータス情報にoptions.htmlへのリンクを設定する。
     document.querySelector('#diqt-dict-logged-in-user').addEventListener('click', function () {
         // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
         const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
         rtnPromise.then((response) => { }).catch((error) => { });
     });
+}
 
+// ログイン時の処理
+function loggedInUser(userName, dictionaries, selectedDictionaryId) {
+    // ユーザーステータスを更新
+    const userData = document.querySelector('#diqt-dict-logged-in-user');
+    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / 設定`
+    // 辞書フォームの作成＆表示
+    const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
+    dictionaryDate.innerHTML = createDictionarySelectForm(dictionaries, selectedDictionaryId);
+    addEventToSelectForm();
+}
+
+// 未ログイン時の処理
+function notLoggedInUser() {
+    // ユーザーステータスを更新
+    const page = document.querySelector('#diqt-dict-extension-wrapper');
+    page.innerHTML = '<p style="font-size: 16px;">ディクトにログインすることで、どこからでも辞書と翻訳が利用できるようになります。</p><button class="diqt-dict-submit-review-btn" id="diqt-dict-sign-in-btn">ログイン・登録する</button>';
+    document.querySelector('#diqt-dict-sign-in-btn').addEventListener('click', function () {
+        // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
+        const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+        rtnPromise.then((response) => { }).catch((error) => { });
+    });
 }
 
 

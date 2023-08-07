@@ -13,7 +13,7 @@ function initializePage() {
     port.postMessage({ action: "inspectCurrentUser" });
     port.onMessage.addListener(function (msg) {
         const data = msg['data'];
-        if (data) {
+        if (data.status == 200) {
             renderMypage();
         } else {
             renderLoginForm();
