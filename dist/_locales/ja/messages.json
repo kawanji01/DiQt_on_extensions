@@ -1,0 +1,26 @@
+{
+    "reviews": {
+        "message": "復習",
+        "description": "Reviews message"
+    },
+    "remember": {
+        "message": "覚える",
+        "description": "Reviews message"
+    },
+    "word_review_label": {
+        "message": "意味を覚える",
+        "description": "Reviews message"
+    },
+    "reversed_word_review_label": {
+        "message": "単語を覚える",
+        "description": "Reviews message"
+    },
+    "sentence_review_label": {
+        "message": "読めるようになる",
+        "description": "Reviews message"
+    },
+    "reversed_sentence_review_label": {
+        "message": "話せるようになる",
+        "description": "Reviews message"
+    }
+}

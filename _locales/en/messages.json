@@ -1,0 +1,26 @@
+{
+    "reviews": {
+        "message": "Reviews",
+        "description": "Reviews message"
+    },
+    "remember": {
+        "message": "Remember",
+        "description": "Reviews message"
+    },
+    "word_review_label": {
+        "message": "Remember the meaning",
+        "description": "Reviews message"
+    },
+    "reversed_word_review_label": {
+        "message": "Remember the word",
+        "description": "Reviews message"
+    },
+    "sentence_review_label": {
+        "message": "Be able to read",
+        "description": "Reviews message"
+    },
+    "reversed_sentence_review_label": {
+        "message": "Be able to speak",
+        "description": "Reviews message"
+    }
+}

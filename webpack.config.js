@@ -29,8 +29,9 @@ module.exports = {
     // トランスパイル対象のファイルを entry で指定する。
     // jsframeのようなライブラリをトランスパイルすると、他のファイルから変数や関数を参照できなくなるので対象から外す。/ 参照： https://teratail.com/questions/190709
     entry: {
-        main: [path.join(__dirname, "src/content_scripts.js")],
+        main: [path.join(__dirname, "src/content_scripts.js"), path.join(__dirname, "src/style.scss")],
         background: path.join(__dirname, "src/background.js"),
+        options: path.join(__dirname, "public/options.js"),
     },
     // トランスパイル後の JavaScript ファイルを dist/以下に出力する。（manifest 3ではbackground.jsはmanifest.jsonと同じ階層に置かなくてはならない。）
     output: {
@@ -38,52 +39,42 @@ module.exports = {
         filename: "[name].js",
     },
     module: {
-        rules: [{
-            test: /\.ts$/,
-            use: [{
-                loader: "ts-loader",
-                options: {
-                    // ソースマップの利用有無
-                    sourceMap: enabledSourceMap,
-                },
-            }],
-            exclude: /node_modules/,
-        }, // Sassファイルの読み込みとコンパイル
-        {
-            test: /\.scss/, // 対象となるファイルの拡張子
-            use: [
-                // CSSファイルを書き出すオプションを有効にする
-                {
-                    loader: MiniCssExtractPlugin.loader,
-                },
-                // CSSをバンドルするための機能
-                {
-                    loader: "css-loader",
-                    options: {
-                        // オプションでCSS内のurl()メソッドの取り込みを禁止する
-                        url: false,
-                        // ソースマップの利用有無
-                        sourceMap: enabledSourceMap,
+        rules: [
+            {
+                test: /\.scss/, // 対象となるファイルの拡張子
+                use: [
+                    // CSSファイルを書き出すオプションを有効にする
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                    },
+                    // CSSをバンドルするための機能
+                    {
+                        loader: "css-loader",
+                        options: {
+                            // オプションでCSS内のurl()メソッドの取り込みを禁止する
+                            url: false,
+                            // ソースマップの利用有無
+                            sourceMap: enabledSourceMap,
 
-                        // 0 => no loaders (default);
-                        // 1 => postcss-loader;
-                        // 2 => postcss-loader, sass-loader
-                        importLoaders: 2,
+                            // 0 => no loaders (default);
+                            // 1 => postcss-loader;
+                            // 2 => postcss-loader, sass-loader
+                            importLoaders: 2,
+                        },
                     },
-                },
-                {
-                    loader: "sass-loader",
-                    options: {
-                        // ソースマップの利用有無
-                        sourceMap: enabledSourceMap,
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            // ソースマップの利用有無
+                            sourceMap: enabledSourceMap,
+                        },
                     },
-                },
-            ],
-        },
+                ],
+            },
         ],
     },
     resolve: {
-        extensions: [".ts", ".js"]
+        extensions: [".js"]
     },
 
     plugins: [
@@ -105,6 +96,9 @@ module.exports = {
             }, {
                 from: "./fonts",
                 to: "./fonts"
+            }, {
+                from: "./_locales",
+                to: "./_locales"
             }],
         }),
         // CSSファイルを外だしにするプラグイン

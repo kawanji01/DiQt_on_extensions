@@ -1,21 +1,18 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
 
-//let diqtRootUrl = process.env.DIQT_ROOT_URL;
-let diqtRootUrl = process.env.ROOT_URL;
-let apiKey = process.env.API_KEY;
-let secret = process.env.SECRET_KEY;
-//let text = apiKey + ":" + secret;
-//let bytes = new TextEncoder().encode(text);
-//let base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
-//let basicAuth = "Basic " + base64;
-let basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
+const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
+const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
+const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+const apiKey = process.env.API_KEY;
+const secret = process.env.SECRET_KEY;
+const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
 
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
 chrome.action.onClicked.addListener(function (tab) {
     // Could not establish connection. Receiving end does not exist.の解決
     // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
-    let rtnPromise = chrome.tabs.sendMessage(tab.id, "Action");
+    const rtnPromise = chrome.tabs.sendMessage(tab.id, "Action");
     rtnPromise.then((response) => { }).catch((error) => { });
 });
 
@@ -23,7 +20,7 @@ chrome.action.onClicked.addListener(function (tab) {
 chrome.tabs.onUpdated.addListener(function (tabId) {
     // Could not establish connection. Receiving end does not exist.の解決
     // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
-    let rtnPromise = chrome.tabs.sendMessage(tabId, "Updated");
+    const rtnPromise = chrome.tabs.sendMessage(tabId, "Updated");
     rtnPromise.then((response) => { }).catch((error) => { });
 });
 
@@ -72,9 +69,9 @@ chrome.runtime.onConnect.addListener(function (port) {
 ///////// 現在のユーザーを取得する ///////
 function fetchCurrentUser() {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/users/inspect_current_user`;
-        let params = {
-            method: "POST",
+        const url = `${diqtUrl}/api/v1/extensions/users/current`;
+        const params = {
+            method: "GET",
             mode: 'cors',
             credentials: 'include',
             dataType: 'json',
@@ -88,12 +85,12 @@ function fetchCurrentUser() {
                 return response.json();
             })
             .then((data) => {
-                if (data['data']) {
-                    setUserData(data['data']);
+                if (data['user']) {
+                    setUserData(data['user']);
                 } else {
                     resetUserData();
                 }
-                resolve(data['data']);
+                resolve(data);
             })
             .catch((error) => {
                 console.log(error);
@@ -104,20 +101,19 @@ function fetchCurrentUser() {
 
 // is_logged_inやsign_inのJSONをlocalStorageに格納する。
 function setUserData(data) {
-    chrome.storage.local.set({ diqtDictUserName: data['name'] });
-    chrome.storage.local.set({ diqtDictIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ diqtDictPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ diqtDictToken: data['token'] });
-    chrome.storage.local.set({ diqtDictPopupDisplayed: data['popup_displayed'] });
+    chrome.storage.local.set({ diqtUserName: data['name'] });
+    chrome.storage.local.set({ diqtUserIconUrl: data['icon_url'] });
+    chrome.storage.local.set({ diqtUserPublicUid: data['public_uid'] });
+    chrome.storage.local.set({ diqtPopupDisplayed: data['popup_displayed'] });
+    chrome.storage.local.set({ diqtDictionaries: data['dictionaries'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
 function resetUserData() {
-    chrome.storage.local.set({ diqtDictUserName: '' });
-    chrome.storage.local.set({ diqtDictIconUrl: '' });
-    chrome.storage.local.set({ diqtDictPublicUid: '' });
-    chrome.storage.local.set({ diqtDictToken: '' });
-    chrome.storage.local.set({ diqtDictPopupDisplayed: '' });
+    chrome.storage.local.set({ diqtUserName: '' });
+    chrome.storage.local.set({ diqtUserIconUrl: '' });
+    chrome.storage.local.set({ diqtUserPublicUid: '' });
+    chrome.storage.local.set({ diqtPopupDisplayed: '' });
 }
 
 async function inspectCurrentUser(port) {
@@ -131,8 +127,8 @@ async function inspectCurrentUser(port) {
 /////// 復習設定の新規作成 ///////
 function postCreateReview(quizId) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/reviews`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -167,8 +163,8 @@ async function respondCreateReview(port, quizId) {
 /////// 復習設定の更新 ///////
 function postUpdateReview(reviewId, settingNumber) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
+        const params = {
             method: "PATCH",
             mode: 'cors',
             credentials: 'include',
@@ -203,8 +199,8 @@ async function respondUpdateReview(port, quizId, settingNumber) {
 ////// 復習設定の削除 ///////
 function requestDestroyReview(reviewId) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/reviews/${reviewId}`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
+        const params = {
             method: "DELETE",
             mode: 'cors',
             credentials: 'include',
@@ -236,10 +232,10 @@ async function respondDestroyReview(port, reviewId) {
 
 
 ///// Google翻訳 /////
-function requestGoogleTranslation(keyword) {
+function requestGoogleTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/words/google_translate`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -265,18 +261,27 @@ function requestGoogleTranslation(keyword) {
 }
 
 async function respondGoogleTranslation(port, keyword) {
-    const data = await requestGoogleTranslation(keyword);
-    port.postMessage({ data: data });
+    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtSelectedDictionaryId;
+        // console.log(dictionaryId);
+        if (dictionaryId == '' || dictionaryId == undefined) {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
+        }
+        const data = await requestGoogleTranslation(keyword, dictionaryId);
+        port.postMessage({ data: data });
+    });
+
 }
 ///// Google翻訳 /////
 
 
 
 ///// Deepl翻訳 /////
-function requestDeeplTranslation(keyword) {
+function requestDeeplTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/ja/api/v1/extensions/words/deepl_translate`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -302,8 +307,16 @@ function requestDeeplTranslation(keyword) {
 }
 
 async function respondDeepLTranslation(port, keyword) {
-    const data = await requestDeeplTranslation(keyword);
-    port.postMessage({ data: data });
+    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtSelectedDictionaryId;
+        // console.log(dictionaryId);
+        if (dictionaryId == '' || dictionaryId == undefined) {
+            dictionaryId = 1;
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
+        }
+        const data = await requestDeeplTranslation(keyword, dictionaryId);
+        port.postMessage({ data: data });
+    });
 }
 ///// Deepl翻訳 /////
 
@@ -313,8 +326,8 @@ function requestSearch(keyword, dictionaryId) {
     // console.log(dictionaryId);
 
     return new Promise(resolve => {
-        let url = `${diqtRootUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
-        let params = {
+        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
+        const params = {
             method: "POST",
             mode: 'cors',
             credentials: 'include',
@@ -342,12 +355,12 @@ function requestSearch(keyword, dictionaryId) {
 }
 
 async function respondSearch(port, keyword) {
-    chrome.storage.local.get(['diqtDictDictionaryId'], async function (result) {
-        let dictionaryId = result.diqtDictDictionaryId;
+    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
+        let dictionaryId = result.diqtSelectedDictionaryId;
         // console.log(dictionaryId);
         if (dictionaryId == '' || dictionaryId == undefined) {
             dictionaryId = 1;
-            chrome.storage.local.set({ diqtDictDictionaryId: `${dictionaryId}` });
+            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
         }
         // console.log(`respondSearch: ${dictionaryId}`);
         const data = await requestSearch(keyword, dictionaryId);
