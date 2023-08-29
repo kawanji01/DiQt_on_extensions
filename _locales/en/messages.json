@@ -1,4 +1,12 @@
 {
+    "appName": {
+        "message": "DiQt",
+        "description": "The name of the app"
+    },
+    "appDescription": {
+        "message": "Dictionaries to remember the words you look up",
+        "description": "The description of the app"
+    },
     "reviews": {
         "message": "Reviews",
         "description": "Reviews message"

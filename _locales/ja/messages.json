@@ -1,4 +1,12 @@
 {
+    "appName": {
+        "message": "調べたら忘れない辞書 - ディクト",
+        "description": "The name of the app"
+    },
+    "appDescription": {
+        "message": "調べた単語に復習を設定することで、調べた単語の忘却を防ぎます。",
+        "description": "The description of the app"
+    },
     "reviews": {
         "message": "復習",
         "description": "Reviews message"
