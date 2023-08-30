@@ -24,13 +24,13 @@ export class Word {
         /* 例文 */
         const sentenceHtml = Word.createSentenceHtml(word, loginToken);
         /* 項目の編集ボタン */
-        const linkToImproveWord = Word.liknToImproveHtml(wordURL, 'この項目を編集する');
+        const linkToEditWord = Word.liknToImproveHtml(wordURL, chrome.i18n.getMessage("editWord"));
         /* 項目編集ボタンの上の余白 */
         // const spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToImproveWord + bottomSpace;
+        const wordHtml = entry + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 
@@ -39,11 +39,11 @@ export class Word {
         if (word.lang_number_of_entry == word.lang_number_of_meaning) {
             return `<div id="small-translation-buttons-word-${word.id}" style="padding-left: 4px;">
                     <span class="diqt-google-translation-btn-wrapper">
-                        <a href="#" class="diqt-google-translation-btn" style="color: #27ae60;"><u>Google翻訳</u></a>
+                        <a href="#" class="diqt-google-translation-btn" style="color: #27ae60;"><u>${chrome.i18n.getMessage("googleTranslation")}</u></a>
                     </span>
                     <span >/</span>
                     <span class="diqt-deepl-translation-btn-wrapper">
-                        <a href="#" class="diqt-deepl-translation-btn" style="color: #27ae60;"><u>DeepL翻訳</u></a>
+                        <a href="#" class="diqt-deepl-translation-btn" style="color: #27ae60;"><u>${chrome.i18n.getMessage("deepLTranslation")}</u></a>
                     </span>
                     <p class="diqt-google-translation-form"></p>
                     <p class="diqt-deepl-translation-form"></p>
@@ -84,14 +84,14 @@ export class Word {
             const googleTranslationForm = buttons.querySelector('.diqt-google-translation-form');
             googleButton.addEventListener('click', function () {
                 if (loginToken) {
-                    googleWrapper.innerHTML = '<span>翻訳中...</span>';
+                    googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
                     const port = chrome.runtime.connect({ name: "googleTranslation" });
                     port.postMessage({ action: "googleTranslation", keyword: word.meaning });
                     port.onMessage.addListener(function (msg) {
                         const data = msg['data'];
-                        googleWrapper.innerHTML = '<span>完了</span>';
+                        googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
                         if (data['status'] == "200") {
-                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
+                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
                             googleTranslationForm.innerHTML = translation;
                         } else {
@@ -112,14 +112,14 @@ export class Word {
             const deeplTranslationForm = buttons.querySelector('.diqt-deepl-translation-form');
             deeplButton.addEventListener('click', function () {
                 if (loginToken) {
-                    deeplWrapper.innerHTML = '<span>翻訳中...</span>';
+                    deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
                     const port = chrome.runtime.connect({ name: "deeplTranslation" });
                     port.postMessage({ action: "deeplTranslation", keyword: word.meaning });
                     port.onMessage.addListener(function (msg) {
                         const data = msg['data'];
-                        deeplWrapper.innerHTML = '<span>完了</span>';
+                        deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
                         if (data['status'] == "200") {
-                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
+                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
                             deeplTranslationForm.innerHTML = translation;
                         } else {
@@ -150,56 +150,38 @@ export class Word {
             return '';
         }
         // 例文と翻訳
-        const label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">例文</div></div>`;
+        const label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">${chrome.i18n.getMessage("sentence")}</div></div>`;
         const original = `<div class="diqt-dict-explanation">${Word.markNotation(sentence.original)}</div>`;
         const translation = `<div class="diqt-dict-explanation">${sentence.translation}</div>`;
         // 例文の復習ボタン
         const reviewBtn = Review.createSentenceReviewButtons(sentence, loginToken);
         // 例文の編集ボタン
         const sentenceUrl = `${diqtUrl}/sentences/${sentence.id}`
-        const linkToImproveSentence = Word.liknToImproveHtml(sentenceUrl, 'この例文を編集する');
+        const linkToEditSentence = Word.liknToImproveHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
         // 例文のHTML
-        const sentenceHtml = label + original + translation + reviewBtn + linkToImproveSentence;
+        const sentenceHtml = label + original + translation + reviewBtn + linkToEditSentence;
         return sentenceHtml;
     }
 
 
 
 
-    // 翻訳ボタンを生成する
-    static createTranslationForm(loginToken) {
-        let translationForm;
-        if (loginToken) {
-            translationForm = `<div id="diqt-dict-translation-form">
-        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
-        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
-        </div>`
-        } else {
-            translationForm = `<div id="diqt-dict-translation-form">
-        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">Googleで翻訳する</div></div>
-        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">DeepLで翻訳する</div></div>
-        <p><a id="diqt-dict-login-for-translation" style="color: #27ae60;">ログイン</a>することで、機械翻訳が利用できるようになります。</p>
-        </div>`
-        }
-        return translationForm
-    }
-
     // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
     static liknToImproveHtml(url, label) {
         const html = `<div style="display: flex;">
                     <a href="${url + '/edit'}" target="_blank" rel="noopener" class="diqt-dict-link-to-improve" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-edit"></i>${label}</a>
-                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>詳細</a>
+                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>${chrome.i18n.getMessage("details")}</a>
                 </div>`;
         return html;
     }
 
     // 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
     static notFoundFormHtml(keyword, dictionary) {
-        const notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${keyword}は辞書に登録されていません。</div>`;
+        const notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("noWordFound", keyword)}</div>`;
         const createNewWord = `<a href="${diqtUrl}/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
-                <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
-        const searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
-            <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+                <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("addWord")}</div></a>`;
+        const searchWeb = `<a href="https://www.google.com/search?q=${keyword}+${chrome.i18n.getMessage("meaning")}&oq=${keyword}+${chrome.i18n.getMessage("meaning")}"" target="_blank" rel="noopener" style="text-decoration: none;">
+            <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("searchByWeb")}</div></a>`;
         const html = notFound + createNewWord + searchWeb;
         return html;
     }
@@ -207,9 +189,9 @@ export class Word {
     // 辞書の追加とWeb検索ボタン
     static newWordHtml(keyword, dictionary) {
         const createNewWord = `<a href="${diqtUrl}/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
-                <div class="diqt-dict-review-btn" style="font-weight: bold;">辞書に登録する</div></a>`;
-        const searchWeb = `<a href="https://www.google.com/search?q=${keyword}+意味&oq=${keyword}+意味"" target="_blank" rel="noopener" style="text-decoration: none;">
-            <div class="diqt-dict-review-btn" style="font-weight: bold;">Webで検索する</div></a>`;
+                <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("addWord")}</div></a>`;
+        const searchWeb = `<a href="https://www.google.com/search?q=${keyword}+${chrome.i18n.getMessage("meaning")}&oq=${keyword}+${chrome.i18n.getMessage("meaning")}"" target="_blank" rel="noopener" style="text-decoration: none;">
+            <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("searchByWeb")}</div></a>`;
         const html = createNewWord + searchWeb;
         return html;
     }
@@ -227,7 +209,7 @@ export class Word {
                 port.onMessage.addListener(function (msg) {
                     const data = msg['data'];
                     if (data['status'] == "200") {
-                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>Google翻訳：</b></p>
+                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
                         googleTranslationForm.innerHTML = translation;
                     } else {
@@ -245,7 +227,7 @@ export class Word {
                 deeplPort.onMessage.addListener(function (msg) {
                     const data = msg['data'];
                     if (data['status'] == "200") {
-                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>DeepL翻訳：</b></p>
+                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
                     <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
                         deeplTranslationForm.innerHTML = translation;
                     } else {

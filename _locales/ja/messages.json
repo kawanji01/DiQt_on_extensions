@@ -147,6 +147,53 @@
         "message": "ログイン・新規登録する",
         "description": "Content scripts message"
     },
+    "editWord": {
+        "message": "この項目を編集する",
+        "description": "Words message"
+    },
+    "googleTranslation": {
+        "message": "Google翻訳",
+        "description": "Words message"
+    },
+    "deepLTranslation": {
+        "message": "DeepL翻訳",
+        "description": "Words message"
+    },
+    "translated": {
+        "message": "完了",
+        "description": "Words message"
+    },
+    "sentence": {
+        "message": "例文",
+        "description": "Words message"
+    },
+    "editSentence": {
+        "message": "例文を編集する",
+        "description": "Words message"
+    },
+    "details": {
+        "message": "詳細",
+        "description": "Words message"
+    },
+    "noWordFound": {
+        "message": "'$keyword$'は辞書に登録されていません。",
+        "description": "Words message",
+        "placeholders": {
+            "keyword": {}
+        }
+    },
+    "addWord": {
+        "message": "辞書に登録する",
+        "description": "Words message"
+    },
+    "meaning": {
+        "message": "意味",
+        "description": "Words message"
+    },
+    "searchByWeb": {
+        "message": "Webで検索する",
+        "description": "Words message"
+    },
     "reviews": {
         "message": "復習",
         "description": "Reviews message"
@@ -155,20 +202,83 @@
         "message": "覚える",
         "description": "Reviews message"
     },
-    "word_review_label": {
+    "wordReviewLabel": {
         "message": "意味を覚える",
         "description": "Reviews message"
     },
-    "reversed_word_review_label": {
+    "reversedWordReviewLabel": {
         "message": "単語を覚える",
         "description": "Reviews message"
     },
-    "sentence_review_label": {
+    "sentenceReviewLabel": {
         "message": "読めるようになる",
         "description": "Reviews message"
     },
-    "reversed_sentence_review_label": {
+    "reversedSentenceReviewLabel": {
         "message": "話せるようになる",
+        "description": "Reviews message"
+    },
+    "reviewFor": {
+        "message": "$interval$に復習する",
+        "description": "Words message",
+        "placeholders": {
+            "interval": {}
+        }
+    },
+    "tomorrow": {
+        "message": "明日",
+        "description": "Reviews message"
+    },
+    "after3Days": {
+        "message": "3日後",
+        "description": "Reviews message"
+    },
+    "afterAWeek": {
+        "message": "1週間後",
+        "description": "Reviews message"
+    },
+    "after2Week": {
+        "message": "2週間後",
+        "description": "Reviews message"
+    },
+    "after3Week": {
+        "message": "3週間後",
+        "description": "Reviews message"
+    },
+    "afterAMonth": {
+        "message": "1ヶ月後",
+        "description": "Reviews message"
+    },
+    "after2Month": {
+        "message": "2ヶ月後",
+        "description": "Reviews message"
+    },
+    "after3Month": {
+        "message": "3ヶ月後",
+        "description": "Reviews message"
+    },
+    "after6Month": {
+        "message": "6ヶ月後",
+        "description": "Reviews message"
+    },
+    "afterAYear": {
+        "message": "1年後",
+        "description": "Reviews message"
+    },
+    "reviewScheduledDate": {
+        "message": "復習予定日",
+        "description": "Reviews message"
+    },
+    "reviewInterval": {
+        "message": "復習の間隔",
+        "description": "Reviews message"
+    },
+    "setReview": {
+        "message": "復習を設定する",
+        "description": "Reviews message"
+    },
+    "destroyReview": {
+        "message": "復習予定を取り消す",
         "description": "Reviews message"
     }
 }

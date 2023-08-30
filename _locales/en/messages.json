@@ -147,6 +147,57 @@
         "message": "Sign in",
         "description": "Content scripts message"
     },
+    "editWord": {
+        "message": "Edit word",
+        "description": "Words message"
+    },
+    "googleTranslation": {
+        "message": "Google translation",
+        "description": "Words message"
+    },
+    "deepLTranslation": {
+        "message": "DeepL translation",
+        "description": "Words message"
+    },
+    "translating": {
+        "message": "Translating...",
+        "description": "Words message"
+    },
+    "translated": {
+        "message": "Done",
+        "description": "Words message"
+    },
+    "sentence": {
+        "message": "Sentence",
+        "description": "Words message"
+    },
+    "editSentence": {
+        "message": "Edit sentence",
+        "description": "Words message"
+    },
+    "details": {
+        "message": "Details",
+        "description": "Words message"
+    },
+    "noWordFound": {
+        "message": "'$keyword$' is not registered in the dictionary.",
+        "description": "Words message",
+        "placeholders": {
+            "keyword": {}
+        }
+    },
+    "addWord": {
+        "message": "Register in the dictionary",
+        "description": "Words message"
+    },
+    "meaning": {
+        "message": "meaning",
+        "description": "Words message"
+    },
+    "searchByWeb": {
+        "message": "Search by web",
+        "description": "Words message"
+    },
     "reviews": {
         "message": "Reviews",
         "description": "Reviews message"
@@ -155,20 +206,83 @@
         "message": "Remember",
         "description": "Reviews message"
     },
-    "word_review_label": {
+    "wordReviewLabel": {
         "message": "Remember the meaning",
         "description": "Reviews message"
     },
-    "reversed_word_review_label": {
+    "reversedWordReviewLabel": {
         "message": "Remember the word",
         "description": "Reviews message"
     },
-    "sentence_review_label": {
+    "sentenceReviewLabel": {
         "message": "Be able to read",
         "description": "Reviews message"
     },
-    "reversed_sentence_review_label": {
+    "reversedSentenceReviewLabel": {
         "message": "Be able to speak",
+        "description": "Reviews message"
+    },
+    "reviewFor": {
+        "message": "Review $interval$",
+        "description": "Words message",
+        "placeholders": {
+            "interval": {}
+        }
+    },
+    "tomorrow": {
+        "message": "Tomorrow",
+        "description": "Reviews message"
+    },
+    "after3Days": {
+        "message": "3 days later",
+        "description": "Reviews message"
+    },
+    "afterAWeek": {
+        "message": "A week later",
+        "description": "Reviews message"
+    },
+    "after2Week": {
+        "message": "2 weeks later",
+        "description": "Reviews message"
+    },
+    "after3Week": {
+        "message": "3 weeks later",
+        "description": "Reviews message"
+    },
+    "afterAMonth": {
+        "message": "A month later",
+        "description": "Reviews message"
+    },
+    "after2Month": {
+        "message": "2 months later",
+        "description": "Reviews message"
+    },
+    "after3Month": {
+        "message": "3 months later",
+        "description": "Reviews message"
+    },
+    "after6Month": {
+        "message": "6 months later",
+        "description": "Reviews message"
+    },
+    "afterAYear": {
+        "message": "A year later",
+        "description": "Reviews message"
+    },
+    "reviewScheduledDate": {
+        "message": "Scheduled Date",
+        "description": "Reviews message"
+    },
+    "reviewInterval": {
+        "message": "Review Interval",
+        "description": "Reviews message"
+    },
+    "setReview": {
+        "message": "Set Review",
+        "description": "Reviews message"
+    },
+    "destroyReview": {
+        "message": "Cancel the review schedule",
         "description": "Reviews message"
     }
 }
