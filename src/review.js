@@ -50,7 +50,7 @@ export class Review {
         if (loginToken) {
             if (review) {
                 // 設定編集ボタン
-                return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${Review.reviewInterval(review.interval_setting)}に復習する</div>
+                return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</div>
             <div class="diqt-dict-review-form" id="diqt-dict-review-form-${quizId}"></div>`
             } else {
                 // 新規設定ボタン
@@ -64,16 +64,16 @@ export class Review {
 
     static reviewLabel(quiz) {
         if (quiz.word_id != null) {
-            const wordReviewLabel = chrome.i18n.getMessage('word_review_label');
+            const wordReviewLabel = chrome.i18n.getMessage('wordReviewLabel');
             return wordReviewLabel;
         } else if (quiz.reversed_word_id != null) {
-            const reversedWordReviewLabel = chrome.i18n.getMessage('reversed_word_review_label');
+            const reversedWordReviewLabel = chrome.i18n.getMessage('reversedWordReviewLabel');
             return reversedWordReviewLabel;
         } else if (quiz.sentence_id != null) {
-            const sentenceReviewLabel = chrome.i18n.getMessage('sentence_review_label');
+            const sentenceReviewLabel = chrome.i18n.getMessage('sentenceReviewLabel');
             return sentenceReviewLabel;
         } else if (quiz.reversed_sentence_id != null) {
-            const reversedSentenceReviewLabel = chrome.i18n.getMessage('reversed_sentence_review_label');
+            const reversedSentenceReviewLabel = chrome.i18n.getMessage('reversedSentenceReviewLabel');
             return reversedSentenceReviewLabel;
         } else {
             return chrome.i18n.getMessage('remember');
@@ -138,11 +138,6 @@ export class Review {
     }
 
 
-
-
-
-
-
     // 復習設定フォームをレンダリングする。
     static renderReviewForm(quiz, review) {
         const quizId = quiz.id;
@@ -157,18 +152,17 @@ export class Review {
         const quizId = review.quiz_id;
         const html = `
         <div class="boqqs-dict-reminder-status">
-        <p>復習予定：${review.scheduled_date}</p>
-        <p>復習設定：${Review.reviewInterval(review.interval_setting)}に復習する</p>  
-        <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> 復習設定を削除する</div>
+        <p>${chrome.i18n.getMessage('reviewScheduledDate')}：${review.scheduled_date}</p>
+        <p>${chrome.i18n.getMessage('reviewInterval')}：${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</p>  
+        <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> ${chrome.i18n.getMessage('destroyReview')}</div>
         </div>      
 <div class="diqt-dict-select-form cp_sl01">
 <select id="diqt-dict-select-form-${quizId}" style="height: 40px;" required>
 	${Review.createOptions(review)}
 </select>
 </div>
-<button class="diqt-dict-submit-review-btn" id="diqt-dict-update-review-btn-${quizId}">設定する</button>
+<button class="diqt-dict-submit-review-btn" id="diqt-dict-update-review-btn-${quizId}">${chrome.i18n.getMessage('setReview')}</button>
 <div class="diqt-dict-recommend-premium" id="diqt-dict-recommend-premium-${quizId}"></div>`
-
         return html;
     }
 
@@ -179,34 +173,34 @@ export class Review {
         let interval = '';
         switch (setting) {
             case 0:
-                interval = `明日`;
+                interval = chrome.i18n.getMessage('tomorrow');
                 break;
             case 1:
-                interval = '3日後';
+                interval = chrome.i18n.getMessage('after3Days');
                 break;
             case 2:
-                interval = '１週間後';
+                interval = chrome.i18n.getMessage('afterAWeek');
                 break;
             case 3:
-                interval = '２週間後';
+                interval = chrome.i18n.getMessage('after2Week');
                 break;
             case 4:
-                interval = '３週間後';
+                interval = chrome.i18n.getMessage('after3Week');
                 break;
             case 5:
-                interval = '１ヶ月後';
+                interval = chrome.i18n.getMessage('afterAMonth');
                 break;
             case 6:
-                interval = '２ヶ月後';
+                interval = chrome.i18n.getMessage('after2Month');
                 break;
             case 7:
-                interval = '３ヶ月後';
+                interval = chrome.i18n.getMessage('after3Month');
                 break;
             case 8:
-                interval = '６ヶ月後';
+                interval = chrome.i18n.getMessage('after6Month');
                 break;
             case 9:
-                interval = '1年後';
+                interval = chrome.i18n.getMessage('afterAYear');
                 break
         }
         return interval;
@@ -225,9 +219,9 @@ export class Review {
                 icon = '🔒 '
             }
             if (i == selectedNumber) {
-                html = html + `<option value="${i}" selected>${icon}${Review.reviewInterval(i)}に復習する</option>`
+                html = html + `<option value="${i}" selected>${icon}${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(i))}</option>`
             } else {
-                html = html + `<option value="${i}">${icon}${Review.reviewInterval(i)}に復習する</option>`
+                html = html + `<option value="${i}">${icon}${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(i))}</option>`
             }
         }
         return html
@@ -252,7 +246,7 @@ export class Review {
         if (createBtn) {
 
             createBtn.addEventListener('click', function () {
-                createBtn.textContent = '設定中...'
+                createBtn.textContent = chrome.i18n.getMessage('nowSetting');
                 // const settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
                 const port = chrome.runtime.connect({ name: "createReview" });
                 port.postMessage({ action: "createReview", quizId: quizId });
@@ -289,7 +283,7 @@ export class Review {
         const quizId = quiz.id;
         const submitBtn = document.querySelector("#diqt-dict-update-review-btn-" + quizId);
         submitBtn.addEventListener('click', function () {
-            submitBtn.textContent = '設定中...'
+            submitBtn.textContent = chrome.i18n.getMessage('nowSetting');
             const settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
             const port = chrome.runtime.connect({ name: "updateReview" });
             port.postMessage({ action: "updateReview", reviewId: review.id, settingNumber: settingNumber });
@@ -314,7 +308,7 @@ export class Review {
         const quizId = quiz.id;
         const deleteBtn = document.querySelector(`#diqt-dict-destroy-review-btn-${quizId}`);
         deleteBtn.addEventListener('click', function () {
-            deleteBtn.textContent = '設定中...';
+            deleteBtn.textContent = chrome.i18n.getMessage('nowSetting');
             const port = chrome.runtime.connect({ name: "destroyReview" });
             port.postMessage({ action: "destroyReview", reviewId: review.id });
             port.onMessage.addListener(function (msg) {

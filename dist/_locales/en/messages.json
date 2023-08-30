@@ -1,4 +1,205 @@
 {
+    "appName": {
+        "message": "DiQt - Dictionaries to remember the words you look up",
+        "description": "The name of the app"
+    },
+    "appDescription": {
+        "message": "This dictionary allows you to prevent forgetting words you looked up by setting a review for the term you looked up.",
+        "description": "The description of the app"
+    },
+    "loginTitle": {
+        "message": "Login",
+        "description": "Sessions message"
+    },
+    "loginDescription": {
+        "message": "By logging in, you can set reviews for words and use the translation function.",
+        "description": "Sessions message"
+    },
+    "emailPlaceholder": {
+        "message": "Please enter your email address.",
+        "description": "Sessions message"
+    },
+    "passwordPlaceholder": {
+        "message": "Please enter your password.",
+        "description": "Sessions message"
+    },
+    "wrongCombination": {
+        "message": "The email address and password combination is incorrect.",
+        "description": "Sessions message"
+    },
+    "login": {
+        "message": "Login",
+        "description": "Sessions message"
+    },
+    "continueWithGoogle": {
+        "message": "Continue with Google",
+        "description": "Sessions message"
+    },
+    "continueWithApple": {
+        "message": "Continue with Apple",
+        "description": "Sessions message"
+    },
+    "noAccount": {
+        "message": "Don't have an account?",
+        "description": "Sessions message"
+    },
+    "signUp": {
+        "message": "Sign up",
+        "description": "Sessions message"
+    },
+    "addOrRemoveDictionaries": {
+        "message": "Add or remove dictionaries",
+        "description": "Options message"
+    },
+    "displayPopup": {
+        "message": "Display a popup when text is selected.",
+        "description": "Options message"
+    },
+    "nowSetting": {
+        "message": "Now setting...",
+        "description": "Options message"
+    },
+    "logOut": {
+        "message": "Log out",
+        "description": "Options message"
+    },
+    "loggingOut": {
+        "message": "Now logging out...",
+        "description": "Options message"
+    },
+    "myPage": {
+        "message": "My page",
+        "description": "Options message"
+    },
+    "appLinksTitle": {
+        "message": "iOS / Android Apps",
+        "description": "Options message"
+    },
+    "free": {
+        "message": "Free",
+        "description": "Options message"
+    },
+    "aboutDiQt": {
+        "message": "About DiQt",
+        "description": "Options message"
+    },
+    "storePage": {
+        "message": "Store Page",
+        "description": "Options message"
+    },
+    "company": {
+        "message": "Company",
+        "description": "Options message"
+    },
+    "contact": {
+        "message": "Contact",
+        "description": "Options message"
+    },
+    "termsOfService": {
+        "message": "Terms of Service",
+        "description": "Options message"
+    },
+    "privacyPolicy": {
+        "message": "Privacy Policy",
+        "description": "Options message"
+    },
+    "legal": {
+        "message": "Specified Commercial Transaction Act",
+        "description": "Options message"
+    },
+    "ctrlQ": {
+        "message": "Ctrl + Q to open/close.",
+        "description": "Reviews message"
+    },
+    "searchPlaceholder": {
+        "message": "Enter keywords...",
+        "description": "Reviews message"
+    },
+    "searchLimit": {
+        "message": "Searches are limited to less than 1000 characters.",
+        "description": "Content scripts message"
+    },
+    "searchResults": {
+        "message": "Search results",
+        "description": "Content scripts message"
+    },
+    "searchError": {
+        "message": "An error occurred while searching.",
+        "description": "Content scripts message"
+    },
+    "searchErrorSolution": {
+        "message": "After accessing here, please search again after a while.",
+        "description": "Content scripts message"
+    },
+    "statusError": {
+        "message": "An error has occurred. Please try again after a while.",
+        "description": "Content scripts message"
+    },
+    "settings": {
+        "message": "Settings",
+        "description": "Content scripts message"
+    },
+    "signInRecommendation": {
+        "message": "We recommend that you sign in to use dictionaries and the translation function.",
+        "description": "Content scripts message"
+    },
+    "signIn": {
+        "message": "Sign in",
+        "description": "Content scripts message"
+    },
+    "editWord": {
+        "message": "Edit word",
+        "description": "Words message"
+    },
+    "googleTranslation": {
+        "message": "Google translation",
+        "description": "Words message"
+    },
+    "deepLTranslation": {
+        "message": "DeepL translation",
+        "description": "Words message"
+    },
+    "translating": {
+        "message": "Translating...",
+        "description": "Words message"
+    },
+    "translated": {
+        "message": "Done",
+        "description": "Words message"
+    },
+    "sentence": {
+        "message": "Sentence",
+        "description": "Words message"
+    },
+    "editSentence": {
+        "message": "Edit sentence",
+        "description": "Words message"
+    },
+    "details": {
+        "message": "Details",
+        "description": "Words message"
+    },
+    "noWordFound": {
+        "message": "'$keyword$' is not registered in the dictionary.",
+        "description": "Words message",
+        "placeholders": {
+            "keyword": {
+                "content": "$1"
+            }
+        }
+    },
+    "addWord": {
+        "message": "Register in the dictionary",
+        "description": "Words message"
+    },
+    "meaning": {
+        "message": "meaning",
+        "description": "Words message"
+    },
+    "searchByWeb": {
+        "message": "Search by web",
+        "description": "Words message"
+    },
     "reviews": {
         "message": "Reviews",
         "description": "Reviews message"
@@ -7,20 +208,85 @@
         "message": "Remember",
         "description": "Reviews message"
     },
-    "word_review_label": {
+    "wordReviewLabel": {
         "message": "Remember the meaning",
         "description": "Reviews message"
     },
-    "reversed_word_review_label": {
+    "reversedWordReviewLabel": {
         "message": "Remember the word",
         "description": "Reviews message"
     },
-    "sentence_review_label": {
+    "sentenceReviewLabel": {
         "message": "Be able to read",
         "description": "Reviews message"
     },
-    "reversed_sentence_review_label": {
+    "reversedSentenceReviewLabel": {
         "message": "Be able to speak",
+        "description": "Reviews message"
+    },
+    "reviewFor": {
+        "message": "Review $interval$",
+        "description": "Words message",
+        "placeholders": {
+            "interval": {
+                "content": "$1"
+            }
+        }
+    },
+    "tomorrow": {
+        "message": "Tomorrow",
+        "description": "Reviews message"
+    },
+    "after3Days": {
+        "message": "3 days later",
+        "description": "Reviews message"
+    },
+    "afterAWeek": {
+        "message": "A week later",
+        "description": "Reviews message"
+    },
+    "after2Week": {
+        "message": "2 weeks later",
+        "description": "Reviews message"
+    },
+    "after3Week": {
+        "message": "3 weeks later",
+        "description": "Reviews message"
+    },
+    "afterAMonth": {
+        "message": "A month later",
+        "description": "Reviews message"
+    },
+    "after2Month": {
+        "message": "2 months later",
+        "description": "Reviews message"
+    },
+    "after3Month": {
+        "message": "3 months later",
+        "description": "Reviews message"
+    },
+    "after6Month": {
+        "message": "6 months later",
+        "description": "Reviews message"
+    },
+    "afterAYear": {
+        "message": "A year later",
+        "description": "Reviews message"
+    },
+    "reviewScheduledDate": {
+        "message": "Scheduled Date",
+        "description": "Reviews message"
+    },
+    "reviewInterval": {
+        "message": "Review Interval",
+        "description": "Reviews message"
+    },
+    "setReview": {
+        "message": "Set Review",
+        "description": "Reviews message"
+    },
+    "destroyReview": {
+        "message": "Cancel the review schedule",
         "description": "Reviews message"
     }
 }

@@ -52,7 +52,7 @@ function toggleFloatingWindow() {
         <div id="diqt-dict-logged-in-user" style="font-size: 10px;">Loading...</div>
         </a>
         <div id="diqt-dict-dictionary-select-form-wrapper">Loading...</div>
-        <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form" placeholder="検索はこちらから..."></form>
+        <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form" placeholder="${chrome.i18n.getMessage("searchPlaceholder")}"></form>
         <div id="diqt-dict-search-status" style="text-align: left; color: #6e6e6e;">
         "<span id="diqt-dict-search-keyword" style="font-size: 12px;"></span>"<span id="diqt-dict-search-status-text"></span>
         </div>
@@ -61,7 +61,7 @@ function toggleFloatingWindow() {
 
         const frame = jsFrame.create({
             name: 'diqt-dict-window',
-            title: 'Ctrl + Q で開閉',
+            title: chrome.i18n.getMessage("ctrlQ"),
             width: 320,
             height: 480,
             movable: true, //マウスで移動可能
@@ -155,7 +155,7 @@ function searchSelectedText() {
         previousKeyword = '';
     }
     if (selTxt.length >= 1000) {
-        document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
+        document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`
         return;
     }
     // 検索フォーム
@@ -180,7 +180,7 @@ function searchViaForm(form) {
                 searchWord(keyword);
             } else if (keyword.length >= 1000) {
                 // コピペで1000文字以上フォームに入力された場合にエラーを表示する。
-                document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">検索できるのは1000文字未満までです。</p>`
+                document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`
             }
         }
         // 0.5秒ずつ、検索を走らせるか検証する。
@@ -205,7 +205,7 @@ function searchWord(keyword) {
     const searchKeyword = document.querySelector('#diqt-dict-search-keyword');
     searchKeyword.textContent = keyword;
     if (keyword.length < 50 && keyword.length > 0) {
-        document.querySelector('#diqt-dict-search-status-text').textContent = 'の検索結果';
+        document.querySelector('#diqt-dict-search-status-text').textContent = ` ${chrome.i18n.getMessage("searchResults")}`;
     } else {
         document.querySelector('#diqt-dict-search-status-text').textContent = '';
     }
@@ -278,7 +278,7 @@ function searchSuccess(data) {
             // 2, 拡張機能を一度OFFにしてから再びONにする。
             // 3, 適当なタブをリロードしてから、辞書を引く。
             // 4, エラー発生。内容：Access to fetch at '' from origin 'chrome-extension://gpddlaapalckciombdafdfpeakndmmeg' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-            const corsErrorHtml = `<div class="diqt-dict-meaning" style="margin: 24px 0;">大変申し訳ございません。辞書にアクセスできませんでした。<a id="diqt-dict-option-btn" style="color: #27ae60;">こちら</a>にアクセスした後、再び検索してください。</div>`
+            const corsErrorHtml = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("searchError")}<a id="diqt-dict-option-btn" style="color: #27ae60;">${chrome.i18n.getMessage("searchErrorSolution")}</a></div>`
             resultForm.insertAdjacentHTML('afterbegin', corsErrorHtml);
             // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
             const optionBtn = document.querySelector('#diqt-dict-option-btn');
@@ -332,7 +332,7 @@ function renderUserStatus() {
             const userData = document.querySelector('#diqt-dict-logged-in-user');
             userData.innerHTML = `<i class="fal fa-user"></i> Error`
             const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
-            dictionaryDate.innerHTML = `<p>エラーが発生しました。しばらく経った後、またお試しください。</p>`
+            dictionaryDate.innerHTML = `<p>${chrome.i18n.getMessage("statusError")}</p>`
         }
         return true;
     });
@@ -348,7 +348,7 @@ function renderUserStatus() {
 function loggedInUser(userName, dictionaries, selectedDictionaryId) {
     // ユーザーステータスを更新
     const userData = document.querySelector('#diqt-dict-logged-in-user');
-    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / 設定`
+    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / ${chrome.i18n.getMessage("settings")}`
     // 辞書フォームの作成＆表示
     const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
     dictionaryDate.innerHTML = createDictionarySelectForm(dictionaries, selectedDictionaryId);
@@ -359,7 +359,7 @@ function loggedInUser(userName, dictionaries, selectedDictionaryId) {
 function notLoggedInUser() {
     // ユーザーステータスを更新
     const page = document.querySelector('#diqt-dict-extension-wrapper');
-    page.innerHTML = '<p style="font-size: 16px;">ディクトにログインすることで、どこからでも辞書と翻訳が利用できるようになります。</p><button class="diqt-dict-submit-review-btn" id="diqt-dict-sign-in-btn">ログイン・登録する</button>';
+    page.innerHTML = `<p style="font-size: 16px;">${chrome.i18n.getMessage("signInRecommendation")}</p><button class="diqt-dict-submit-review-btn" id="diqt-dict-sign-in-btn">${chrome.i18n.getMessage("signIn")}</button>`;
     document.querySelector('#diqt-dict-sign-in-btn').addEventListener('click', function () {
         // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
         const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
