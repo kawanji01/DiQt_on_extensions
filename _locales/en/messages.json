@@ -107,6 +107,46 @@
         "message": "Specified Commercial Transaction Act",
         "description": "Options message"
     },
+    "ctrlQ": {
+        "message": "Ctrl + Q to open/close.",
+        "description": "Reviews message"
+    },
+    "searchPlaceholder": {
+        "message": "Enter keywords...",
+        "description": "Reviews message"
+    },
+    "searchLimit": {
+        "message": "Searches are limited to less than 1000 characters.",
+        "description": "Content scripts message"
+    },
+    "searchResults": {
+        "message": "Search results",
+        "description": "Content scripts message"
+    },
+    "searchError": {
+        "message": "An error occurred while searching.",
+        "description": "Content scripts message"
+    },
+    "searchErrorSolution": {
+        "message": "After accessing here, please search again after a while.",
+        "description": "Content scripts message"
+    },
+    "statusError": {
+        "message": "An error has occurred. Please try again after a while.",
+        "description": "Content scripts message"
+    },
+    "settings": {
+        "message": "Settings",
+        "description": "Content scripts message"
+    },
+    "signInRecommendation": {
+        "message": "We recommend that you sign in to use dictionaries and the translation function.",
+        "description": "Content scripts message"
+    },
+    "signIn": {
+        "message": "Sign in",
+        "description": "Content scripts message"
+    },
     "reviews": {
         "message": "Reviews",
         "description": "Reviews message"

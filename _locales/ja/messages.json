@@ -107,6 +107,46 @@
         "message": "特定商取引法に基づく表記",
         "description": "Options message"
     },
+    "ctrlQ": {
+        "message": "Ctrl + Q で開閉できます。",
+        "description": "Content scripts message"
+    },
+    "search_placeholder": {
+        "message": "検索はこちらから...",
+        "description": "Content scripts message"
+    },
+    "search_limit": {
+        "message": "検索できるのは1000文字未満までです。",
+        "description": "Content scripts message"
+    },
+    "searchResults": {
+        "message": "検索結果",
+        "description": "Content scripts message"
+    },
+    "searchError": {
+        "message": "検索に失敗しました。",
+        "description": "Content scripts message"
+    },
+    "searchErrorSolution": {
+        "message": "こちらにアクセスした後、しばらくしたら再び検索してください。",
+        "description": "Content scripts message"
+    },
+    "statusError": {
+        "message": "エラーが発生しました。しばらく経った後、またお試しください。",
+        "description": "Content scripts message"
+    },
+    "settings": {
+        "message": "設定",
+        "description": "Content scripts message"
+    },
+    "signInRecommendation": {
+        "message": "ディクトにログインすることで、どこからでも辞書と翻訳が利用できるようになります。",
+        "description": "Content scripts message"
+    },
+    "signIn": {
+        "message": "ログイン・新規登録する",
+        "description": "Content scripts message"
+    },
     "reviews": {
         "message": "復習",
         "description": "Reviews message"
