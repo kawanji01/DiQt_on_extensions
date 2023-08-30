@@ -7,6 +7,106 @@
         "message": "Dictionaries to remember the words you look up",
         "description": "The description of the app"
     },
+    "loginTitle": {
+        "message": "Login",
+        "description": "Sessions message"
+    },
+    "loginDescription": {
+        "message": "By logging in, you can set reviews for words and use the translation function.",
+        "description": "Sessions message"
+    },
+    "emailPlaceholder": {
+        "message": "Please enter your email address.",
+        "description": "Sessions message"
+    },
+    "passwordPlaceholder": {
+        "message": "Please enter your password.",
+        "description": "Sessions message"
+    },
+    "wrongCombination": {
+        "message": "The email address and password combination is incorrect.",
+        "description": "Sessions message"
+    },
+    "login": {
+        "message": "Login",
+        "description": "Sessions message"
+    },
+    "continueWithGoogle": {
+        "message": "Continue with Google",
+        "description": "Sessions message"
+    },
+    "continueWithApple": {
+        "message": "Continue with Apple",
+        "description": "Sessions message"
+    },
+    "noAccount": {
+        "message": "Don't have an account?",
+        "description": "Sessions message"
+    },
+    "signUp": {
+        "message": "Sign up",
+        "description": "Sessions message"
+    },
+    "addOrRemoveDictionaries": {
+        "message": "Add or remove dictionaries",
+        "description": "Options message"
+    },
+    "displayPopup": {
+        "message": "Display a popup when text is selected.",
+        "description": "Options message"
+    },
+    "nowSetting": {
+        "message": "Now setting...",
+        "description": "Options message"
+    },
+    "logOut": {
+        "message": "Log out",
+        "description": "Options message"
+    },
+    "loggingOut": {
+        "message": "Now logging out...",
+        "description": "Options message"
+    },
+    "myPage": {
+        "message": "My page",
+        "description": "Options message"
+    },
+    "appLinksTitle": {
+        "message": "iOS / Android Apps",
+        "description": "Options message"
+    },
+    "free": {
+        "message": "Free",
+        "description": "Options message"
+    },
+    "aboutDiQt": {
+        "message": "About DiQt",
+        "description": "Options message"
+    },
+    "storePage": {
+        "message": "Store Page",
+        "description": "Options message"
+    },
+    "company": {
+        "message": "Company",
+        "description": "Options message"
+    },
+    "contact": {
+        "message": "Contact",
+        "description": "Options message"
+    },
+    "termsOfService": {
+        "message": "Terms of Service",
+        "description": "Options message"
+    },
+    "privacyPolicy": {
+        "message": "Privacy Policy",
+        "description": "Options message"
+    },
+    "legal": {
+        "message": "Specified Commercial Transaction Act",
+        "description": "Options message"
+    },
     "reviews": {
         "message": "Reviews",
         "description": "Reviews message"

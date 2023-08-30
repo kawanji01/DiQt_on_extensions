@@ -7,6 +7,106 @@
         "message": "調べた単語に復習を設定することで、調べた単語の忘却を防ぎます。",
         "description": "The description of the app"
     },
+    "loginTitle": {
+        "message": "ログイン",
+        "description": "Sessions message"
+    },
+    "loginDescription": {
+        "message": "ログインすることで、単語に復習を設定できるようになったり、翻訳機能がご利用いただけるようになります。",
+        "description": "Sessions message"
+    },
+    "emailPlaceholder": {
+        "message": "メールアドレスを入力してください。",
+        "description": "Sessions message"
+    },
+    "passwordPlaceholder": {
+        "message": "パスワードを入力してください。",
+        "description": "Sessions message"
+    },
+    "wrongCombination": {
+        "message": "メールアドレスとパスワードの組み合わせが正しくありません。",
+        "description": "Sessions message"
+    },
+    "login": {
+        "message": "ログインする",
+        "description": "Sessions message"
+    },
+    "continueWithGoogle": {
+        "message": "Googleでログインする",
+        "description": "Sessions message"
+    },
+    "continueWithApple": {
+        "message": "Appleでログインする",
+        "description": "Sessions message"
+    },
+    "noAccount": {
+        "message": "アカウントをお持ちではありませんか？",
+        "description": "Sessions message"
+    },
+    "signUp": {
+        "message": "新規登録する",
+        "description": "Sessions message"
+    },
+    "addOrRemoveDictionaries": {
+        "message": "辞書を追加・削除する",
+        "description": "Options message"
+    },
+    "displayPopup": {
+        "message": "テキストを選択したときにポップアップを表示する。",
+        "description": "Options message"
+    },
+    "nowSetting": {
+        "message": "設定中...",
+        "description": "Options message"
+    },
+    "logOut": {
+        "message": "ログアウトする",
+        "description": "Options message"
+    },
+    "loggingOut": {
+        "message": "ログアウト中...",
+        "description": "Options message"
+    },
+    "myPage": {
+        "message": "マイページ",
+        "description": "Options message"
+    },
+    "appLinksTitle": {
+        "message": "iOS / Androidアプリ",
+        "description": "Options message"
+    },
+    "free": {
+        "message": "無料",
+        "description": "Options message"
+    },
+    "aboutDiQt": {
+        "message": "ディクトについて",
+        "description": "Options message"
+    },
+    "storePage": {
+        "message": "ストアページ",
+        "description": "Options message"
+    },
+    "company": {
+        "message": "運営会社",
+        "description": "Options message"
+    },
+    "contact": {
+        "message": "お問い合わせ",
+        "description": "Options message"
+    },
+    "termsOfService": {
+        "message": "利用規約",
+        "description": "Options message"
+    },
+    "privacyPolicy": {
+        "message": "プライバシーポリシー",
+        "description": "Options message"
+    },
+    "legal": {
+        "message": "特定商取引法に基づく表記",
+        "description": "Options message"
+    },
     "reviews": {
         "message": "復習",
         "description": "Reviews message"
