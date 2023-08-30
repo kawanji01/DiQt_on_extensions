@@ -1,10 +1,10 @@
 {
     "appName": {
-        "message": "DiQt",
+        "message": "DiQt - Dictionaries to remember the words you look up",
         "description": "The name of the app"
     },
     "appDescription": {
-        "message": "Dictionaries to remember the words you look up",
+        "message": "This dictionary allows you to prevent forgetting words you looked up by setting a review for the term you looked up.",
         "description": "The description of the app"
     },
     "loginTitle": {
@@ -183,7 +183,9 @@
         "message": "'$keyword$' is not registered in the dictionary.",
         "description": "Words message",
         "placeholders": {
-            "keyword": {}
+            "keyword": {
+                "content": "$1"
+            }
         }
     },
     "addWord": {
@@ -226,7 +228,9 @@
         "message": "Review $interval$",
         "description": "Words message",
         "placeholders": {
-            "interval": {}
+            "interval": {
+                "content": "$1"
+            }
         }
     },
     "tomorrow": {

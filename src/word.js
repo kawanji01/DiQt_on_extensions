@@ -177,7 +177,7 @@ export class Word {
 
     // 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
     static notFoundFormHtml(keyword, dictionary) {
-        const notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("noWordFound", keyword)}</div>`;
+        const notFound = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("noWordFound", [keyword])}</div>`;
         const createNewWord = `<a href="${diqtUrl}/words/new?dictionary_id=${dictionary.id}&text=${keyword}" target="_blank" rel="noopener" style="text-decoration: none;">
                 <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("addWord")}</div></a>`;
         const searchWeb = `<a href="https://www.google.com/search?q=${keyword}+${chrome.i18n.getMessage("meaning")}&oq=${keyword}+${chrome.i18n.getMessage("meaning")}"" target="_blank" rel="noopener" style="text-decoration: none;">

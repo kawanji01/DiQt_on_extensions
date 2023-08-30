@@ -4,7 +4,7 @@
         "description": "The name of the app"
     },
     "appDescription": {
-        "message": "調べた単語に復習を設定することで、調べた単語の忘却を防ぎます。",
+        "message": "調べた単語に復習を設定することで、調べた単語の忘却を防げる辞書です。",
         "description": "The description of the app"
     },
     "loginTitle": {
@@ -107,6 +107,99 @@
         "message": "特定商取引法に基づく表記",
         "description": "Options message"
     },
+    "ctrlQ": {
+        "message": "Ctrl + Q で開閉できます。",
+        "description": "Content scripts message"
+    },
+    "search_placeholder": {
+        "message": "検索はこちらから...",
+        "description": "Content scripts message"
+    },
+    "search_limit": {
+        "message": "検索できるのは1000文字未満までです。",
+        "description": "Content scripts message"
+    },
+    "searchResults": {
+        "message": "検索結果",
+        "description": "Content scripts message"
+    },
+    "searchError": {
+        "message": "検索に失敗しました。",
+        "description": "Content scripts message"
+    },
+    "searchErrorSolution": {
+        "message": "こちらにアクセスした後、しばらくしたら再び検索してください。",
+        "description": "Content scripts message"
+    },
+    "statusError": {
+        "message": "エラーが発生しました。しばらく経った後、またお試しください。",
+        "description": "Content scripts message"
+    },
+    "settings": {
+        "message": "設定",
+        "description": "Content scripts message"
+    },
+    "signInRecommendation": {
+        "message": "ディクトにログインすることで、どこからでも辞書と翻訳が利用できるようになります。",
+        "description": "Content scripts message"
+    },
+    "signIn": {
+        "message": "ログイン・新規登録する",
+        "description": "Content scripts message"
+    },
+    "editWord": {
+        "message": "この項目を編集する",
+        "description": "Words message"
+    },
+    "googleTranslation": {
+        "message": "Google翻訳",
+        "description": "Words message"
+    },
+    "deepLTranslation": {
+        "message": "DeepL翻訳",
+        "description": "Words message"
+    },
+    "translating": {
+        "message": "翻訳中...",
+        "description": "Words message"
+    },
+    "translated": {
+        "message": "完了",
+        "description": "Words message"
+    },
+    "sentence": {
+        "message": "例文",
+        "description": "Words message"
+    },
+    "editSentence": {
+        "message": "例文を編集する",
+        "description": "Words message"
+    },
+    "details": {
+        "message": "詳細",
+        "description": "Words message"
+    },
+    "noWordFound": {
+        "message": "'$keyword$'は辞書に登録されていません。",
+        "description": "Words message",
+        "placeholders": {
+            "keyword": {
+                "content": "$1"
+            }
+        }
+    },
+    "addWord": {
+        "message": "辞書に登録する",
+        "description": "Words message"
+    },
+    "meaning": {
+        "message": "意味",
+        "description": "Words message"
+    },
+    "searchByWeb": {
+        "message": "Webで検索する",
+        "description": "Words message"
+    },
     "reviews": {
         "message": "復習",
         "description": "Reviews message"
@@ -115,20 +208,85 @@
         "message": "覚える",
         "description": "Reviews message"
     },
-    "word_review_label": {
+    "wordReviewLabel": {
         "message": "意味を覚える",
         "description": "Reviews message"
     },
-    "reversed_word_review_label": {
+    "reversedWordReviewLabel": {
         "message": "単語を覚える",
         "description": "Reviews message"
     },
-    "sentence_review_label": {
+    "sentenceReviewLabel": {
         "message": "読めるようになる",
         "description": "Reviews message"
     },
-    "reversed_sentence_review_label": {
+    "reversedSentenceReviewLabel": {
         "message": "話せるようになる",
+        "description": "Reviews message"
+    },
+    "reviewFor": {
+        "message": "$interval$に復習する",
+        "description": "Words message",
+        "placeholders": {
+            "interval": {
+                "content": "$1"
+            }
+        }
+    },
+    "tomorrow": {
+        "message": "明日",
+        "description": "Reviews message"
+    },
+    "after3Days": {
+        "message": "3日後",
+        "description": "Reviews message"
+    },
+    "afterAWeek": {
+        "message": "1週間後",
+        "description": "Reviews message"
+    },
+    "after2Week": {
+        "message": "2週間後",
+        "description": "Reviews message"
+    },
+    "after3Week": {
+        "message": "3週間後",
+        "description": "Reviews message"
+    },
+    "afterAMonth": {
+        "message": "1ヶ月後",
+        "description": "Reviews message"
+    },
+    "after2Month": {
+        "message": "2ヶ月後",
+        "description": "Reviews message"
+    },
+    "after3Month": {
+        "message": "3ヶ月後",
+        "description": "Reviews message"
+    },
+    "after6Month": {
+        "message": "6ヶ月後",
+        "description": "Reviews message"
+    },
+    "afterAYear": {
+        "message": "1年後",
+        "description": "Reviews message"
+    },
+    "reviewScheduledDate": {
+        "message": "復習予定日",
+        "description": "Reviews message"
+    },
+    "reviewInterval": {
+        "message": "復習の間隔",
+        "description": "Reviews message"
+    },
+    "setReview": {
+        "message": "復習を設定する",
+        "description": "Reviews message"
+    },
+    "destroyReview": {
+        "message": "復習予定を取り消す",
         "description": "Reviews message"
     }
 }

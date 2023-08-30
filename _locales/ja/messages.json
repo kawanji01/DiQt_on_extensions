@@ -4,7 +4,7 @@
         "description": "The name of the app"
     },
     "appDescription": {
-        "message": "調べた単語に復習を設定することで、調べた単語の忘却を防ぎます。",
+        "message": "調べた単語に復習を設定することで、調べた単語の忘却を防げる辞書です。",
         "description": "The description of the app"
     },
     "loginTitle": {
@@ -159,6 +159,10 @@
         "message": "DeepL翻訳",
         "description": "Words message"
     },
+    "translating": {
+        "message": "翻訳中...",
+        "description": "Words message"
+    },
     "translated": {
         "message": "完了",
         "description": "Words message"
@@ -179,7 +183,9 @@
         "message": "'$keyword$'は辞書に登録されていません。",
         "description": "Words message",
         "placeholders": {
-            "keyword": {}
+            "keyword": {
+                "content": "$1"
+            }
         }
     },
     "addWord": {
@@ -222,7 +228,9 @@
         "message": "$interval$に復習する",
         "description": "Words message",
         "placeholders": {
-            "interval": {}
+            "interval": {
+                "content": "$1"
+            }
         }
     },
     "tomorrow": {
