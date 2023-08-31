@@ -24,7 +24,7 @@ export class Word {
         /* 例文 */
         const sentenceHtml = Word.createSentenceHtml(word, loginToken);
         /* 項目の編集ボタン */
-        const linkToEditWord = Word.liknToImproveHtml(wordURL, chrome.i18n.getMessage("editWord"));
+        const linkToEditWord = Word.liknToEditHtml(wordURL, chrome.i18n.getMessage("editWord"));
         /* 項目編集ボタンの上の余白 */
         // const spaceBeforeImproveWordBtn = '<div style="width: 100%; height: 16px;"></div>'
         /* 項目と次の項目の間の余白 */
@@ -144,9 +144,6 @@ export class Word {
     static createSentenceHtml(word, loginToken) {
         const sentence = word.sentence;
         if (sentence == null) {
-            // 例文がない場合は、例文を追加するリンクための項目の編集リンクを返す
-            //return liknToImproveHtml(`https://www.diqt.net/ja/words/${word.id}/edit`, '例文を追加する');
-            console.log('sentence is null');
             return '';
         }
         // 例文と翻訳
@@ -157,7 +154,7 @@ export class Word {
         const reviewBtn = Review.createSentenceReviewButtons(sentence, loginToken);
         // 例文の編集ボタン
         const sentenceUrl = `${diqtUrl}/sentences/${sentence.id}`
-        const linkToEditSentence = Word.liknToImproveHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
+        const linkToEditSentence = Word.liknToEditHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
         // 例文のHTML
         const sentenceHtml = label + original + translation + reviewBtn + linkToEditSentence;
         return sentenceHtml;
@@ -167,10 +164,10 @@ export class Word {
 
 
     // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
-    static liknToImproveHtml(url, label) {
+    static liknToEditHtml(url, label) {
         const html = `<div style="display: flex;">
-                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="diqt-dict-link-to-improve" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-edit"></i>${label}</a>
-                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-improve" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>${chrome.i18n.getMessage("details")}</a>
+                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-edit"></i> ${label}</a>
+                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>${chrome.i18n.getMessage("details")}</a>
                 </div>`;
         return html;
     }
@@ -194,6 +191,24 @@ export class Word {
             <div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("searchByWeb")}</div></a>`;
         const html = createNewWord + searchWeb;
         return html;
+    }
+
+    // 翻訳ボタンを生成する
+    static createTranslationForm(loginToken) {
+        let translationForm;
+        if (loginToken) {
+            translationForm = `<div id="diqt-dict-translation-form">
+        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
+        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
+        </div>`
+        } else {
+            translationForm = `<div id="diqt-dict-translation-form">
+        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
+        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
+        <p><a id="diqt-dict-login-for-translation" style="color: #27ae60;">${chrome.i18n.getMessage("signInRecommendation")}</a></p>
+        </div>`
+        }
+        return translationForm
     }
 
     // 翻訳フォームにイベントを付与

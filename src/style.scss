@@ -138,6 +138,16 @@ $box-border: #c5c3c3;
     border-spacing: 0;
   }
 
+  select,
+  option {
+    /* すべてのスタイルを初期化 */
+    all: initial;
+    /* 必要に応じてフォントファミリーを指定 */
+    font-family: sans-serif;
+    /* デフォルトのフォントサイズを指定 */
+    font-size: 14px;
+  }
+
   /* リセットCSS END */
 
 
@@ -159,7 +169,8 @@ $box-border: #c5c3c3;
     margin-top: 4px;
     margin-bottom: 4px;
     text-align: left;
-    font-size: 10;
+    // reset cssでフォントサイズを指定している。
+    // font-size: 14px;
     color: $text-black;
 
     #diqt-dictionary-select-form {
@@ -171,10 +182,6 @@ $box-border: #c5c3c3;
       border: 1px solid $box-border;
       box-sizing: border-box;
       padding: 6px 6px;
-
-      option {
-        font-size: 10px;
-      }
 
     }
   }
@@ -207,6 +214,18 @@ $box-border: #c5c3c3;
     min-height: 24px;
     max-width: none;
   }
+
+
+  /* 検索ステータス */
+  #diqt-dict-search-status {
+    text-align: left;
+    color: $text-black;
+    font-size: 12px;
+  }
+
+
+
+
 
 
   /* 見出し */
@@ -450,7 +469,7 @@ $box-border: #c5c3c3;
 
 
   /* 項目の改善リンク */
-  .diqt-dict-link-to-improve {
+  .diqt-dict-link-to-edit {
     color: $text-black;
     font-size: 10px;
     display: inline-block;

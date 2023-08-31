@@ -140,7 +140,7 @@
         "description": "Content scripts message"
     },
     "signInRecommendation": {
-        "message": "We recommend that you sign in to use dictionaries and the translation function.",
+        "message": "Please sign in to use dictionaries and the translation function.",
         "description": "Content scripts message"
     },
     "signIn": {
