@@ -53,8 +53,8 @@ function toggleFloatingWindow() {
         </a>
         <div id="diqt-dict-dictionary-select-form-wrapper">Loading...</div>
         <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form" placeholder="${chrome.i18n.getMessage("searchPlaceholder")}"></form>
-        <div id="diqt-dict-search-status" style="text-align: left; color: #6e6e6e;">
-        "<span id="diqt-dict-search-keyword" style="font-size: 12px;"></span>"<span id="diqt-dict-search-status-text"></span>
+        <div id="diqt-dict-search-status">
+        "<span id="diqt-dict-search-keyword"></span>"<span id="diqt-dict-search-status-text"></span>
         </div>
         <div id="search-diqt-dict-results"></div>
         </div>`
@@ -379,6 +379,7 @@ function createDictionarySelectForm(dictionaries, value) {
         chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
     }
     dictionaryId = Number(dictionaryId);
+    console.log(dictionaries);
     const dictionaryAry = JSON.parse(dictionaries);
     const optionsHtml = dictionaryAry.map(item => createOption(item, dictionaryId)).join('');
     return `<select id="diqt-dictionary-select-form">
@@ -390,6 +391,7 @@ function createOption(item, value) {
     // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
     // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
     const isSelected = item[0] === value ? 'selected' : '';
+    console.log(`item[0]: ${item[0]} / item[1]: ${item[1]}`);
     return `<option value="${item[0]}" class="diqt-dictionary-select-option" ${isSelected}>${item[1]}</option>`;
 }
 

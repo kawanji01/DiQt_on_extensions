@@ -117,6 +117,7 @@ function renderMypage() {
 
 // 辞書のセレクトフォームを作成
 function createDictionarySelectForm(dictionaries, value) {
+    console.log(dictionaries);
     const dictionaryAry = JSON.parse(dictionaries);
     const optionsHtml = dictionaryAry.map(item => createOption(item, value)).join('');
     return `<div class="block has-text-centered mt-5">
