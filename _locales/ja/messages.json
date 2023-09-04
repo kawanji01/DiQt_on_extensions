@@ -111,11 +111,11 @@
         "message": "Ctrl + Q で開閉できます。",
         "description": "Content scripts message"
     },
-    "search_placeholder": {
+    "searchPlaceholder": {
         "message": "検索はこちらから...",
         "description": "Content scripts message"
     },
-    "search_limit": {
+    "searchLimit": {
         "message": "検索できるのは1000文字未満までです。",
         "description": "Content scripts message"
     },

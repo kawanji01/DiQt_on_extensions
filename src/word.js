@@ -11,10 +11,18 @@ export class Word {
     static createWordHtml(word, loginToken) {
         //const tags = createTagsHtml(word.tags);
         const wordURL = `${diqtUrl}/words/${word.id}`;
-        /* タイトル */
+        /* 見出し語 */
         const entry = `<div class="diqt-dict-entry">
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
+        // 発音記号
+        let pronunciation;
+        if (word.lang_number_of_entry == 44) {
+            pronunciation = `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
+        } else {
+            pronunciation = `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+        }
+
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>`;
         /* 意味の翻訳ボタン */
@@ -30,7 +38,7 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 

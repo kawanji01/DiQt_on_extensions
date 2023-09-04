@@ -176,12 +176,12 @@ $box-border: #c5c3c3;
     #diqt-dictionary-select-form {
       display: block;
       width: 100%;
-      min-height: 24px;
+      min-height: 26px;
       max-width: none;
       border-radius: 3px;
       border: 1px solid $box-border;
       box-sizing: border-box;
-      padding: 6px 6px;
+      padding: 4px 6px;
 
     }
   }
@@ -233,7 +233,7 @@ $box-border: #c5c3c3;
     color: $brand-green;
     font-size: 15px;
     font-weight: bold;
-    margin: 8px 0 8px 4px;
+    margin: 8px 0 4px 4px;
     text-align: left;
   }
 
@@ -251,6 +251,14 @@ $box-border: #c5c3c3;
     margin-left: 8px;
     border-radius: 50%;
     color: $text-black;
+  }
+
+  // 発音・よみがな
+  .diqt-dict-pronunciation {
+    color: $brand-green;
+    font-size: 10px;
+    margin: 0 0 8px 4px;
+    text-align: left;
   }
 
   /* 意味 */
