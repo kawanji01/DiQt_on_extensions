@@ -4,7 +4,7 @@
 export class Review {
 
     // Wordの復習設定ボタンを生成する
-    static createWordReviewButtons(word, loginToken) {
+    static createWordReviewButtons(word) {
         // 「意味を覚える」ボタン
         const quiz = word.quiz;
         if (quiz == null) {
@@ -12,7 +12,7 @@ export class Review {
         }
         const quizId = quiz.id;
         const review = quiz.review;
-        const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${Review.createReviewBtnHtml(quiz, review, loginToken)}</div>`;
+        const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${Review.createReviewBtnHtml(quiz, review)}</div>`;
         // 「単語を覚える」ボタン
         const reversedQuiz = word.reversed_quiz;
         if (reversedQuiz == null) {
@@ -20,11 +20,11 @@ export class Review {
         }
         const reversedQuizId = reversedQuiz.id;
         const reversedReview = reversedQuiz.review;
-        const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview, loginToken)}</div>`;
+        const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
         return reviewBtn + reversedReviewBtn;
     }
     // Sentenceの復習設定ボタンを生成する
-    static createSentenceReviewButtons(sentence, loginToken) {
+    static createSentenceReviewButtons(sentence) {
         const quiz = sentence.quiz;
         if (quiz == null) {
             console.log('quiz is null');
@@ -32,34 +32,31 @@ export class Review {
         }
 
         const review = quiz.review;
-        const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quiz.id}">${Review.createReviewBtnHtml(quiz, review, loginToken)}</div>`;
+        const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quiz.id}">${Review.createReviewBtnHtml(quiz, review)}</div>`;
         const reversedQuiz = sentence.reversed_quiz;
         if (reversedQuiz == null) {
             console.log('reversedQuiz is null');
             return reviewBtn;
         }
         const reversedReview = reversedQuiz.review;
-        const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuiz.id}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview, loginToken)}</div>`;
+        const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuiz.id}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
         return reviewBtn + reversedReviewBtn;
     }
 
     // 復習設定ボタンを生成する
-    static createReviewBtnHtml(quiz, review, loginToken) {
+    static createReviewBtnHtml(quiz, review) {
         const quizId = quiz.id;
         const label = Review.reviewLabel(quiz);
-        if (loginToken) {
-            if (review) {
-                // 設定編集ボタン
-                return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</div>
+
+        if (review) {
+            // 設定編集ボタン
+            return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</div>
             <div class="diqt-dict-review-form" id="diqt-dict-review-form-${quizId}"></div>`
-            } else {
-                // 新規設定ボタン
-                return `<div class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</div>`
-            }
         } else {
-            // 非ログイン時の復習設定ボタン
-            return `<div class="diqt-dict-review-btn" id="not-logged-in-review-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</div></a>`
+            // 新規設定ボタン
+            return `<div class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</div>`
         }
+
     }
 
     static reviewLabel(quiz) {
@@ -70,8 +67,10 @@ export class Review {
             const reversedWordReviewLabel = chrome.i18n.getMessage('reversedWordReviewLabel');
             return reversedWordReviewLabel;
         } else if (quiz.sentence_id != null) {
-            const sentenceReviewLabel = chrome.i18n.getMessage('sentenceReviewLabel');
-            return sentenceReviewLabel;
+            if (quiz.lang_number_of_question == quiz.lang_number_of_answer) {
+                return chrome.i18n.getMessage('listeningSentenceReviewLabel');
+            }
+            return chrome.i18n.getMessage('sentenceReviewLabel');
         } else if (quiz.reversed_sentence_id != null) {
             const reversedSentenceReviewLabel = chrome.i18n.getMessage('reversedSentenceReviewLabel');
             return reversedSentenceReviewLabel;
@@ -80,16 +79,16 @@ export class Review {
         }
     }
 
-    static setEventsToReviewButtons(word, loginToken) {
+    static setEventsToReviewButtons(word) {
         const quiz = word.quiz;
         if (quiz != null) {
             const review = quiz.review;
-            Review.setEventToReviewBtn(quiz, review, loginToken);
+            Review.setEventToReviewBtn(quiz, review);
         }
         const reversedQuiz = word.reversed_quiz;
         if (reversedQuiz != null) {
             const reversedReview = reversedQuiz.review;
-            Review.setEventToReviewBtn(reversedQuiz, reversedReview, loginToken);
+            Review.setEventToReviewBtn(reversedQuiz, reversedReview);
         }
         const sentence = word.sentence;
         if (sentence == null) {
@@ -98,29 +97,26 @@ export class Review {
         const sentenceQuiz = sentence.quiz;
         if (sentenceQuiz != null) {
             const sentenceReview = sentenceQuiz.review;
-            Review.setEventToReviewBtn(sentenceQuiz, sentenceReview, loginToken);
+            Review.setEventToReviewBtn(sentenceQuiz, sentenceReview);
         }
         const reversedSentenceQuiz = sentence.reversed_quiz;
         if (reversedSentenceQuiz != null) {
             const reversedSentenceReview = reversedSentenceQuiz.review;
-            Review.setEventToReviewBtn(reversedSentenceQuiz, reversedSentenceReview, loginToken);
+            Review.setEventToReviewBtn(reversedSentenceQuiz, reversedSentenceReview);
         }
     }
 
     // 復習ボタンにイベントを設定
-    static setEventToReviewBtn(quiz, review, loginToken) {
-        if (loginToken) {
-            if (review) {
-                // 復習の編集イベントを設定
-                Review.editReviewSetting(quiz, review);
-            } else {
-                // 復習の新規作成イベントを設定
-                Review.createReviewSetting(quiz);
-            }
+    static setEventToReviewBtn(quiz, review) {
+
+        if (review) {
+            // 復習の編集イベントを設定
+            Review.editReviewSetting(quiz, review);
         } else {
-            // ログイン画面への遷移を設定
-            Review.setSignInToReviewBtn(quiz)
+            // 復習の新規作成イベントを設定
+            Review.createReviewSetting(quiz);
         }
+
     }
 
     // 非ログイン時に、復習ボタンにログイン画面への遷移を設定する
@@ -157,7 +153,7 @@ export class Review {
         <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> ${chrome.i18n.getMessage('destroyReview')}</div>
         </div>      
 <div class="diqt-dict-select-form cp_sl01">
-<select id="diqt-dict-select-form-${quizId}" style="height: 40px;" required>
+<select id="diqt-dict-select-form-${quizId}" required>
 	${Review.createOptions(review)}
 </select>
 </div>

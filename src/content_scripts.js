@@ -242,68 +242,61 @@ function searchSuccess(data) {
     const words = data.words;
     const dictionary = data.dictionary;
 
-    chrome.storage.local.get(['diqtUserPublicUid'], function (result) {
-        const loginToken = result.diqtUserPublicUid;
-        if (words != null) {
-            words.forEach(function (word, index, array) {
-                // 辞書の項目のHTMLを作成して、画面に挿入する
-                const wordHtml = Word.createWordHtml(word, loginToken);
-                resultForm.insertAdjacentHTML('beforeend', wordHtml);
-                // 意味の翻訳ボタンのイベントを設定する。
-                Word.setMeaningTranslation(word, loginToken);
-                // 復習ボタンにイベントを設定する。
-                Review.setEventsToReviewButtons(word, loginToken);
-            });
-            // 解説のクリックサーチを有効にする
-            Word.activateClickSearch(resultForm);
-            // 項目の読み上げを有効にする。
-            Word.enableTTS(resultForm);
-            // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
-            const keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-            if (words[0]['entry'] != keyword) {
-                resultForm.insertAdjacentHTML('beforeend', Word.notFoundFormHtml(keyword, dictionary));
-            } else {
-                resultForm.insertAdjacentHTML('beforeend', Word.newWordHtml(keyword, dictionary));
-            }
-
-            // 翻訳ボタンを末尾に置き、イベントを付与
-            const translationFrom = Word.createTranslationForm(loginToken);
-            resultForm.insertAdjacentHTML('beforeend', translationFrom);
-            Word.addEventToTranslationForm(loginToken, keyword);
-            console.log('Add tranlsation');
-
-        } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
-            /////// CORSエラーの再現方法 ////////
-            // 1, アイコンのコンテキストメニューから「拡張機能を管理」へ飛ぶ。
-            // 2, 拡張機能を一度OFFにしてから再びONにする。
-            // 3, 適当なタブをリロードしてから、辞書を引く。
-            // 4, エラー発生。内容：Access to fetch at '' from origin 'chrome-extension://gpddlaapalckciombdafdfpeakndmmeg' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-            const corsErrorHtml = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("searchError")}<a id="diqt-dict-option-btn" style="color: #27ae60;">${chrome.i18n.getMessage("searchErrorSolution")}</a></div>`
-            resultForm.insertAdjacentHTML('afterbegin', corsErrorHtml);
-            // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
-            const optionBtn = document.querySelector('#diqt-dict-option-btn');
-            optionBtn.addEventListener('click', function () {
-                // 
-                const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response) => { }).catch((error) => { });
-            });
+    if (words != null) {
+        words.forEach(function (word, index, array) {
+            // 辞書の項目のHTMLを作成して、画面に挿入する
+            const wordHtml = Word.createWordHtml(word);
+            resultForm.insertAdjacentHTML('beforeend', wordHtml);
+            // 生成したWordにイベントを設定する
+            Word.setEventsToWord(word);
+        });
+        // 解説のクリックサーチを有効にする
+        Word.activateClickSearch(resultForm);
+        // 項目の読み上げを有効にする。
+        Word.enableTTS(resultForm);
+        // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
+        const keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
+        if (words[0]['entry'] != keyword) {
+            resultForm.insertAdjacentHTML('beforeend', Word.notFoundFormHtml(keyword, dictionary));
         } else {
-            // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
-            let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-            keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            let notFound = ``;
-            if (keyword.length < 50 && keyword.length > 0) {
-                notFound = Word.notFoundFormHtml(keyword, dictionary);
-            }
-
-            const translationForm = Word.createTranslationForm(loginToken);
-            const result = notFound + translationForm
-            resultForm.insertAdjacentHTML('afterbegin', result);
-            Word.addEventToTranslationForm(loginToken, keyword);
+            resultForm.insertAdjacentHTML('beforeend', Word.newWordHtml(keyword, dictionary));
         }
-    });
 
+        // 翻訳ボタンを末尾に置き、イベントを付与
+        const translationFrom = Word.createTranslationForm();
+        resultForm.insertAdjacentHTML('beforeend', translationFrom);
+        Word.addEventToTranslationForm(keyword);
+        console.log('Add tranlsation');
 
+    } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
+        /////// CORSエラーの再現方法 ////////
+        // 1, アイコンのコンテキストメニューから「拡張機能を管理」へ飛ぶ。
+        // 2, 拡張機能を一度OFFにしてから再びONにする。
+        // 3, 適当なタブをリロードしてから、辞書を引く。
+        // 4, エラー発生。内容：Access to fetch at '' from origin 'chrome-extension://gpddlaapalckciombdafdfpeakndmmeg' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+        const corsErrorHtml = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("searchError")}<a id="diqt-dict-option-btn" style="color: #27ae60;">${chrome.i18n.getMessage("searchErrorSolution")}</a></div>`
+        resultForm.insertAdjacentHTML('afterbegin', corsErrorHtml);
+        // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
+        const optionBtn = document.querySelector('#diqt-dict-option-btn');
+        optionBtn.addEventListener('click', function () {
+            // 
+            const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
+            rtnPromise.then((response) => { }).catch((error) => { });
+        });
+    } else {
+        // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
+        let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
+        keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        let notFound = ``;
+        if (keyword.length < 50 && keyword.length > 0) {
+            notFound = Word.notFoundFormHtml(keyword, dictionary);
+        }
+
+        const translationForm = Word.createTranslationForm();
+        const result = notFound + translationForm
+        resultForm.insertAdjacentHTML('afterbegin', result);
+        Word.addEventToTranslationForm(keyword);
+    }
 }
 
 

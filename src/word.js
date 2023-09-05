@@ -1,14 +1,16 @@
 import { Review } from './review.js';
+import { Sentence } from './sentence.js';
 
 const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
+const userLangNumber = locale == 'ja' ? 44 : 21;
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
 const premiumPlanUrl = `${diqtUrl}/plans/premium`;
 
 export class Word {
 
     // WordのHTMLを作成する
-    static createWordHtml(word, loginToken) {
+    static createWordHtml(word) {
         //const tags = createTagsHtml(word.tags);
         const wordURL = `${diqtUrl}/words/${word.id}`;
         /* 見出し語 */
@@ -16,21 +18,17 @@ export class Word {
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
         // 発音記号
-        let pronunciation;
-        if (word.lang_number_of_entry == 44) {
-            pronunciation = `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
-        } else {
-            pronunciation = `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
-        }
-
+        const pronunciation = Word.createPronunciation(word);
+        // 品詞
+        const pos = Word.createPos(word);
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>`;
         /* 意味の翻訳ボタン */
         const meaningTranslation = Word.createMeaningTranslation(word);
         /* 復習ボタン */
-        const reviewButtons = Review.createWordReviewButtons(word, loginToken);
+        const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
-        const sentenceHtml = Word.createSentenceHtml(word, loginToken);
+        const sentenceHtml = Sentence.createHtml(word);
         /* 項目の編集ボタン */
         const linkToEditWord = Word.liknToEditHtml(wordURL, chrome.i18n.getMessage("editWord"));
         /* 項目編集ボタンの上の余白 */
@@ -38,135 +36,124 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + pronunciation + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + pos + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 
-    // 意味の翻訳ボタンを作成する
-    static createMeaningTranslation(word) {
-        if (word.lang_number_of_entry == word.lang_number_of_meaning) {
-            return `<div id="small-translation-buttons-word-${word.id}" style="padding-left: 4px;">
-                    <span class="diqt-google-translation-btn-wrapper">
-                        <a href="#" class="diqt-google-translation-btn" style="color: #27ae60;"><u>${chrome.i18n.getMessage("googleTranslation")}</u></a>
-                    </span>
-                    <span >/</span>
-                    <span class="diqt-deepl-translation-btn-wrapper">
-                        <a href="#" class="diqt-deepl-translation-btn" style="color: #27ae60;"><u>${chrome.i18n.getMessage("deepLTranslation")}</u></a>
-                    </span>
-                    <p class="diqt-google-translation-form"></p>
-                    <p class="diqt-deepl-translation-form"></p>
-                </div>`;
+    // 発音記号 / 読み
+    static createPronunciation(word) {
+        if (word.lang_number_of_entry == 44) {
+            // 日本語なら読みを表示する
+            return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
+        } else {
+            return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+        }
+    }
+
+    // 品詞のhtmlを作成する
+    static createPos(word) {
+        if (word.pos_tag != null) {
+            return `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+        }
+        if (word.pos != null && word.pos != "") {
+            return `<div class="diqt-item-label">${word.pos}</div>`;
         }
         return '';
     }
 
-    static createReviewButtons(word, loginToken) {
-        // 「意味を覚える」ボタン
-        const quiz = word.quiz;
-        if (quiz == null) {
+    // 意味の翻訳ボタンを作成する
+    static createMeaningTranslation(word) {
+        if (word.lang_number_of_meaning == userLangNumber) {
             return '';
         }
-        const quizId = quiz.id;
-        const review = quiz.review;
-        const wordReviewLabel = chrome.i18n.getMessage('word_review_label');
-        const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${Review.createReviewBtnHtml(quiz, review, wordReviewLabel, loginToken)}</div>`;
-        // 「単語を覚える」ボタン
-        const reversedQuiz = quiz.reversed_quiz;
-        if (reversedQuiz == null) {
-            return reviewBtn;
-        }
-        const reversedQuizId = reversedQuiz.id;
-        const reversedReview = reversedQuiz.review;
-        const reversedWordReviewLabel = chrome.i18n.getMessage('reversed_word_review_label');
-        const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview, reversedWordReviewLabel, loginToken)}</div>`;
-        return reviewBtn + reversedReviewBtn;
+        return `<div class="small-translation-buttons" id="small-meaning-translation-buttons-word-${word.id}">
+                        <span class="diqt-google-translation-btn-wrapper">
+                            <a class="diqt-google-translation-btn">${chrome.i18n.getMessage("googleTranslation")}</a>
+                        </span>
+                        <span> / </span>
+                        <span class="diqt-deepl-translation-btn-wrapper">
+                            <a class="diqt-deepl-translation-btn">${chrome.i18n.getMessage("deepLTranslation")}</a>
+                        </span>
+                        <div class="diqt-google-translation-form"></div>
+                        <div class="diqt-deepl-translation-form"></div>
+                    </div>`;
     }
+
+
 
     //  意味の翻訳イベントを設定する。
-    static setMeaningTranslation(word, loginToken) {
-        if (word.lang_number_of_entry == word.lang_number_of_meaning) {
-            const buttons = document.getElementById(`small-translation-buttons-word-${word.id}`);
-            // google翻訳
-            const googleButton = buttons.querySelector('.diqt-google-translation-btn');
-            const googleWrapper = buttons.querySelector('.diqt-google-translation-btn-wrapper');
-            const googleTranslationForm = buttons.querySelector('.diqt-google-translation-form');
-            googleButton.addEventListener('click', function () {
-                if (loginToken) {
-                    googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
-                    const port = chrome.runtime.connect({ name: "googleTranslation" });
-                    port.postMessage({ action: "googleTranslation", keyword: word.meaning });
-                    port.onMessage.addListener(function (msg) {
-                        const data = msg['data'];
-                        googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
-                        if (data['status'] == "200") {
-                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                            googleTranslationForm.innerHTML = translation;
-                        } else {
-                            googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                        }
-                        return true;
-                    });
-                } else {
-                    // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-                    const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                    rtnPromise.then((response) => { }).catch((error) => { });
-                    return true;
-                }
-            });
-            // Deepl翻訳
-            const deeplButton = buttons.querySelector('.diqt-deepl-translation-btn');
-            const deeplWrapper = buttons.querySelector('.diqt-deepl-translation-btn-wrapper');
-            const deeplTranslationForm = buttons.querySelector('.diqt-deepl-translation-form');
-            deeplButton.addEventListener('click', function () {
-                if (loginToken) {
-                    deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
-                    const port = chrome.runtime.connect({ name: "deeplTranslation" });
-                    port.postMessage({ action: "deeplTranslation", keyword: word.meaning });
-                    port.onMessage.addListener(function (msg) {
-                        const data = msg['data'];
-                        deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
-                        if (data['status'] == "200") {
-                            const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                            deeplTranslationForm.innerHTML = translation;
-                        } else {
-                            deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                        }
-                        return true;
-                    });
-                } else {
-                    // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-                    const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                    rtnPromise.then((response) => { }).catch((error) => { });
-                    return true;
-                }
-            });
+    static setEventsToMeaningTranslation(word) {
+        if (word.lang_number_of_meaning == userLangNumber) {
+            return true;
         }
+        const buttons = document.getElementById(`small-meaning-translation-buttons-word-${word.id}`);
+        // google翻訳
+        const googleButton = buttons.querySelector('.diqt-google-translation-btn');
+        const googleWrapper = buttons.querySelector('.diqt-google-translation-btn-wrapper');
+        const googleTranslationForm = buttons.querySelector('.diqt-google-translation-form');
+        googleButton.addEventListener('click', function () {
+            googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
+            const port = chrome.runtime.connect({ name: "googleTranslation" });
+            port.postMessage({ action: "googleTranslation", keyword: word.meaning, sourceLangNumber: word.lang_number_of_meaning, targetLangNumber: userLangNumber });
+            port.onMessage.addListener(function (msg) {
+                const data = msg['data'];
+                googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
+                if (data['status'] == "200") {
+                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("googleTranslation")}：</p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
+                    googleTranslationForm.innerHTML = translation;
+                } else {
+                    googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                }
+                return true;
+            });
+
+        });
+        // Deepl翻訳
+        const deeplButton = buttons.querySelector('.diqt-deepl-translation-btn');
+        const deeplWrapper = buttons.querySelector('.diqt-deepl-translation-btn-wrapper');
+        const deeplTranslationForm = buttons.querySelector('.diqt-deepl-translation-form');
+        deeplButton.addEventListener('click', function () {
+            deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
+            const port = chrome.runtime.connect({ name: "deeplTranslation" });
+            port.postMessage({ action: "deeplTranslation", keyword: word.meaning, sourceLangNumber: word.lang_number_of_meaning, targetLangNumber: userLangNumber });
+            port.onMessage.addListener(function (msg) {
+                const data = msg['data'];
+                deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
+                if (data['status'] == "200") {
+                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("deepLTranslation")}：</p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
+                    deeplTranslationForm.innerHTML = translation;
+                } else {
+                    deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                }
+                return true;
+            });
+        });
     }
 
 
-
-
-    // 例文のHTMLを作成する
-    static createSentenceHtml(word, loginToken) {
-        const sentence = word.sentence;
-        if (sentence == null) {
-            return '';
-        }
-        // 例文と翻訳
-        const label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">${chrome.i18n.getMessage("sentence")}</div></div>`;
-        const original = `<div class="diqt-dict-explanation">${Word.markNotation(sentence.original)}</div>`;
-        const translation = `<div class="diqt-dict-explanation">${sentence.translation}</div>`;
-        // 例文の復習ボタン
-        const reviewBtn = Review.createSentenceReviewButtons(sentence, loginToken);
-        // 例文の編集ボタン
-        const sentenceUrl = `${diqtUrl}/sentences/${sentence.id}`
-        const linkToEditSentence = Word.liknToEditHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
-        // 例文のHTML
-        const sentenceHtml = label + original + translation + reviewBtn + linkToEditSentence;
-        return sentenceHtml;
-    }
+    /*  static createReviewButtons(word) {
+         // 「意味を覚える」ボタン
+         const quiz = word.quiz;
+         if (quiz == null) {
+             return '';
+         }
+         const quizId = quiz.id;
+         const review = quiz.review;
+         const wordReviewLabel = chrome.i18n.getMessage('word_review_label');
+         const reviewBtn = `<div id="diqt-dict-review-btn-wrapper-${quizId}">${Review.createReviewBtnHtml(quiz, review, wordReviewLabel)}</div>`;
+         // 「単語を覚える」ボタン
+         const reversedQuiz = quiz.reversed_quiz;
+         if (reversedQuiz == null) {
+             return reviewBtn;
+         }
+         const reversedQuizId = reversedQuiz.id;
+         const reversedReview = reversedQuiz.review;
+         const reversedWordReviewLabel = chrome.i18n.getMessage('reversed_word_review_label');
+         const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview, reversedWordReviewLabel)}</div>`;
+         return reviewBtn + reversedReviewBtn;
+     } */
 
 
 
@@ -178,6 +165,18 @@ export class Word {
                     <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>${chrome.i18n.getMessage("details")}</a>
                 </div>`;
         return html;
+    }
+
+
+    // wordに関わるイベントを設定する
+    static setEventsToWord(word) {
+        // 意味の翻訳ボタンのイベントを設定する。
+        Word.setEventsToMeaningTranslation(word);
+        // 復習ボタンにイベントを設定する。
+        Review.setEventsToReviewButtons(word);
+        // 例文の翻訳ボタンにイベントを設定する。
+        const sentence = word.sentence;
+        Sentence.setEventsToSentenceTranslation(sentence);
     }
 
     // 辞書に検索キーワードが登録されていなかった場合に表示する「項目追加ボタン」や「Web検索ボタン」を生成する。
@@ -202,82 +201,55 @@ export class Word {
     }
 
     // 翻訳ボタンを生成する
-    static createTranslationForm(loginToken) {
-        let translationForm;
-        if (loginToken) {
-            translationForm = `<div id="diqt-dict-translation-form">
-        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
-        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
-        </div>`
-        } else {
-            translationForm = `<div id="diqt-dict-translation-form">
-        <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
-        <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
-        <p><a id="diqt-dict-login-for-translation" style="color: #27ae60;">${chrome.i18n.getMessage("signInRecommendation")}</a></p>
-        </div>`
-        }
-        return translationForm
+    static createTranslationForm() {
+        return `<div id="diqt-dict-translation-form">
+                    <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
+                    <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
+                </div>`;
     }
 
     // 翻訳フォームにイベントを付与
-    static addEventToTranslationForm(loginToken, keyword) {
+    static addEventToTranslationForm(keyword) {
         const googleTranslationForm = document.querySelector('#diqt-dict-google-translation');
         const deeplTranslationForm = document.querySelector('#diqt-dict-deepl-translation');
-        if (loginToken) {
-            // Google翻訳
-            googleTranslationForm.addEventListener('click', function () {
-                googleTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-                const port = chrome.runtime.connect({ name: "googleTranslation" });
-                port.postMessage({ action: "googleTranslation", keyword: keyword });
-                port.onMessage.addListener(function (msg) {
-                    const data = msg['data'];
-                    if (data['status'] == "200") {
-                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                        googleTranslationForm.innerHTML = translation;
-                    } else {
-                        const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
-                        googleTranslationForm.innerHTML = message;
-                    }
-                    return true;
-                });
-            });
-            // DeepL翻訳
-            deeplTranslationForm.addEventListener('click', function () {
-                deeplTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-                const deeplPort = chrome.runtime.connect({ name: "deeplTranslation" });
-                deeplPort.postMessage({ action: "deeplTranslation", keyword: keyword });
-                deeplPort.onMessage.addListener(function (msg) {
-                    const data = msg['data'];
-                    if (data['status'] == "200") {
-                        const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['data']['translation']}</p>`;
-                        deeplTranslationForm.innerHTML = translation;
-                    } else {
-                        const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
-                        deeplTranslationForm.innerHTML = message;
-                    }
-                    return true;
-                });
-            });
 
-        } else {
-            // options.htmlへのリンクを設定する。
-            googleTranslationForm.addEventListener('click', function () {
-                // backgroundへactionのメッセージを送ることで、オプション画面を開いてもらう。
-                const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response) => { }).catch((error) => { });
+        // Google翻訳
+        googleTranslationForm.addEventListener('click', function () {
+            googleTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
+            const port = chrome.runtime.connect({ name: "googleTranslation" });
+            port.postMessage({ action: "dictionaryGoogleTranslation", keyword: keyword });
+            port.onMessage.addListener(function (msg) {
+                const data = msg['data'];
+                if (data['status'] == "200") {
+                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
+                    googleTranslationForm.innerHTML = translation;
+                } else {
+                    const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
+                    googleTranslationForm.innerHTML = message;
+                }
+                return true;
             });
-            deeplTranslationForm.addEventListener('click', function () {
-                const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response) => { }).catch((error) => { });
+        });
+        // DeepL翻訳
+        deeplTranslationForm.addEventListener('click', function () {
+            deeplTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
+            const deeplPort = chrome.runtime.connect({ name: "deeplTranslation" });
+            deeplPort.postMessage({ action: "dictionaryDeeplTranslation", keyword: keyword });
+            deeplPort.onMessage.addListener(function (msg) {
+                const data = msg['data'];
+                if (data['status'] == "200") {
+                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
+                    deeplTranslationForm.innerHTML = translation;
+                } else {
+                    const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
+                    deeplTranslationForm.innerHTML = message;
+                }
+                return true;
             });
-            const loginBtn = document.querySelector('#diqt-dict-login-for-translation');
-            loginBtn.addEventListener('click', function () {
-                const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-                rtnPromise.then((response) => { }).catch((error) => { });
-            });
-        }
+        });
+
     }
 
 

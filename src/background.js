@@ -57,10 +57,16 @@ chrome.runtime.onConnect.addListener(function (port) {
                 respondDestroyReview(port, msg.reviewId);
                 break;
             case 'googleTranslation':
-                respondGoogleTranslation(port, msg.keyword)
+                respondGoogleTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber)
                 break;
             case 'deeplTranslation':
-                respondDeepLTranslation(port, msg.keyword)
+                respondDeepLTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber)
+                break;
+            case 'dictionaryGoogleTranslation':
+                respondDictionaryGoogleTranslation(port, msg.keyword)
+                break;
+            case 'dictionaryDeeplTranslation':
+                respondDictionaryDeepLTranslation(port, msg.keyword)
                 break;
         }
     })
@@ -232,7 +238,46 @@ async function respondDestroyReview(port, reviewId) {
 
 
 ///// Google翻訳 /////
-function requestGoogleTranslation(keyword, dictionaryId) {
+
+// 意味や例文の翻訳を取得する
+function requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber) {
+    return new Promise(resolve => {
+        const url = `${diqtUrl}/api/v1/extensions/words/google_translate`;
+        const params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({
+                context: keyword,
+                source_lang_number: sourceLangNumber, target_lang_number: targetLangNumber
+            }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error)
+                resolve(error);
+            });
+    });
+}
+
+async function respondGoogleTranslation(port, keyword, sourceLangNumber, targetLangNumber) {
+    const data = await requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber);
+    port.postMessage({ data: data });
+}
+
+// 辞書の検索結果を翻訳する
+function requestDictionaryGoogleTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
         const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
         const params = {
@@ -260,7 +305,7 @@ function requestGoogleTranslation(keyword, dictionaryId) {
     });
 }
 
-async function respondGoogleTranslation(port, keyword) {
+async function respondDictionaryGoogleTranslation(port, keyword) {
     chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
         let dictionaryId = result.diqtSelectedDictionaryId;
         // console.log(dictionaryId);
@@ -268,7 +313,7 @@ async function respondGoogleTranslation(port, keyword) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
         }
-        const data = await requestGoogleTranslation(keyword, dictionaryId);
+        const data = await requestDictionaryGoogleTranslation(keyword, dictionaryId);
         port.postMessage({ data: data });
     });
 
@@ -278,7 +323,46 @@ async function respondGoogleTranslation(port, keyword) {
 
 
 ///// Deepl翻訳 /////
-function requestDeeplTranslation(keyword, dictionaryId) {
+
+// 意味や例文の翻訳を取得する
+function requestDeeplTranslation(keyword, sourceLangNumber, targetLangNumber) {
+    return new Promise(resolve => {
+        const url = `${diqtUrl}/api/v1/extensions/words/deepl_translate`;
+        const params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({
+                context: keyword,
+                source_lang_number: sourceLangNumber, target_lang_number: targetLangNumber
+            }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                console.log(error)
+                resolve(error);
+            });
+    });
+}
+
+async function respondDeepLTranslation(port, keyword, sourceLangNumber, targetLangNumber) {
+    const data = await requestDeeplTranslation(keyword, sourceLangNumber, targetLangNumber);
+    port.postMessage({ data: data });
+}
+
+// 辞書の検索結果を翻訳する
+function requestDictionaryDeeplTranslation(keyword, dictionaryId) {
     return new Promise(resolve => {
         const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
         const params = {
@@ -306,7 +390,7 @@ function requestDeeplTranslation(keyword, dictionaryId) {
     });
 }
 
-async function respondDeepLTranslation(port, keyword) {
+async function respondDictionaryDeepLTranslation(port, keyword) {
     chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
         let dictionaryId = result.diqtSelectedDictionaryId;
         // console.log(dictionaryId);
@@ -314,7 +398,7 @@ async function respondDeepLTranslation(port, keyword) {
             dictionaryId = 1;
             chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
         }
-        const data = await requestDeeplTranslation(keyword, dictionaryId);
+        const data = await requestDictionaryDeeplTranslation(keyword, dictionaryId);
         port.postMessage({ data: data });
     });
 }

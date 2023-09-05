@@ -348,20 +348,12 @@ function addEventToLoginForm() {
 // アプリの宣伝リンクをレンダリングする
 function renderAppLinks() {
     const appLinks = document.querySelector("#app-links");
-    let buttonHtml = '';
-    if (locale == 'ja') {
-        buttonHtml = `
-        <a href="https://apps.apple.com/jp/app/diqt/id1594559036?uo=4" target="_blank" rel="nofollow"
-            class="appreach__aslink"><img src="https://nabettu.github.io/appreach/img/itune_ja.svg"></a>
-        <a href="https://play.google.com/store/apps/details?id=com.booqs.booqs_mobile" target="_blank" rel="nofollow"
-            class="appreach__gplink"><img src="https://nabettu.github.io/appreach/img/gplay_ja.png"></a>`;
-    } else {
-        buttonHtml = `
-        <a href="https://apps.apple.com/en/app/diqt/id1594559036?uo=4" target="_blank" rel="nofollow"
-            class="appreach__aslink"><img src="https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/lp/app_store_en.png"></a>
-        <a href="https://play.google.com/store/apps/details?id=com.booqs.booqs_mobile" target="_blank" rel="nofollow"
-            class="appreach__gplink"><img src="https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/lp/google_play_en.png"></a>`;
-    }
+    let buttonHtml = `
+    <a href="${chrome.i18n.getMessage("appStoreUrl")}" target="_blank" rel="nofollow"
+        class="appreach__aslink"><img src="${chrome.i18n.getMessage("appStoreImage")}"></a>
+    <a href="${chrome.i18n.getMessage("playStoreUrl")}" target="_blank" rel="nofollow"
+        class="appreach__gplink"><img src="${chrome.i18n.getMessage("playStoreImage")}"></a>`;
+
     const appLinksHtml = ` 
     <h5 class="mb-5 mt-3 has-text-centered has-text-weight-bold">
     ${chrome.i18n.getMessage("appLinksTitle")}
@@ -398,7 +390,7 @@ function renderFooter() {
           </div>
 
           <div class="my-2">
-            <a href="https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj"
+            <a href="${chrome.i18n.getMessage("chromeWebStoreUrl")}"
               target="_blank" rel="noopener" class="has-text-success-light">${chrome.i18n.getMessage("storePage")}</a>
           </div>
 

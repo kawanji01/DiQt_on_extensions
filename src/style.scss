@@ -261,6 +261,19 @@ $box-border: #c5c3c3;
     text-align: left;
   }
 
+  // Posラベル
+  .diqt-item-label {
+    display: inline-block;
+    color: $text-black;
+    font-size: 12px;
+    border: 1px solid $text-black;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
   /* 意味 */
   .diqt-dict-meaning {
     color: $text-black;
@@ -268,28 +281,51 @@ $box-border: #c5c3c3;
     font-weight: bold;
     margin: 8px 0 8px 4px;
     text-align: left;
+  }
 
-    // ラベル
-    .diqt-item-label {
-      display: inline-block;
-      font-size: 0.8em;
-      border: 1px solid $text-black;
-      border-radius: 4px;
-      padding: 0 4px;
-      margin-right: 4px;
-      margin-top: 4px;
-      margin-bottom: 4px;
+  /* 意味の翻訳ボタン */
+  .small-translation-buttons {
+    padding-left: 4px;
+
+    span {
+      font-size: 10px;
+
+      a {
+        color: $brand-green;
+        text-decoration: underline;
+      }
     }
   }
 
-  /* 解説 */
-  .diqt-dict-explanation {
-    color: $text-black;
-    font-size: 12px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    text-align: left;
+  .diqt-translation-service {
+    font-size: 14px;
+    color: $brand-green;
+    margin-top: 24px;
+    font-weight: bold;
   }
+
+  .diqt-translation-results {
+    font-size: 14px;
+    color: $text-black;
+    margin-bottom: 16px;
+  }
+
+
+  /* 例文 */
+  .diqt-dict-sentence-wrapper {
+    border: 1px dashed grey;
+    padding: 8px 16px;
+    margin-bottom: 16px;
+
+    .diqt-dict-sentence-text {
+      color: $text-black;
+      font-size: 12px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+  }
+
 
 
   /* 復習ボタン */
@@ -380,6 +416,7 @@ $box-border: #c5c3c3;
 
     select {
       width: 100%;
+      //height: 40px;
       padding-right: 1em;
       cursor: pointer;
       text-indent: 0.01px;
@@ -406,7 +443,7 @@ $box-border: #c5c3c3;
     background: #ffffff;
 
     select {
-      padding: 8px 38px 8px 8px !important;
+      padding: 14px 38px 14px 8px !important;
       color: #666666;
     }
   }
