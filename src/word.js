@@ -18,13 +18,9 @@ export class Word {
                                 <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
                              </div>`;
         // 発音記号
-        let pronunciation;
-        if (word.lang_number_of_entry == 44) {
-            pronunciation = `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
-        } else {
-            pronunciation = `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
-        }
-
+        const pronunciation = Word.createPronunciation(word);
+        // 品詞
+        const pos = Word.createPos(word);
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>`;
         /* 意味の翻訳ボタン */
@@ -40,8 +36,29 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + pronunciation + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + pos + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
         return wordHtml;
+    }
+
+    // 発音記号 / 読み
+    static createPronunciation(word) {
+        if (word.lang_number_of_entry == 44) {
+            // 日本語なら読みを表示する
+            return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
+        } else {
+            return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+        }
+    }
+
+    // 品詞のhtmlを作成する
+    static createPos(word) {
+        if (word.pos_tag != null) {
+            return `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+        }
+        if (word.pos != null && word.pos != "") {
+            return `<div class="diqt-item-label">${word.pos}</div>`;
+        }
+        return '';
     }
 
     // 意味の翻訳ボタンを作成する
@@ -204,8 +221,8 @@ export class Word {
             port.onMessage.addListener(function (msg) {
                 const data = msg['data'];
                 if (data['status'] == "200") {
-                    const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['translation']}</p>`;
+                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
                     googleTranslationForm.innerHTML = translation;
                 } else {
                     const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
@@ -222,8 +239,8 @@ export class Word {
             deeplPort.onMessage.addListener(function (msg) {
                 const data = msg['data'];
                 if (data['status'] == "200") {
-                    const translation = `<p style="font-size: 14px; color: #27ae60; margin-top: 24px;"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
-                    <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 16px;">${data['translation']}</p>`;
+                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
+                    <p class="diqt-translation-results">${data['translation']}</p>`;
                     deeplTranslationForm.innerHTML = translation;
                 } else {
                     const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
