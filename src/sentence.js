@@ -15,8 +15,6 @@ export class Sentence {
         if (sentence == null) {
             return '';
         }
-
-        // const label = `<div style="text-align: left; margin-top: 16px"><div class="diqt-dict-label">${chrome.i18n.getMessage("sentence")}</div></div>`;
         // 原文
         const original = `<div class="diqt-dict-sentence-text">${Word.markNotation(sentence.original)}</div>`;
         // 原文の翻訳ボタン

@@ -292,5 +292,29 @@
     "destroyReview": {
         "message": "復習予定を取り消す",
         "description": "Reviews message"
+    },
+    "appStoreUrl": {
+        "message": "https://apps.apple.com/jp/app/diqt/id1594559036?uo=4",
+        "description": "Shared message"
+    },
+    "playStoreUrl": {
+        "message": "https://play.google.com/store/apps/details?id=com.booqs.booqs_mobile&hl=ja",
+        "description": "Shared message"
+    },
+    "chromeWebStoreUrl": {
+        "message": "https://chrome.google.com/webstore/detail/booqs-dictionary/khgjdchimekphdebkmcknjkphkbpbpkj?hl=ja&authuser=0",
+        "description": "Shared message"
+    },
+    "appStoreImage": {
+        "message": "https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/app_store_ja.png",
+        "description": "Shared message"
+    },
+    "playStoreImage": {
+        "message": "https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/google_play_ja.png",
+        "description": "Shared message"
+    },
+    "chromeStoreImage": {
+        "message": "https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/chrome_web_store.png",
+        "description": "Shared message"
     }
 }
