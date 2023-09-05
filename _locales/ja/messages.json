@@ -224,6 +224,10 @@
         "message": "話せるようになる",
         "description": "Reviews message"
     },
+    "listeningSentenceReviewLabel": {
+        "message": "聞き取れるようになる",
+        "description": "Reviews message"
+    },
     "reviewFor": {
         "message": "$interval$に復習する",
         "description": "Words message",

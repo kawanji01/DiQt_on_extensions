@@ -108,7 +108,7 @@
         "description": "Options message"
     },
     "ctrlQ": {
-        "message": "Ctrl + Q to open/close.",
+        "message": "Ctrl + Q to Open / Close.",
         "description": "Reviews message"
     },
     "searchPlaceholder": {
@@ -222,6 +222,10 @@
     },
     "reversedSentenceReviewLabel": {
         "message": "Be able to speak",
+        "description": "Reviews message"
+    },
+    "listeningSentenceReviewLabel": {
+        "message": "Be able to listen",
         "description": "Reviews message"
     },
     "reviewFor": {
