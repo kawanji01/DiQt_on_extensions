@@ -115,6 +115,10 @@
         "message": "検索はこちらから...",
         "description": "Content scripts message"
     },
+    "searchContent": {
+        "message": "検索内容",
+        "description": "Content scripts message"
+    },
     "searchLimit": {
         "message": "検索できるのは1000文字未満までです。",
         "description": "Content scripts message"

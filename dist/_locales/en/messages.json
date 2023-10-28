@@ -115,6 +115,10 @@
         "message": "Enter keywords...",
         "description": "Reviews message"
     },
+    "searchContent": {
+        "message": "Search Content",
+        "description": "Content scripts message"
+    },
     "searchLimit": {
         "message": "Searches are limited to less than 1000 characters.",
         "description": "Content scripts message"

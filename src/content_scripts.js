@@ -2,13 +2,7 @@
 // import './style.scss';
 // 挫折：mini-css-extract-pluginを使って上記の方法でcssをimportしようとすると、JSframeが呼び出せなくなる。
 import { JSFrame } from 'jsframe.js';
-import { Review } from './review.js';
-import { Word } from './word.js';
-
-// const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
-// const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
-// const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-// const premiumPlanUrl = `${diqtUrl}/plans/premium`;
+import { Searcher } from './searcher.js';
 
 
 // Backgroundからタブに送られたメッセージを受信し、タブ内でメッセージに応じた処理を実行する。
@@ -54,7 +48,10 @@ function toggleFloatingWindow() {
         <div id="diqt-dict-dictionary-select-form-wrapper">Loading...</div>
         <form method="get" action=""><input type="text" name="keyword" id="diqt-dict-search-form" placeholder="${chrome.i18n.getMessage("searchPlaceholder")}"></form>
         <div id="diqt-dict-search-status">
-        "<span id="diqt-dict-search-keyword"></span>"<span id="diqt-dict-search-status-text"></span>
+            <div>${chrome.i18n.getMessage("searchContent")}:</div>
+            "<span id="diqt-dict-search-keyword"></span>"
+            <div id="diqt-dict-keyword-translation-wrapper"></div>
+            <div id="diqt-dict-ai-search-wrapper"></div>
         </div>
         <div id="search-diqt-dict-results"></div>
         </div>`
@@ -108,16 +105,8 @@ function toggleFloatingWindow() {
         frameDom.style.zIndex = '2147483647';
         chrome.storage.local.get(['diqtUserPublicUid'], function (result) {
             if (result.diqtUserPublicUid) {
-                // ログイン情報がローカルストレージにある場合
-                const searchForm = document.querySelector('#diqt-dict-search-form');
-                // ドラッグしたテキストを辞書で検索できるイベントを付与。
-                mouseupSearch();
-                // 検索フォームに、テキスト入力から検索できるイベントを付与。
-                searchViaForm(searchForm);
-                // 検索フォームへのエンターを無効にする。
-                preventEnter(searchForm);
-                // （ウィンドウを開いた瞬間に）画面の選択されているテキストを検索する
-                searchSelectedText();
+                // ログイン情報がローカルストレージにある場合は、検索イベントを付与して、可能なら検索を実行する。
+                Searcher.inilialize();
                 // フォーム直上にユーザーステータス（ログイン状態など）を表示する。
                 renderUserStatus();
             } else {
@@ -132,171 +121,6 @@ function toggleFloatingWindow() {
         frameDom.remove()
     }
 
-}
-
-
-// ドラッグした瞬間に、ドラッグしたテキストの検索を走らせるイベントを付与。
-function mouseupSearch() {
-    document.addEventListener('mouseup', function (evt) {
-        searchSelectedText();
-        // イベントの予期せぬ伝播を防ぐための記述
-        evt.stopPropagation();
-    }, false);
-}
-
-// ドラッグされているテキストを検索する処理
-function searchSelectedText() {
-    const selTxt = window.getSelection().toString();
-    const previousKeywordForm = document.querySelector('#diqt-dict-search-keyword');
-    let previousKeyword;
-    if (previousKeywordForm) {
-        previousKeyword = previousKeywordForm.textContent;
-    } else {
-        previousKeyword = '';
-    }
-    if (selTxt.length >= 1000) {
-        document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`
-        return;
-    }
-    // 検索フォーム
-    if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 1000) {
-        const searchForm = document.querySelector('#diqt-dict-search-form');
-        if (searchForm) {
-            searchForm.value = selTxt;
-            searchWord(selTxt);
-        }
-    }
-}
-
-
-// 検索フォームの入力に応じて検索するイベントを付与。
-function searchViaForm(form) {
-    form.addEventListener('keyup', function () {
-        const keyword = form.value
-        const previousKeyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-        const search = () => {
-            const currentKeyword = document.querySelector('#diqt-dict-search-form').value;
-            if (keyword == currentKeyword && keyword != previousKeyword && keyword.length < 1000) {
-                searchWord(keyword);
-            } else if (keyword.length >= 1000) {
-                // コピペで1000文字以上フォームに入力された場合にエラーを表示する。
-                document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`
-            }
-        }
-        // 0.5秒ずつ、検索を走らせるか検証する。
-        setTimeout(search, 500);
-    });
-}
-
-
-// 検索フォームへのエンターを無効にする。
-function preventEnter(form) {
-    form.addEventListener('keydown', function (e) {
-        if (e.key == 'Enter') {
-            e.preventDefault();
-        }
-    });
-}
-
-
-// keywordをdiqtの辞書で検索する
-function searchWord(keyword) {
-    // 検索キーワードを更新する
-    const searchKeyword = document.querySelector('#diqt-dict-search-keyword');
-    searchKeyword.textContent = keyword;
-    if (keyword.length < 50 && keyword.length > 0) {
-        document.querySelector('#diqt-dict-search-status-text').textContent = ` ${chrome.i18n.getMessage("searchResults")}`;
-    } else {
-        document.querySelector('#diqt-dict-search-status-text').textContent = '';
-    }
-    // 検索結果をLoaderに変更して、検索中であることを示す。
-    const resultForm = document.querySelector('#search-diqt-dict-results');
-    resultForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-    // キーワードが50文字以上なら50文字まで縮めてエンコードする。
-    let encodedKeyword;
-    if (keyword.length > 50) {
-        encodedKeyword = encodeURIComponent(keyword.slice(0, 50));
-    } else {
-        encodedKeyword = encodeURIComponent(keyword);
-    }
-    // 実際の検索
-    const port = chrome.runtime.connect({ name: "search" });
-    port.postMessage({ action: "search", keyword: encodedKeyword });
-    port.onMessage.addListener(function (msg) {
-        const data = msg['data'];
-        searchSuccess(data);
-        return true;
-    });
-}
-
-function search() {
-    const searchForm = document.querySelector('#diqt-dict-search-form');
-    const keyword = searchForm.value;
-    searchWord(keyword);
-}
-
-// 検索結果を表示する
-function searchSuccess(data) {
-    const resultForm = document.querySelector('#search-diqt-dict-results');
-    resultForm.innerHTML = '';
-    const words = data.words;
-    const dictionary = data.dictionary;
-
-    if (words != null) {
-        words.forEach(function (word, index, array) {
-            // 辞書の項目のHTMLを作成して、画面に挿入する
-            const wordHtml = Word.createWordHtml(word);
-            resultForm.insertAdjacentHTML('beforeend', wordHtml);
-            // 生成したWordにイベントを設定する
-            Word.setEventsToWord(word);
-        });
-        // 解説のクリックサーチを有効にする
-        Word.activateClickSearch(resultForm);
-        // 項目の読み上げを有効にする。
-        Word.enableTTS(resultForm);
-        // 検索キーワードが辞書に登録されていない場合、「項目の追加ボタン」などを表示する。
-        const keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-        if (words[0]['entry'] != keyword) {
-            resultForm.insertAdjacentHTML('beforeend', Word.notFoundFormHtml(keyword, dictionary));
-        } else {
-            resultForm.insertAdjacentHTML('beforeend', Word.newWordHtml(keyword, dictionary));
-        }
-
-        // 翻訳ボタンを末尾に置き、イベントを付与
-        const translationFrom = Word.createTranslationForm();
-        resultForm.insertAdjacentHTML('beforeend', translationFrom);
-        Word.addEventToTranslationForm(keyword);
-        console.log('Add tranlsation');
-
-    } else if (data.status == undefined) { // CORSエラーが発生した場合の処理
-        /////// CORSエラーの再現方法 ////////
-        // 1, アイコンのコンテキストメニューから「拡張機能を管理」へ飛ぶ。
-        // 2, 拡張機能を一度OFFにしてから再びONにする。
-        // 3, 適当なタブをリロードしてから、辞書を引く。
-        // 4, エラー発生。内容：Access to fetch at '' from origin 'chrome-extension://gpddlaapalckciombdafdfpeakndmmeg' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-        const corsErrorHtml = `<div class="diqt-dict-meaning" style="margin: 24px 0;">${chrome.i18n.getMessage("searchError")}<a id="diqt-dict-option-btn" style="color: #27ae60;">${chrome.i18n.getMessage("searchErrorSolution")}</a></div>`
-        resultForm.insertAdjacentHTML('afterbegin', corsErrorHtml);
-        // 5, なぜかこのCORSのエラーは、一度option画面（chrome-extension://gpddlaapalckciombdafdfpeakndmmeg/options.html）にアクセスすると治るので、option画面へのリンクを設置する。
-        const optionBtn = document.querySelector('#diqt-dict-option-btn');
-        optionBtn.addEventListener('click', function () {
-            // 
-            const rtnPromise = chrome.runtime.sendMessage({ "action": "openOptionsPage" });
-            rtnPromise.then((response) => { }).catch((error) => { });
-        });
-    } else {
-        // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
-        let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
-        keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        let notFound = ``;
-        if (keyword.length < 50 && keyword.length > 0) {
-            notFound = Word.notFoundFormHtml(keyword, dictionary);
-        }
-
-        const translationForm = Word.createTranslationForm();
-        const result = notFound + translationForm
-        resultForm.insertAdjacentHTML('afterbegin', result);
-        Word.addEventToTranslationForm(keyword);
-    }
 }
 
 
@@ -394,7 +218,8 @@ function addEventToSelectForm() {
     let setDictionaryId = function (event) {
         let selectedDictionaryId = `${event.currentTarget.value}`
         chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
-        search();
+        // 辞書の切り替え時に検索を実行する。
+        Searcher.search();
     }
     selectForm.addEventListener('change', setDictionaryId);
 }
