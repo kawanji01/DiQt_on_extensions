@@ -1,11 +1,11 @@
 import { Review } from './review.js';
 import { Sentence } from './sentence.js';
+import { Translator } from './translator.js';
 
 const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
 const userLangNumber = locale == 'ja' ? 44 : 21;
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-const premiumPlanUrl = `${diqtUrl}/plans/premium`;
 
 export class Word {
 
@@ -15,16 +15,15 @@ export class Word {
         const wordURL = `${diqtUrl}/words/${word.id}`;
         /* 見出し語 */
         const entry = `<div class="diqt-dict-entry">
-                                <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
-                             </div>`;
+                            <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
+                        </div>`;
         // 発音記号
         const pronunciation = Word.createPronunciation(word);
         // 品詞
         const pos = Word.createPos(word);
         /* 意味 */
-        const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>`;
-        /* 意味の翻訳ボタン */
-        const meaningTranslation = Word.createMeaningTranslation(word);
+        const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>`;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
@@ -36,7 +35,7 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + pronunciation + pos + meaning + meaningTranslation + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + pos + meaning + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 
@@ -61,75 +60,11 @@ export class Word {
         return '';
     }
 
-    // 意味の翻訳ボタンを作成する
-    static createMeaningTranslation(word) {
-        if (word.lang_number_of_meaning == userLangNumber) {
-            return '';
-        }
-        return `<div class="small-translation-buttons" id="small-meaning-translation-buttons-word-${word.id}">
-                        <span class="diqt-google-translation-btn-wrapper">
-                            <a class="diqt-google-translation-btn">${chrome.i18n.getMessage("googleTranslation")}</a>
-                        </span>
-                        <span> / </span>
-                        <span class="diqt-deepl-translation-btn-wrapper">
-                            <a class="diqt-deepl-translation-btn">${chrome.i18n.getMessage("deepLTranslation")}</a>
-                        </span>
-                        <div class="diqt-google-translation-form"></div>
-                        <div class="diqt-deepl-translation-form"></div>
-                    </div>`;
-    }
-
-
 
     //  意味の翻訳イベントを設定する。
     static setEventsToMeaningTranslation(word) {
-        if (word.lang_number_of_meaning == userLangNumber) {
-            return true;
-        }
-        const buttons = document.getElementById(`small-meaning-translation-buttons-word-${word.id}`);
-        // google翻訳
-        const googleButton = buttons.querySelector('.diqt-google-translation-btn');
-        const googleWrapper = buttons.querySelector('.diqt-google-translation-btn-wrapper');
-        const googleTranslationForm = buttons.querySelector('.diqt-google-translation-form');
-        googleButton.addEventListener('click', function () {
-            googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
-            const port = chrome.runtime.connect({ name: "googleTranslation" });
-            port.postMessage({ action: "googleTranslation", keyword: word.meaning, sourceLangNumber: word.lang_number_of_meaning, targetLangNumber: userLangNumber });
-            port.onMessage.addListener(function (msg) {
-                const data = msg['data'];
-                googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
-                if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("googleTranslation")}：</p>
-                    <p class="diqt-translation-results">${data['translation']}</p>`;
-                    googleTranslationForm.innerHTML = translation;
-                } else {
-                    googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                }
-                return true;
-            });
-
-        });
-        // Deepl翻訳
-        const deeplButton = buttons.querySelector('.diqt-deepl-translation-btn');
-        const deeplWrapper = buttons.querySelector('.diqt-deepl-translation-btn-wrapper');
-        const deeplTranslationForm = buttons.querySelector('.diqt-deepl-translation-form');
-        deeplButton.addEventListener('click', function () {
-            deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
-            const port = chrome.runtime.connect({ name: "deeplTranslation" });
-            port.postMessage({ action: "deeplTranslation", keyword: word.meaning, sourceLangNumber: word.lang_number_of_meaning, targetLangNumber: userLangNumber });
-            port.onMessage.addListener(function (msg) {
-                const data = msg['data'];
-                deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
-                if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("deepLTranslation")}：</p>
-                    <p class="diqt-translation-results">${data['translation']}</p>`;
-                    deeplTranslationForm.innerHTML = translation;
-                } else {
-                    deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
-                }
-                return true;
-            });
-        });
+        const buttons = document.getElementById(`meaning-translation-buttons-word-${word.id}`);
+        Translator.addTranslationButtons(buttons, word.meaning, word.lang_number_of_meaning, userLangNumber);
     }
 
 
@@ -199,60 +134,6 @@ export class Word {
         const html = createNewWord + searchWeb;
         return html;
     }
-
-    // 翻訳ボタンを生成する
-    static createTranslationForm() {
-        return `<div id="diqt-dict-translation-form">
-                    <div id="diqt-dict-google-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("googleTranslation")}</div></div>
-                    <div id="diqt-dict-deepl-translation"><div class="diqt-dict-review-btn" style="font-weight: bold;">${chrome.i18n.getMessage("deepLTranslation")}</div></div>
-                </div>`;
-    }
-
-    // 翻訳フォームにイベントを付与
-    static addEventToTranslationForm(keyword) {
-        const googleTranslationForm = document.querySelector('#diqt-dict-google-translation');
-        const deeplTranslationForm = document.querySelector('#diqt-dict-deepl-translation');
-
-        // Google翻訳
-        googleTranslationForm.addEventListener('click', function () {
-            googleTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-            const port = chrome.runtime.connect({ name: "googleTranslation" });
-            port.postMessage({ action: "dictionaryGoogleTranslation", keyword: keyword });
-            port.onMessage.addListener(function (msg) {
-                const data = msg['data'];
-                if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("googleTranslation")}：</b></p>
-                    <p class="diqt-translation-results">${data['translation']}</p>`;
-                    googleTranslationForm.innerHTML = translation;
-                } else {
-                    const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
-                    googleTranslationForm.innerHTML = message;
-                }
-                return true;
-            });
-        });
-        // DeepL翻訳
-        deeplTranslationForm.addEventListener('click', function () {
-            deeplTranslationForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-            const deeplPort = chrome.runtime.connect({ name: "deeplTranslation" });
-            deeplPort.postMessage({ action: "dictionaryDeeplTranslation", keyword: keyword });
-            deeplPort.onMessage.addListener(function (msg) {
-                const data = msg['data'];
-                if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service"><b>${chrome.i18n.getMessage("deepLTranslation")}：</b></p>
-                    <p class="diqt-translation-results">${data['translation']}</p>`;
-                    deeplTranslationForm.innerHTML = translation;
-                } else {
-                    const message = `<p style="margin: 24px 0;"><a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a></p>`;
-                    deeplTranslationForm.innerHTML = message;
-                }
-                return true;
-            });
-        });
-
-    }
-
-
 
 
     // 記法が使われた解説テキストをマークアップする。
