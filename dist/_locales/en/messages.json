@@ -151,6 +151,50 @@
         "message": "Sign in",
         "description": "Content scripts message"
     },
+    "aiSearch": {
+        "message": "AI Search",
+        "description": "AISearch scripts message"
+    },
+    "explainMeaning": {
+        "message": "What does it mean?",
+        "description": "AISearch scripts message"
+    },
+    "explainUsage": {
+        "message": "Please explain the usage.",
+        "description": "AISearch scripts message"
+    },
+    "explainExample": {
+        "message": "Please explain the example.",
+        "description": "AISearch scripts message"
+    },
+    "explainSynonym": {
+        "message": "Please explain the synonym.",
+        "description": "AISearch scripts message"
+    },
+    "explainAntonym": {
+        "message": "Please explain the antonym.",
+        "description": "AISearch scripts message"
+    },
+    "explainConjugation": {
+        "message": "Please explain the conjugation.",
+        "description": "AISearch scripts message"
+    },
+    "explainGrammar": {
+        "message": "Please explain the grammar and syntax in the sentence.",
+        "description": "AISearch scripts message"
+    },
+    "proofreadSentence": {
+        "message": "Please proofread the sentence.",
+        "description": "AISearch scripts message"
+    },
+    "askAI": {
+        "message": "Ask AI",
+        "description": "AISearch scripts message"
+    },
+    "asking": {
+        "message": "Asking...",
+        "description": "AISearch scripts message"
+    },
     "editWord": {
         "message": "Edit word",
         "description": "Words message"

@@ -274,8 +274,6 @@ function displayPopupWhenSelected() {
                 });
             }
         }
-        document.addEventListener('selectionchange', selection)
-
-
+        document.addEventListener('selectionchange', selection);
     });
 }

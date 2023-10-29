@@ -50,11 +50,11 @@ export class Review {
 
         if (review) {
             // 設定編集ボタン
-            return `<div class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</div>
+            return `<button class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</button>
             <div class="diqt-dict-review-form" id="diqt-dict-review-form-${quizId}"></div>`
         } else {
             // 新規設定ボタン
-            return `<div class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</div>`
+            return `<button class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</button>`
         }
 
     }
@@ -150,7 +150,7 @@ export class Review {
         <div class="boqqs-dict-reminder-status">
         <p>${chrome.i18n.getMessage('reviewScheduledDate')}：${review.scheduled_date}</p>
         <p>${chrome.i18n.getMessage('reviewInterval')}：${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</p>  
-        <div class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> ${chrome.i18n.getMessage('destroyReview')}</div>
+        <button class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> ${chrome.i18n.getMessage('destroyReview')}</button>
         </div>      
 <div class="diqt-dict-select-form cp_sl01">
 <select id="diqt-dict-select-form-${quizId}" required>
@@ -242,11 +242,15 @@ export class Review {
         if (createBtn) {
 
             createBtn.addEventListener('click', function () {
+                // ボタンを無効化
+                createBtn.disabled = true;
                 createBtn.textContent = chrome.i18n.getMessage('nowSetting');
                 // const settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
                 const port = chrome.runtime.connect({ name: "createReview" });
                 port.postMessage({ action: "createReview", quizId: quizId });
                 port.onMessage.addListener(function (msg) {
+                    // ボタンを有効化
+                    createBtn.disabled = false;
                     const response = msg.data
                     if (response.status == '401') {
                         createBtn.textContent = response.message;
@@ -279,11 +283,15 @@ export class Review {
         const quizId = quiz.id;
         const submitBtn = document.querySelector("#diqt-dict-update-review-btn-" + quizId);
         submitBtn.addEventListener('click', function () {
+            // ボタンを無効化
+            submitBtn.disabled = true;
             submitBtn.textContent = chrome.i18n.getMessage('nowSetting');
             const settingNumber = document.querySelector("#diqt-dict-select-form-" + quizId).value;
             const port = chrome.runtime.connect({ name: "updateReview" });
             port.postMessage({ action: "updateReview", reviewId: review.id, settingNumber: settingNumber });
             port.onMessage.addListener(function (msg) {
+                // ボタンを有効化
+                submitBtn.disabled = false;
                 const response = msg.data
                 if (response.status == '401') {
                     submitBtn.textContent = response.message;
@@ -304,10 +312,14 @@ export class Review {
         const quizId = quiz.id;
         const deleteBtn = document.querySelector(`#diqt-dict-destroy-review-btn-${quizId}`);
         deleteBtn.addEventListener('click', function () {
+            // ボタンを無効化
+            deleteBtn.disabled = true;
             deleteBtn.textContent = chrome.i18n.getMessage('nowSetting');
             const port = chrome.runtime.connect({ name: "destroyReview" });
             port.postMessage({ action: "destroyReview", reviewId: review.id });
             port.onMessage.addListener(function (msg) {
+                // ボタンを有効化
+                deleteBtn.disabled = false;
                 const response = msg.data;
                 if (response.status == '401') {
                     deleteBtn.textContent = '401 error';
