@@ -148,6 +148,16 @@ $box-border: #c5c3c3;
     font-size: 14px;
   }
 
+  button {
+    /* デフォルトのスタイルをリセット */
+    border: none;
+    background: none;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    font-family: inherit;
+  }
+
   /* リセットCSS END */
 
 
@@ -225,6 +235,22 @@ $box-border: #c5c3c3;
 
 
 
+  /* AI検索結果の表示 */
+  #diqt-dict-prompt-key {
+    color: $brand-green;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  #diqt-dict-ai-search-results {
+    margin-top: 8px;
+    margin-bottom: 40px;
+    text-align: left;
+    color: $text-black;
+    font-size: 14px;
+  }
 
 
 
@@ -327,13 +353,14 @@ $box-border: #c5c3c3;
   }
 
 
-
   /* 復習ボタン */
   .diqt-dict-review-btn {
+    // 
     color: $brand-green;
     font-size: 12px;
     position: relative;
-    display: inline-block;
+    display: block;
+    width: 100%;
     padding: 8px;
     cursor: pointer;
     z-index: 1;

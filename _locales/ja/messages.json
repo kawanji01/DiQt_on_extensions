@@ -151,25 +151,69 @@
         "message": "ログイン・新規登録する",
         "description": "Content scripts message"
     },
+    "aiSearch": {
+        "message": "AI検索",
+        "description": "AISearch scripts message"
+    },
+    "explainMeaning": {
+        "message": "意味を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainUsage": {
+        "message": "用法を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainExample": {
+        "message": "用例を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainSynonym": {
+        "message": "類義語を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainAntonym": {
+        "message": "反意語を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainConjugation": {
+        "message": "活用形を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainGrammar": {
+        "message": "文中の文法や構文を解説してください",
+        "description": "AISearch scripts message"
+    },
+    "proofreadSentence": {
+        "message": "文章を校正してください",
+        "description": "AISearch scripts message"
+    },
+    "askAI": {
+        "message": "AIに聞く",
+        "description": "AISearch scripts message"
+    },
+    "asking": {
+        "message": "AIに聞いています...",
+        "description": "AISearch scripts message"
+    },
     "editWord": {
         "message": "この項目を編集する",
         "description": "Words message"
     },
     "googleTranslation": {
         "message": "Google翻訳",
-        "description": "Words message"
+        "description": "Translator message"
     },
     "deepLTranslation": {
         "message": "DeepL翻訳",
-        "description": "Words message"
+        "description": "Translator message"
     },
     "translating": {
         "message": "翻訳中...",
-        "description": "Words message"
+        "description": "Translator message"
     },
     "translated": {
         "message": "完了",
-        "description": "Words message"
+        "description": "Translator message"
     },
     "sentence": {
         "message": "例文",

@@ -45,10 +45,10 @@ chrome.runtime.onConnect.addListener(function (port) {
                 inspectCurrentUser(port);
                 break;
             case 'search':
-                respondSearch(port, msg.keyword)
+                respondSearch(port, msg.keyword);
                 break;
             case 'createReview':
-                respondCreateReview(port, msg.quizId)
+                respondCreateReview(port, msg.quizId);
                 break;
             case 'updateReview':
                 respondUpdateReview(port, msg.reviewId, msg.settingNumber);
@@ -57,16 +57,13 @@ chrome.runtime.onConnect.addListener(function (port) {
                 respondDestroyReview(port, msg.reviewId);
                 break;
             case 'googleTranslation':
-                respondGoogleTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber)
+                respondGoogleTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber);
                 break;
             case 'deeplTranslation':
-                respondDeepLTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber)
+                respondDeepLTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber);
                 break;
-            case 'dictionaryGoogleTranslation':
-                respondDictionaryGoogleTranslation(port, msg.keyword)
-                break;
-            case 'dictionaryDeeplTranslation':
-                respondDictionaryDeepLTranslation(port, msg.keyword)
+            case 'aiSearch':
+                respondAISearch(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber, msg.promptKey, msg.version);
                 break;
         }
     })
@@ -305,19 +302,6 @@ function requestDictionaryGoogleTranslation(keyword, dictionaryId) {
     });
 }
 
-async function respondDictionaryGoogleTranslation(port, keyword) {
-    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
-        let dictionaryId = result.diqtSelectedDictionaryId;
-        // console.log(dictionaryId);
-        if (dictionaryId == '' || dictionaryId == undefined) {
-            dictionaryId = 1;
-            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
-        }
-        const data = await requestDictionaryGoogleTranslation(keyword, dictionaryId);
-        port.postMessage({ data: data });
-    });
-
-}
 ///// Google翻訳 /////
 
 
@@ -389,26 +373,43 @@ function requestDictionaryDeeplTranslation(keyword, dictionaryId) {
             });
     });
 }
-
-async function respondDictionaryDeepLTranslation(port, keyword) {
-    chrome.storage.local.get(['diqtSelectedDictionaryId'], async function (result) {
-        let dictionaryId = result.diqtSelectedDictionaryId;
-        // console.log(dictionaryId);
-        if (dictionaryId == '' || dictionaryId == undefined) {
-            dictionaryId = 1;
-            chrome.storage.local.set({ diqtSelectedDictionaryId: `${dictionaryId}` });
-        }
-        const data = await requestDictionaryDeeplTranslation(keyword, dictionaryId);
-        port.postMessage({ data: data });
-    });
-}
 ///// Deepl翻訳 /////
 
+////// AI検索 //////
+async function respondAISearch(port, keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
+    const data = await requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, version);
+    port.postMessage({ data: data });
+}
+function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
+    return new Promise(resolve => {
+        const url = `${diqtUrl}/api/v1/extensions/langs/ai_search`;
+        const params = {
+            method: "POST",
+            mode: 'cors',
+            credentials: 'include',
+            body: JSON.stringify({ keyword: keyword, source_lang_number: sourceLangNumber, target_lang_number: targetLangNumber, prompt_key: promptKey, version: version }),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'authorization': basicAuth,
+            }
+        };
+        fetch(url, params)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((error) => {
+                //console.log(error)
+                resolve(error);
+            });
+    });
+}
 
 ////// 検索 //////
 function requestSearch(keyword, dictionaryId) {
-    // console.log(dictionaryId);
-
     return new Promise(resolve => {
         const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
         const params = {
@@ -434,8 +435,6 @@ function requestSearch(keyword, dictionaryId) {
                 resolve(error);
             });
     });
-
-
 }
 
 async function respondSearch(port, keyword) {

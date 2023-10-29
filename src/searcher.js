@@ -1,5 +1,7 @@
 import { Word } from './word.js';
 import { Translator } from './translator.js';
+import { AISearcher } from './ai_searcher.js';
+
 
 export class Searcher {
 
@@ -93,11 +95,8 @@ export class Searcher {
         // 検索キーワードを更新する
         const searchKeyword = document.querySelector('#diqt-dict-search-keyword');
         searchKeyword.textContent = keyword;
-
-        // 検索情報と検索結果をLoaderに変更して、検索中であることを示す。
-        const loader = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
-        const resultForm = document.querySelector('#search-diqt-dict-results');
-        resultForm.innerHTML = loader;
+        // 検索中であることを示す。
+        Searcher.switchLoading();
         // キーワードが50文字以上なら50文字まで縮めてエンコードする。
         let encodedKeyword;
         if (keyword.length > 50) {
@@ -117,6 +116,17 @@ export class Searcher {
             Searcher.searchSuccess(data);
             return true;
         });
+    }
+
+    static switchLoading() {
+        // 検索情報を空白に、検索結果をLoaderに変更して、検索中であることを示す。
+        const translationWrapper = document.querySelector('#diqt-dict-keyword-translation-wrapper');
+        translationWrapper.innerHTML = ``;
+        const aiSearchWrapper = document.querySelector('#diqt-dict-ai-search-wrapper');
+        aiSearchWrapper.innerHTML = ``;
+        const resultForm = document.querySelector('#search-diqt-dict-results');
+        // Loaderを表示する
+        resultForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
     }
 
 
@@ -188,6 +198,7 @@ export class Searcher {
             const translationWrapper = document.querySelector('#diqt-dict-keyword-translation-wrapper');
             Translator.addTranslationButtons(translationWrapper, keyword, dictionary.lang_number_of_entry, dictionary.lang_number_of_meaning);
             // AI検索ボタンの表示
+            AISearcher.addAISearchForm(keyword, dictionary);
         }
     }
 
