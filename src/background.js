@@ -239,7 +239,7 @@ async function respondDestroyReview(port, reviewId) {
 // 意味や例文の翻訳を取得する
 function requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/words/google_translate`;
+        const url = `${diqtUrl}/api/v1/extensions/langs/google_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -272,36 +272,6 @@ async function respondGoogleTranslation(port, keyword, sourceLangNumber, targetL
     const data = await requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber);
     port.postMessage({ data: data });
 }
-
-// 辞書の検索結果を翻訳する
-function requestDictionaryGoogleTranslation(keyword, dictionaryId) {
-    return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/google_translate`;
-        const params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ keyword: keyword }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
-            }
-        };
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                console.log(error)
-                resolve(error);
-            });
-    });
-}
-
 ///// Google翻訳 /////
 
 
@@ -311,7 +281,7 @@ function requestDictionaryGoogleTranslation(keyword, dictionaryId) {
 // 意味や例文の翻訳を取得する
 function requestDeeplTranslation(keyword, sourceLangNumber, targetLangNumber) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/words/deepl_translate`;
+        const url = `${diqtUrl}/api/v1/extensions/langs/deepl_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -345,34 +315,6 @@ async function respondDeepLTranslation(port, keyword, sourceLangNumber, targetLa
     port.postMessage({ data: data });
 }
 
-// 辞書の検索結果を翻訳する
-function requestDictionaryDeeplTranslation(keyword, dictionaryId) {
-    return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/deepl_translate`;
-        const params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ keyword: keyword }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
-            }
-        };
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                console.log(error)
-                resolve(error);
-            });
-    });
-}
 ///// Deepl翻訳 /////
 
 ////// AI検索 //////
