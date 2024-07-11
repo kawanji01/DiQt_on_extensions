@@ -1,0 +1,1 @@
+chrome.runtime.onMessage.addListener(((e,s,c)=>{if(e.play){const{source:s,volume:r}=e.play,o=new Audio(s);return o.volume=r,o.play().then((()=>{c({success:!0})})).catch((e=>{c({success:!1,error:e.message})})),!0}}));

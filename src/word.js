@@ -15,7 +15,7 @@ export class Word {
         const wordURL = `${diqtUrl}/words/${word.id}`;
         /* 見出し語 */
         const entry = `<div class="diqt-dict-entry">
-                            <span>${word.entry}</span><button class="diqt-dict-speech-btn"><i class="fas fa-volume-up"></i></button>
+                            <span>${word.entry}</span><button class="diqt-dict-speech-btn" value="${word.entry_audio_url}"><i class="fas fa-volume-up"></i></button>
                         </div>`;
         // 発音記号
         const pronunciation = Word.createPronunciation(word);
@@ -186,23 +186,37 @@ export class Word {
         speechSynthesis.getVoices()
         speechBtns.forEach(function (target) {
             target.addEventListener('click', function (event) {
-                // 読み上げを止める。
-                speechSynthesis.cancel();
-                const speechTxt = target.previousElementSibling.textContent;
-                const msg = new SpeechSynthesisUtterance();
-                const voice = speechSynthesis.getVoices().find(function (voice) {
-                    return voice.name === "Samantha"
-                });
-                msg.voice = voice;
-                msg.lang = 'en-US'; // en-US or ja-JP
-                msg.volume = 1.0; // 音量 min 0 ~ max 1
-                msg.rate = 1.0; // 速度 min 0 ~ max 10
-                msg.pitch = 1.0; // 音程 min 0 ~ max 2
-                msg.text = speechTxt; // 喋る内容
-                // 発話実行
-                speechSynthesis.speak(msg);
-                // 画面遷移をキャンセル
-                return false;
+                if (target.value != "") {
+                    // URLで指定された音声ファイルを再生する
+                    console.log('Sending message to background.js:', target.value);
+                    // chrome.runtime.sendMessageを使用してメッセージを送信
+                    chrome.runtime.sendMessage({ action: "playAudio", url: target.value }, response => {
+                        if (chrome.runtime.lastError) {
+                            console.error(chrome.runtime.lastError);
+                        } else {
+                            console.log('Audio play response:', response);
+                        }
+                    });
+                } else {
+                    // 読み上げを止める。
+                    speechSynthesis.cancel();
+                    const speechTxt = target.previousElementSibling.textContent;
+                    const msg = new SpeechSynthesisUtterance();
+                    const voice = speechSynthesis.getVoices().find(function (voice) {
+                        return voice.name === "Samantha"
+                    });
+                    msg.voice = voice;
+                    msg.lang = 'en-US'; // en-US or ja-JP
+                    msg.volume = 1.0; // 音量 min 0 ~ max 1
+                    msg.rate = 1.0; // 速度 min 0 ~ max 10
+                    msg.pitch = 1.0; // 音程 min 0 ~ max 2
+                    msg.text = speechTxt; // 喋る内容
+                    // 発話実行
+                    speechSynthesis.speak(msg);
+                    // 画面遷移をキャンセル
+                    return false;
+                }
+
             });
         })
     }

@@ -1,7 +1,7 @@
 {
     "name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
-    "version": "1.0.3.4",
+    "version": "1.0.3.5",
     "manifest_version": 3,
     "default_locale": "en",
     "icons": {
@@ -25,10 +25,12 @@
     ],
     "permissions": [
         "storage",
-        "unlimitedStorage"
+        "unlimitedStorage",
+        "offscreen"
     ],
     "host_permissions": [
-        "https://www.diqt.net/"
+        "https://www.diqt.net/",
+        "https://diqt.s3.amazonaws.com/"
     ],
     "background": {
         "service_worker": "background.js"
@@ -42,7 +44,8 @@
         {
             "resources": [
                 "/fonts/*",
-                "/options.html"
+                "/options.html",
+                "/offscreen.html"
             ],
             "matches": [
                 "<all_urls>"

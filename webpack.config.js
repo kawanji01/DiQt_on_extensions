@@ -29,6 +29,7 @@ module.exports = {
     entry: {
         main: [path.join(__dirname, "src/content_scripts.js"), path.join(__dirname, "src/style.scss")],
         background: path.join(__dirname, "src/background.js"),
+        offscreen: path.join(__dirname, "src/offscreen.js"),
         options: path.join(__dirname, "public/options.js"),
     },
     // トランスパイル後の JavaScript ファイルを dist/以下に出力する。（manifest 3ではbackground.jsはmanifest.jsonと同じ階層に置かなくてはならない。）

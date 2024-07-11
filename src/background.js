@@ -350,6 +350,8 @@ function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey,
     });
 }
 
+
+
 ////// 検索 //////
 function requestSearch(keyword, dictionaryId) {
     return new Promise(resolve => {
@@ -393,3 +395,47 @@ async function respondSearch(port, keyword) {
     });
 }
 ////// 検索 //////
+
+
+////// TextToSpeech //////
+// 音声を再生する関数
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "playAudio") {
+        playSound(request.url)
+            .then(response => {
+                sendResponse({ success: true, response });
+            })
+            .catch(error => {
+                sendResponse({ success: false, error: error.message });
+            });
+        return true; // 非同期応答を示すために true を返す
+    }
+});
+
+async function playSound(source, volume = 1) {
+    await createOffscreen();
+    // メッセージ送信を待機して、オフスクリーンドキュメントが存在することを確実にする
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ play: { source, volume } }, response => {
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
+async function createOffscreen() {
+    console.log('createOffscreen');
+    if (await chrome.offscreen.hasDocument()) {
+        console.log('Offscreen document already exists');
+        return;
+    }
+    await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['AUDIO_PLAYBACK'],
+        justification: 'testing'
+    });
+}
+////// TextToSpeech //////

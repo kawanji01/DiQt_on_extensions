@@ -350,7 +350,39 @@ $box-border: #c5c3c3;
       margin-bottom: 8px;
       text-align: left;
     }
+
+    // 原文と翻訳のwrapper
+    .diqt-dict-sentence-content-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      /* 要素間の間隔を調整 */
+      .diqt-dict-sentence-content {
+        flex: 1;
+        /* 可能な限りの幅を取る */
+      }
+
+      .diqt-dict-speech-btn {
+        flex-shrink: 0;
+        align-self: center;
+        /* 追加: ボタン自体を縦方向中央に配置 */
+        /* ボタンのサイズを固定 */
+        /* ボタンのスタイリング */
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+
+      /* アイコンのスタイリング（必要に応じて） */
+      .diqt-dict-speech-btn i {
+        font-size: 14px;
+      }
+    }
+
+
   }
+
+
 
 
   /* 復習ボタン */

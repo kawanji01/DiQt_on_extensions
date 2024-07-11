@@ -15,20 +15,15 @@ export class Sentence {
         if (sentence == null) {
             return '';
         }
-        // 原文
-        const original = `<div class="diqt-dict-sentence-text">${Word.markNotation(sentence.original)}</div>
-                          <div id="sentence-translation-buttons-sentence-${sentence.id}"></div>`;
-        // 原文の翻訳ボタン
-        // const translationButtons = Sentence.createSentenceTranslationButtons(sentence);
-        // 翻訳
-        let translation = Sentence.translationHtml(sentence);
+        // 例文の内容
+        const contentHtml = Sentence.createContentHtml(sentence);
         // 例文の復習ボタン
         const reviewBtn = Review.createSentenceReviewButtons(sentence);
         // 例文の編集ボタン
         const sentenceUrl = `${diqtUrl}/sentences/${sentence.id}`
         const linkToEditSentence = Word.liknToEditHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
         // 例文のHTML
-        const sentenceHtml = '<div class="diqt-dict-sentence-wrapper">' + original + translation + reviewBtn + linkToEditSentence + '</div>';
+        const sentenceHtml = '<div class="diqt-dict-sentence-wrapper">' + contentHtml + reviewBtn + linkToEditSentence + '</div>';
         return sentenceHtml;
     }
 
@@ -41,8 +36,37 @@ export class Sentence {
         Translator.addTranslationButtons(buttons, sentence.original, sentence.lang_number_of_original, userLangNumber);
     }
 
+    static createContentHtml(sentence) {
+        // 原文
+        const original = `<div class="diqt-dict-sentence-text">${Word.markNotation(sentence.original)}</div>
+                          <div id="sentence-translation-buttons-sentence-${sentence.id}"></div>`;
+        // 原文の翻訳ボタン
+        // const translationButtons = Sentence.createSentenceTranslationButtons(sentence);
+        // 翻訳
+        const translation = Sentence.createTranslationHtml(sentence);
+        // 発音ボタン
+        const audioButton = Sentence.createAudioButton(sentence);
+
+        return `<div class="diqt-dict-sentence-content-wrapper">
+        <div class="diqt-dict-sentence-content">
+        ${original}
+        ${translation}
+        </div>
+        ${audioButton}
+        </div>`;
+    }
+
+    // 例文の発音ボタンを生成する
+    static createAudioButton(sentence) {
+        if (sentence.original_audio_url == null || sentence.original_audio_url == '') {
+            return '';
+        }
+        return `<button class="diqt-dict-speech-btn" value="${sentence.original_audio_url}"><i class="fas fa-volume-up"></i></button>`;
+    }
+
+
     // 例文の翻訳を表示する
-    static translationHtml(sentence) {
+    static createTranslationHtml(sentence) {
         if (sentence.lang_number_of_original == sentence.lang_number_of_translation) {
             return '';
         }
