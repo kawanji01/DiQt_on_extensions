@@ -2,6 +2,7 @@
 const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+const booqsUrl = `https://www.booqs.net/${locale}`;
 const apiKey = process.env.API_KEY;
 const secret = process.env.SECRET_KEY;
 const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
@@ -9,62 +10,62 @@ const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + sec
 
 // アクセスして一番最初に実行する関数。
 function initializePage() {
-    const port = chrome.runtime.connect({ name: "inspectCurrentUser" });
-    port.postMessage({ action: "inspectCurrentUser" });
-    port.onMessage.addListener(function (msg) {
-        const data = msg['data'];
-        if (data.status == 200) {
-            renderMypage();
-        } else {
-            renderLoginForm();
-        }
-    });
+  const port = chrome.runtime.connect({ name: "inspectCurrentUser" });
+  port.postMessage({ action: "inspectCurrentUser" });
+  port.onMessage.addListener(function (msg) {
+    const data = msg['data'];
+    if (data.status == 200) {
+      renderMypage();
+    } else {
+      renderLoginForm();
+    }
+  });
 }
 
 
 // localStorageにユーザーデータを格納する。
 function setUserData(data) {
-    chrome.storage.local.set({ diqtUserName: data['name'] });
-    chrome.storage.local.set({ diqtUserIconUrl: data['icon_url'] });
-    chrome.storage.local.set({ diqtUserPublicUid: data['public_uid'] });
-    chrome.storage.local.set({ diqtPopupDisplayed: data['popup_displayed'] });
+  chrome.storage.local.set({ diqtUserName: data['name'] });
+  chrome.storage.local.set({ diqtUserIconUrl: data['icon_url'] });
+  chrome.storage.local.set({ diqtUserPublicUid: data['public_uid'] });
+  chrome.storage.local.set({ diqtPopupDisplayed: data['popup_displayed'] });
 }
 
 // localStorageのユーザーデータをすべて消去する
 function resetUserData() {
-    chrome.storage.local.set({ diqtUserName: '' });
-    chrome.storage.local.set({ diqtUserIconUrl: '' });
-    chrome.storage.local.set({ diqtUserPublicUid: '' });
-    chrome.storage.local.set({ diqtPopupDisplayed: '' });
+  chrome.storage.local.set({ diqtUserName: '' });
+  chrome.storage.local.set({ diqtUserIconUrl: '' });
+  chrome.storage.local.set({ diqtUserPublicUid: '' });
+  chrome.storage.local.set({ diqtPopupDisplayed: '' });
 }
 
 
 // プロフィールページ（ログイン済み画面）をレンダリングする
 function renderMypage() {
-    let uid = '';
-    let iconUrl = '';
-    let userName = '';
-    let selectedDictionaryId = '';
-    let popupDisplayed = '';
-    chrome.storage.local.get(['diqtUserPublicUid', 'diqtUserIconUrl', 'diqtUserName', 'diqtSelectedDictionaryId', 'diqtPopupDisplayed', 'diqtDictionaries'], function (result) {
-        uid = result.diqtUserPublicUid;
-        iconUrl = result.diqtUserIconUrl;
-        userName = result.diqtUserName;
-        selectedDictionaryId = result.diqtSelectedDictionaryId;
-        popupDisplayed = result.diqtPopupDisplayed;
+  let uid = '';
+  let iconUrl = '';
+  let userName = '';
+  let selectedDictionaryId = '';
+  let popupDisplayed = '';
+  chrome.storage.local.get(['diqtUserPublicUid', 'diqtUserIconUrl', 'diqtUserName', 'diqtSelectedDictionaryId', 'diqtPopupDisplayed', 'diqtDictionaries'], function (result) {
+    uid = result.diqtUserPublicUid;
+    iconUrl = result.diqtUserIconUrl;
+    userName = result.diqtUserName;
+    selectedDictionaryId = result.diqtSelectedDictionaryId;
+    popupDisplayed = result.diqtPopupDisplayed;
 
-        if (selectedDictionaryId == '' || selectedDictionaryId == undefined) {
-            selectedDictionaryId = 1;
-            chrome.storage.local.set({ diqtSelectedDictionaryId: `${selectedDictionaryId}` });
-        } else {
-            selectedDictionaryId = Number(selectedDictionaryId);
-        }
-        let checked = ''
-        if (popupDisplayed) {
-            checked = 'checked';
-        }
+    if (selectedDictionaryId == '' || selectedDictionaryId == undefined) {
+      selectedDictionaryId = 1;
+      chrome.storage.local.set({ diqtSelectedDictionaryId: `${selectedDictionaryId}` });
+    } else {
+      selectedDictionaryId = Number(selectedDictionaryId);
+    }
+    let checked = ''
+    if (popupDisplayed) {
+      checked = 'checked';
+    }
 
-        const profileHtml = `
+    const profileHtml = `
 <div class="content has-text-centered">
   
     <figure class="mt-5 image is-128x128 mx-auto">
@@ -107,20 +108,20 @@ function renderMypage() {
 </div>
 
 </div>`
-        const userPage = document.querySelector("#user-page");
-        userPage.innerHTML = profileHtml;
-        addEventToSelectForm();
-        addEventToLogout();
-        AddEventToPopupDisplayed();
-    });
+    const userPage = document.querySelector("#user-page");
+    userPage.innerHTML = profileHtml;
+    addEventToSelectForm();
+    addEventToLogout();
+    AddEventToPopupDisplayed();
+  });
 }
 
 // 辞書のセレクトフォームを作成
 function createDictionarySelectForm(dictionaries, value) {
-    console.log(dictionaries);
-    const dictionaryAry = JSON.parse(dictionaries);
-    const optionsHtml = dictionaryAry.map(item => createOption(item, value)).join('');
-    return `<div class="block has-text-centered mt-5">
+  console.log(dictionaries);
+  const dictionaryAry = JSON.parse(dictionaries);
+  const optionsHtml = dictionaryAry.map(item => createOption(item, value)).join('');
+  return `<div class="block has-text-centered mt-5">
     <div class="select">
         <select id="dictionary-select-form">
             ${optionsHtml}
@@ -130,20 +131,20 @@ function createDictionarySelectForm(dictionaries, value) {
 }
 // 辞書のセレクトフォームのオプションを作成
 function createOption(item, value) {
-    // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
-    // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
-    const isSelected = item[0] === value ? 'selected' : '';
-    return `<option value="${item[0]}" class="has-text-weight-bold" ${isSelected}>${item[1]}</option>`;
+  // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
+  // item[1] は配列の2番目の要素（表示テキストとして想定される）として想定されます。
+  const isSelected = item[0] === value ? 'selected' : '';
+  return `<option value="${item[0]}" class="has-text-weight-bold" ${isSelected}>${item[1]}</option>`;
 }
 
 // 辞書の切り替え
 function addEventToSelectForm() {
-    const selectForm = document.getElementById('dictionary-select-form');
-    const setDictionaryId = function (event) {
-        const selectedDictionaryId = `${event.currentTarget.value}`;
-        chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
-    }
-    selectForm.addEventListener('change', setDictionaryId);
+  const selectForm = document.getElementById('dictionary-select-form');
+  const setDictionaryId = function (event) {
+    const selectedDictionaryId = `${event.currentTarget.value}`;
+    chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
+  }
+  selectForm.addEventListener('change', setDictionaryId);
 }
 
 
@@ -151,36 +152,36 @@ function addEventToSelectForm() {
 
 // プロフィールページのログアウトボタンにイベントを追加
 function addEventToLogout() {
-    const logoutBtn = document.querySelector("#logout-btn");
-    const logoutRequest = () => {
-        logoutBtn.value = chrome.i18n.getMessage("loggingOut");
-        const url = `${diqtUrl}/api/v1/extensions/sessions/logout`;
-        const params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
-            }
-        }
-
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                // ユーザー情報をすべて削除して、ログインフォームを表示する。
-                resetUserData();
-                renderLoginForm();
-                addEventToLoginForm();
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+  const logoutBtn = document.querySelector("#logout-btn");
+  const logoutRequest = () => {
+    logoutBtn.value = chrome.i18n.getMessage("loggingOut");
+    const url = `${diqtUrl}/api/v1/extensions/sessions/logout`;
+    const params = {
+      method: "POST",
+      mode: 'cors',
+      credentials: 'include',
+      dataType: 'json',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'authorization': basicAuth,
+      }
     }
-    logoutBtn.addEventListener("click", logoutRequest, false);
+
+    fetch(url, params)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        // ユーザー情報をすべて削除して、ログインフォームを表示する。
+        resetUserData();
+        renderLoginForm();
+        addEventToLoginForm();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  logoutBtn.addEventListener("click", logoutRequest, false);
 }
 
 
@@ -188,42 +189,42 @@ function addEventToLogout() {
 
 // ポップアップの表示・非表示チェックボックスにイベントを追加
 function AddEventToPopupDisplayed() {
-    const checkboxLabel = document.querySelector('#diqt-dict-popup-displayed');
-    const checkbox = document.querySelector('#diqt-dict-popup-displayed-checkbox');
-    const checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
-    const toggleRequest = () => {
-        checkboxText.textContent = chrome.i18n.getMessage("nowSetting");
-        const url = `${diqtUrl}/api/v1/extensions/users/update_popup_displayed`;
-        const params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
-            }
-        }
-
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                checkbox.checked = data.data.popup_displayed;
-                checkboxText.textContent = chrome.i18n.getMessage("displayPopup");
-                chrome.storage.local.set({ diqtPopupDisplayed: data.data.popup_displayed });
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+  const checkboxLabel = document.querySelector('#diqt-dict-popup-displayed');
+  const checkbox = document.querySelector('#diqt-dict-popup-displayed-checkbox');
+  const checkboxText = document.querySelector('#diqt-dict-popup-displayed-text');
+  const toggleRequest = () => {
+    checkboxText.textContent = chrome.i18n.getMessage("nowSetting");
+    const url = `${diqtUrl}/api/v1/extensions/users/update_popup_displayed`;
+    const params = {
+      method: "POST",
+      mode: 'cors',
+      credentials: 'include',
+      dataType: 'json',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'authorization': basicAuth,
+      }
     }
-    checkboxLabel.addEventListener("click", toggleRequest, false);
+
+    fetch(url, params)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        checkbox.checked = data.data.popup_displayed;
+        checkboxText.textContent = chrome.i18n.getMessage("displayPopup");
+        chrome.storage.local.set({ diqtPopupDisplayed: data.data.popup_displayed });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  checkboxLabel.addEventListener("click", toggleRequest, false);
 }
 
 // ログインフォームをレンダリングする
 function renderLoginForm() {
-    const loginFormHtml = `
+  const loginFormHtml = `
 <div class="content">
 <h1 class="mb-5 mt-3 has-text-centered is-size-2 has-text-weight-bold">
   ${chrome.i18n.getMessage("loginTitle")}
@@ -294,67 +295,67 @@ ${chrome.i18n.getMessage("loginDescription")}
 </div>
 
 `
-    const userPage = document.querySelector("#user-page");
-    userPage.innerHTML = loginFormHtml;
-    addEventToLoginForm();
+  const userPage = document.querySelector("#user-page");
+  userPage.innerHTML = loginFormHtml;
+  addEventToLoginForm();
 }
 
 // ログインフォームに、ログインのためのイベントを追加する
 function addEventToLoginForm() {
-    const btn = document.querySelector("#diqt-login-btn");
-    const postFetch = () => {
-        const email = document.querySelector("#diqt-email").value;
-        // emailに+が含まれていると空白文字として解釈されてしまうのでエンコードしておく。
-        // const encodedEmail = encodeURIComponent(email);
-        const password = document.querySelector("#diqt-password").value;
-        // const encodedPassword = encodeURIComponent(password);
-        const url = `${diqtUrl}/api/v1/extensions/sessions/sign_in`;
-        const params = {
-            method: "POST",
-            mode: 'cors',
-            credentials: 'include',
-            body: JSON.stringify({ email: email, password: password }),
-            dataType: 'json',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
-            }
-        };
+  const btn = document.querySelector("#diqt-login-btn");
+  const postFetch = () => {
+    const email = document.querySelector("#diqt-email").value;
+    // emailに+が含まれていると空白文字として解釈されてしまうのでエンコードしておく。
+    // const encodedEmail = encodeURIComponent(email);
+    const password = document.querySelector("#diqt-password").value;
+    // const encodedPassword = encodeURIComponent(password);
+    const url = `${diqtUrl}/api/v1/extensions/sessions/sign_in`;
+    const params = {
+      method: "POST",
+      mode: 'cors',
+      credentials: 'include',
+      body: JSON.stringify({ email: email, password: password }),
+      dataType: 'json',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'authorization': basicAuth,
+      }
+    };
 
-        fetch(url, params)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                if (data['status'] == '200') {
-                    setUserData(data['data']);
-                    renderMypage();
-                } else {
-                    const errorHtml = `
+    fetch(url, params)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        if (data['status'] == '200') {
+          setUserData(data['data']);
+          renderMypage();
+        } else {
+          const errorHtml = `
                     <div class="notification is-danger is-light my-3">
                     ${chrome.i18n.getMessage("wrongCombination")}
                     </div>`
-                    const feedback = document.querySelector('#feedback');
-                    feedback.innerHTML = errorHtml;
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
-    btn.addEventListener("click", postFetch, false);
+          const feedback = document.querySelector('#feedback');
+          feedback.innerHTML = errorHtml;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  btn.addEventListener("click", postFetch, false);
 }
 
 // アプリの宣伝リンクをレンダリングする
 function renderAppLinks() {
-    const appLinks = document.querySelector("#app-links");
-    let buttonHtml = `
+  const appLinks = document.querySelector("#app-links");
+  let buttonHtml = `
     <a href="${chrome.i18n.getMessage("appStoreUrl")}" target="_blank" rel="nofollow"
         class="appreach__aslink"><img src="${chrome.i18n.getMessage("appStoreImage")}"></a>
     <a href="${chrome.i18n.getMessage("playStoreUrl")}" target="_blank" rel="nofollow"
         class="appreach__gplink"><img src="${chrome.i18n.getMessage("playStoreImage")}"></a>`;
 
-    const appLinksHtml = ` 
+  const appLinksHtml = ` 
     <h5 class="mb-5 mt-3 has-text-centered has-text-weight-bold">
     ${chrome.i18n.getMessage("appLinksTitle")}
   </h5>
@@ -375,13 +376,13 @@ function renderAppLinks() {
         ${buttonHtml}
     </div>
   </div>` ;
-    appLinks.innerHTML = appLinksHtml;
+  appLinks.innerHTML = appLinksHtml;
 }
 
 
 function renderFooter() {
-    const footer = document.querySelector("#diqt-footer");
-    const footerHtml = `
+  const footer = document.querySelector("#diqt-footer");
+  const footerHtml = `
     <div class="content has-text-centered has-text-light">
       <div class="columns">
         <div class="column">
@@ -397,7 +398,7 @@ function renderFooter() {
           
 
           <div class="my-2">
-            <a href="${diqtUrl}/about" target="_blank" rel="noopener"
+            <a href="${booqsUrl}" target="_blank" rel="noopener"
               class="has-text-success-light">${chrome.i18n.getMessage("company")}</a>
           </div>
 
@@ -425,7 +426,7 @@ function renderFooter() {
       </div>
     </div>
     `;
-    footer.innerHTML = footerHtml;
+  footer.innerHTML = footerHtml;
 }
 
 
