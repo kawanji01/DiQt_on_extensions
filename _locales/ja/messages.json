@@ -179,6 +179,10 @@
         "message": "活用形を教えてください",
         "description": "AISearch scripts message"
     },
+    "explainEtymology": {
+        "message": "語源を教えてください",
+        "description": "AISearch scripts message"
+    },
     "explainGrammar": {
         "message": "文中の文法や構文を解説してください",
         "description": "AISearch scripts message"

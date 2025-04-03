@@ -179,6 +179,10 @@
         "message": "Please explain the conjugation.",
         "description": "AISearch scripts message"
     },
+    "explainEtymology": {
+        "message": "Please explain the etymology.",
+        "description": "AISearch scripts message"
+    },
     "explainGrammar": {
         "message": "Please explain the grammar and syntax in the sentence.",
         "description": "AISearch scripts message"

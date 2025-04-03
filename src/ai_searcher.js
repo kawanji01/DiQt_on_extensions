@@ -1,4 +1,4 @@
-const promptKeys = ['explain_meaning', 'explain_usage', 'explain_example', 'explain_synonym', 'explain_antonym', 'explain_conjugation', 'explain_grammar', 'proofread_sentence'];
+const promptKeys = ['explain_meaning', 'explain_usage', 'explain_example', 'explain_synonym', 'explain_antonym', 'explain_conjugation', 'explain_etymology', 'explain_grammar', 'proofread_sentence'];
 
 export class AISearcher {
 
