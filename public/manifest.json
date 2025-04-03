@@ -30,7 +30,8 @@
     ],
     "host_permissions": [
         "https://www.diqt.net/",
-        "https://diqt.s3.amazonaws.com/"
+        "https://diqt.s3.amazonaws.com/",
+        "https://cdn.diqt.net/"
     ],
     "background": {
         "service_worker": "background.js"
