@@ -1,7 +1,7 @@
 {
     "name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
-    "version": "1.0.3.8",
+    "version": "1.0.3.9",
     "manifest_version": 3,
     "default_locale": "ja",
     "icons": {
@@ -30,7 +30,8 @@
     ],
     "host_permissions": [
         "https://www.diqt.net/",
-        "https://diqt.s3.amazonaws.com/"
+        "https://diqt.s3.amazonaws.com/",
+        "https://cdn.diqt.net/"
     ],
     "background": {
         "service_worker": "background.js"
