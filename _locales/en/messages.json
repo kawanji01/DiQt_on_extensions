@@ -227,6 +227,10 @@
         "message": "Edit sentence",
         "description": "Words message"
     },
+    "relatedForms": {
+        "message": "Related Forms",
+        "description": "Words message"
+    },
     "details": {
         "message": "Details",
         "description": "Words message"
@@ -246,6 +250,10 @@
     },
     "meaning": {
         "message": "meaning",
+        "description": "Words message"
+    },
+    "jaMeaning": {
+        "message": "Japanese meaning",
         "description": "Words message"
     },
     "searchByWeb": {

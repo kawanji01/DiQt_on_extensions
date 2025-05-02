@@ -9,6 +9,8 @@ const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
 
 export class Word {
 
+
+
     // WordのHTMLを作成する
     static createWordHtml(word) {
         //const tags = createTagsHtml(word.tags);
@@ -21,13 +23,20 @@ export class Word {
         const pronunciation = Word.createPronunciation(word);
         // 品詞
         const pos = Word.createPos(word);
+        // 日本語の意味
+        let jaMeaningHtml = '';
+        if (word.ja_meaning && word.ja_meaning.trim() !== '') {
+            jaMeaningHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("jaMeaning")}</div><div class="diqt-dict-meaning">${word.ja_meaning}</div>`;
+        }
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
-                        <div id="meaning-translation-buttons-word-${word.id}"></div>`;
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + jaMeaningHtml;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
         const sentenceHtml = Sentence.createHtml(word);
+        /* 関連語 */
+        const relatedForms = Word.createRelatedFormsHtml(word);
         /* 項目の編集ボタン */
         const linkToEditWord = Word.liknToEditHtml(wordURL, chrome.i18n.getMessage("editWord"));
         /* 項目編集ボタンの上の余白 */
@@ -35,7 +44,7 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + pronunciation + pos + meaning + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + pos + meaning + reviewButtons + sentenceHtml + relatedForms + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 
@@ -45,19 +54,30 @@ export class Word {
             // 日本語なら読みを表示する
             return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
         } else {
-            return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+            if (word.ipa != null) {
+                return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+            } else {
+                return '';
+            }
         }
     }
 
     // 品詞のhtmlを作成する
     static createPos(word) {
+        let html = '';
+        // 品詞を追加
         if (word.pos_tag != null) {
-            return `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+            html += `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+        } else if (word.pos != null && word.pos != "") {
+            html += `<div class="diqt-item-label">${word.pos}</div>`;
         }
-        if (word.pos != null && word.pos != "") {
-            return `<div class="diqt-item-label">${word.pos}</div>`;
+        // タグを追加
+        if (word.senses_tags && word.senses_tags.length > 0) {
+            word.senses_tags.forEach(tag => {
+                html += `<div class="diqt-item-label" style="background-color: #6e6e6e; color: white;">${tag}</div>`;
+            });
         }
-        return '';
+        return html;
     }
 
 
@@ -91,6 +111,36 @@ export class Word {
      } */
 
 
+    // 関連語のhtmlを作成する
+    static createRelatedFormsHtml(word) {
+        if (!word.forms_list) return '';
+
+        try {
+            const forms = word.forms_list;
+            console.log(forms);
+            if (!forms || forms.length === 0) return '';
+
+            let formsHtml = forms.map(form => {
+                const tags = form.tags.map(tag =>
+                    `<div class="diqt-item-label" style="background-color: #6e6e6e; color: white; font-size: 10px;">${tag}</div>`
+                ).join('');
+                return `<div style="display: flex; align-items: center; margin: 4px 0;">
+                    <span style="margin-right: 8px; color: #6e6e6e; font-size: 14px;">${form.form}</span>
+                    ${tags}
+                </div>`;
+            }).join('');
+
+            return `
+                <div style="margin: 16px 0;">
+                    <div class="diqt-item-label" style="display: inline-block; margin-bottom: 8px;">${chrome.i18n.getMessage('relatedForms')}</div>
+                    ${formsHtml}
+                </div>
+            `;
+        } catch (e) {
+            console.error('Failed to parse forms_list:', e);
+            return '';
+        }
+    }
 
 
     // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
