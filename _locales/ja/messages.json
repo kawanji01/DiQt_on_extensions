@@ -227,6 +227,10 @@
         "message": "例文を編集する",
         "description": "Words message"
     },
+    "relatedForms": {
+        "message": "関連語",
+        "description": "Words message"
+    },
     "details": {
         "message": "詳細",
         "description": "Words message"

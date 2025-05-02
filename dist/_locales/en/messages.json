@@ -227,6 +227,10 @@
         "message": "Edit sentence",
         "description": "Words message"
     },
+    "relatedForms": {
+        "message": "Related Forms",
+        "description": "Words message"
+    },
     "details": {
         "message": "Details",
         "description": "Words message"

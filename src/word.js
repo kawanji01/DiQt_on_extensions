@@ -9,6 +9,8 @@ const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
 
 export class Word {
 
+
+
     // WordのHTMLを作成する
     static createWordHtml(word) {
         //const tags = createTagsHtml(word.tags);
@@ -28,6 +30,8 @@ export class Word {
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
         const sentenceHtml = Sentence.createHtml(word);
+        /* 関連語 */
+        const relatedForms = Word.createRelatedFormsHtml(word);
         /* 項目の編集ボタン */
         const linkToEditWord = Word.liknToEditHtml(wordURL, chrome.i18n.getMessage("editWord"));
         /* 項目編集ボタンの上の余白 */
@@ -35,7 +39,7 @@ export class Word {
         /* 項目と次の項目の間の余白 */
         const bottomSpace = '<div style="width: 100%; height: 24px;"></div>'
         /* 項目のレンダリング */
-        const wordHtml = entry + pronunciation + pos + meaning + reviewButtons + sentenceHtml + linkToEditWord + bottomSpace;
+        const wordHtml = entry + pronunciation + pos + meaning + reviewButtons + sentenceHtml + relatedForms + linkToEditWord + bottomSpace;
         return wordHtml;
     }
 
@@ -102,6 +106,36 @@ export class Word {
      } */
 
 
+    // 関連語のhtmlを作成する
+    static createRelatedFormsHtml(word) {
+        if (!word.forms_list) return '';
+
+        try {
+            const forms = word.forms_list;
+            console.log(forms);
+            if (!forms || forms.length === 0) return '';
+
+            let formsHtml = forms.map(form => {
+                const tags = form.tags.map(tag =>
+                    `<div class="diqt-item-label" style="background-color: #6e6e6e; color: white; font-size: 10px;">${tag}</div>`
+                ).join('');
+                return `<div style="display: flex; align-items: center; margin: 4px 0;">
+                    <span style="margin-right: 8px; color: #6e6e6e; font-size: 14px;">${form.form}</span>
+                    ${tags}
+                </div>`;
+            }).join('');
+
+            return `
+                <div style="margin: 16px 0;">
+                    <div class="diqt-item-label" style="display: inline-block; margin-bottom: 8px;">${chrome.i18n.getMessage('relatedForms')}</div>
+                    ${formsHtml}
+                </div>
+            `;
+        } catch (e) {
+            console.error('Failed to parse forms_list:', e);
+            return '';
+        }
+    }
 
 
     // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
