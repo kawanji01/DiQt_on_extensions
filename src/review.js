@@ -1,4 +1,3 @@
-
 //////// 復習に関する処理 START ////////
 
 export class Review {
@@ -21,8 +20,10 @@ export class Review {
         const reversedQuizId = reversedQuiz.id;
         const reversedReview = reversedQuiz.review;
         const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
-        return reviewBtn + reversedReviewBtn;
+        const helpLink = `<div style="text-align: left; margin-bottom: 16px;"><a href="https://abundant-galliform-71d.notion.site/1e0234a0842b80c4adc4ccc065620438" target="_blank" rel="noopener" class="diqt-dict-review-help-link"><i class="fal fa-question-circle" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewHelpLink')}</a></div>`;
+        return reviewBtn + reversedReviewBtn + helpLink;
     }
+
     // Sentenceの復習設定ボタンを生成する
     static createSentenceReviewButtons(sentence) {
         const quiz = sentence.quiz;
@@ -40,7 +41,9 @@ export class Review {
         }
         const reversedReview = reversedQuiz.review;
         const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuiz.id}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
-        return reviewBtn + reversedReviewBtn;
+        const helpLink = `<div style="text-align: left; margin-bottom: 8px;"><a href="https://abundant-galliform-71d.notion.site/1e2234a0842b8057a70ec995b5306ec7" target="_blank" rel="noopener" class="diqt-dict-review-help-link"><i class="fal fa-question-circle" style="margin-right: 4px;"></i>このボタンは何？</a></div>`;
+
+        return reviewBtn + reversedReviewBtn + helpLink;
     }
 
     // 復習設定ボタンを生成する
@@ -56,7 +59,6 @@ export class Review {
             // 新規設定ボタン
             return `<button class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</button>`
         }
-
     }
 
     static reviewLabel(quiz) {

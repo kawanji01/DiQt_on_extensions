@@ -5,7 +5,6 @@ const premiumPlanUrl = `${diqtUrl}/plans/premium`;
 
 export class Translator {
 
-
     // 翻訳ボタンを追加して、イベントを設定する。
     static addTranslationButtons(wrapper, keyword, sourceLangNumber, targetLangNumber) {
         if (sourceLangNumber == targetLangNumber) {
@@ -58,7 +57,7 @@ export class Translator {
                     <p class="diqt-translation-results">${data['translation']}</p>`;
                     googleTranslationForm.innerHTML = translation;
                 } else {
-                    googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                    googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
                 return true;
             });
@@ -80,7 +79,7 @@ export class Translator {
                     <p class="diqt-translation-results">${data['translation']}</p>`;
                     deeplTranslationForm.innerHTML = translation;
                 } else {
-                    deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60;">${data['message']}</a>`;
+                    deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
                 return true;
             });

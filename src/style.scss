@@ -553,6 +553,16 @@ $box-border: #c5c3c3;
     display: none;
   }
 
+  .diqt-dict-review-help-link {
+    color: $brand-green;
+    font-size: 10px;
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-decoration: underline;
+    text-decoration-color: $brand-green;
+  }
+
   /* プレミアム会員限定のoptionを設定したときに表示する、プレミアムプランへの誘導 */
   .diqt-dict-recommend-premium {
     display: block;
@@ -579,6 +589,8 @@ $box-border: #c5c3c3;
     display: inline-block;
     margin-top: 16px;
     margin-bottom: 24px;
+    text-decoration: underline;
+    text-decoration-color: $text-black;
 
     &:hover {
       color: $brand-green;

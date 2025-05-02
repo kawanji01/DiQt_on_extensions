@@ -368,5 +368,9 @@
     "chromeStoreImage": {
         "message": "https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/chrome_web_store.png",
         "description": "Shared message"
+    },
+    "reviewHelpLink": {
+        "message": "What is this button?",
+        "description": "Reviews message"
     }
 }

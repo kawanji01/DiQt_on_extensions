@@ -1,6 +1,6 @@
 {
     "appName": {
-        "message": "調べたら忘れない辞書 - ディクト",
+        "message": "絶対に忘れない辞書 - ディクト",
         "description": "The name of the app"
     },
     "appDescription": {
@@ -368,5 +368,9 @@
     "chromeStoreImage": {
         "message": "https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/chrome_web_store.png",
         "description": "Shared message"
+    },
+    "reviewHelpLink": {
+        "message": "このボタンは何？",
+        "description": "Reviews message"
     }
 }
