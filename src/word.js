@@ -45,7 +45,11 @@ export class Word {
             // 日本語なら読みを表示する
             return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
         } else {
-            return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+            if (word.ipa != null) {
+                return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
+            } else {
+                return '';
+            }
         }
     }
 
