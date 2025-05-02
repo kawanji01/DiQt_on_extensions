@@ -1,3 +1,8 @@
+const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
+const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
+const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+const premiumPlanUrl = `${diqtUrl}/plans/premium`;
+
 const promptKeys = ['explain_meaning', 'explain_usage', 'explain_example', 'explain_synonym', 'explain_antonym', 'explain_conjugation', 'explain_etymology', 'explain_grammar', 'proofread_sentence'];
 
 export class AISearcher {
@@ -21,7 +26,7 @@ export class AISearcher {
     static setEventsToAISearchForm(keyword, dictionary) {
         const submitButton = document.querySelector('#diqt-dict-ai-search-submit-button');
         submitButton.addEventListener('click', function () {
-            // ボタンを無効化
+            // ボタンを無効化s
             submitButton.disabled = true;
             const promptKey = document.querySelector('#diqt-dict-prompt-select-form').value;
             chrome.storage.local.set({ selectedPromptKey: promptKey }, function () {
@@ -37,12 +42,17 @@ export class AISearcher {
                 submitButton.disabled = false;
                 submitButton.textContent = chrome.i18n.getMessage('askAI');
                 const data = msg['data'];
-                const ai_searcher = data.ai_searcher;
-                const results = ai_searcher.results;
-                const formattedResults = results.replace(/\n/g, '<br>');
-                const camelCaseKey = AISearcher.camelCase(promptKey);
-                resultsForm.innerHTML = `<div id="diqt-dict-prompt-key">${chrome.i18n.getMessage(camelCaseKey)}:</div>
+                if (data['status'] == "200") {
+                    const ai_searcher = data.ai_searcher;
+                    const results = ai_searcher.results;
+                    const formattedResults = results.replace(/\n/g, '<br>');
+                    const camelCaseKey = AISearcher.camelCase(promptKey);
+                    resultsForm.innerHTML = `<div id="diqt-dict-prompt-key">${chrome.i18n.getMessage(camelCaseKey)}:</div>
                                          <div id="diqt-dict-ai-search-results">${formattedResults}</div>`;
+                } else {
+                    resultsForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
+                }
+
             });
         });
     }
