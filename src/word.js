@@ -23,9 +23,14 @@ export class Word {
         const pronunciation = Word.createPronunciation(word);
         // 品詞
         const pos = Word.createPos(word);
+        // 日本語の意味
+        let jaMeaningHtml = '';
+        if (word.ja_meaning && word.ja_meaning.trim() !== '') {
+            jaMeaningHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("jaMeaning")}</div><div class="diqt-dict-meaning">${word.ja_meaning}</div>`;
+        }
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
-                        <div id="meaning-translation-buttons-word-${word.id}"></div>`;
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + jaMeaningHtml;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */

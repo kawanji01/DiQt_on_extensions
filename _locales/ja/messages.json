@@ -252,6 +252,10 @@
         "message": "意味",
         "description": "Words message"
     },
+    "jaMeaning": {
+        "message": "日本語の意味",
+        "description": "Words message"
+    },
     "searchByWeb": {
         "message": "Webで検索する",
         "description": "Words message"
