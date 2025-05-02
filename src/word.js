@@ -55,13 +55,20 @@ export class Word {
 
     // 品詞のhtmlを作成する
     static createPos(word) {
+        let html = '';
+        // 品詞を追加
         if (word.pos_tag != null) {
-            return `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+            html += `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
+        } else if (word.pos != null && word.pos != "") {
+            html += `<div class="diqt-item-label">${word.pos}</div>`;
         }
-        if (word.pos != null && word.pos != "") {
-            return `<div class="diqt-item-label">${word.pos}</div>`;
+        // タグを追加
+        if (word.senses_tags && word.senses_tags.length > 0) {
+            word.senses_tags.forEach(tag => {
+                html += `<div class="diqt-item-label" style="background-color: #6e6e6e; color: white;">${tag}</div>`;
+            });
         }
-        return '';
+        return html;
     }
 
 
