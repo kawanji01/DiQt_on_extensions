@@ -6,17 +6,15 @@ const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
 const userLangNumber = locale == 'ja' ? 44 : 21;
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+// 右横書きの言語番号
+const rtlLanguages = [4, 35, 72, 101];
 
 export class Word {
-
-
 
     // WordのHTMLを作成する
     static createWordHtml(word) {
         //const tags = createTagsHtml(word.tags);
         const wordURL = `${diqtUrl}/words/${word.id}`;
-        // 右横書きの言語番号
-        const rtlLanguages = [4, 35, 72, 101];
         const isRtl = rtlLanguages.includes(word.lang_number_of_entry);
         const rtlClass = isRtl ? 'diqt-dict-entry-rtl' : '';
 

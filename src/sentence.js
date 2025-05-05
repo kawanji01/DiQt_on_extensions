@@ -75,7 +75,11 @@ export class Sentence {
         if (sentence.lang_number_of_original == sentence.lang_number_of_translation) {
             return '';
         }
-        return `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
+        let html = `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
+        if (sentence.ja_translation && sentence.ja_translation.trim() !== '') {
+            html += `<div class="diqt-dict-sentence-text">${sentence.ja_translation}</div>`;
+        }
+        return html;
     }
 
     // 例文の翻訳ボタンを表示するかどうか
