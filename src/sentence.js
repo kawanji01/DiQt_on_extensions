@@ -6,6 +6,8 @@ const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
 const userLangNumber = locale == 'ja' ? 44 : 21;
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+// 右横書きの言語番号
+const rtlLanguages = [4, 35, 72, 101];
 
 
 export class Sentence {
@@ -37,8 +39,11 @@ export class Sentence {
     }
 
     static createContentHtml(sentence) {
+        const isRtl = rtlLanguages.includes(sentence.lang_number_of_original);
+        const rtlClass = isRtl ? 'diqt-dict-sentence-rtl' : '';
+
         // 原文
-        const original = `<div class="diqt-dict-sentence-text">${Word.markNotation(sentence.original)}</div>
+        const original = `<div class="diqt-dict-sentence-text ${rtlClass}">${Word.markNotation(sentence.original)}</div>
                           <div id="sentence-translation-buttons-sentence-${sentence.id}"></div>`;
         // 原文の翻訳ボタン
         // const translationButtons = Sentence.createSentenceTranslationButtons(sentence);
@@ -70,7 +75,11 @@ export class Sentence {
         if (sentence.lang_number_of_original == sentence.lang_number_of_translation) {
             return '';
         }
-        return `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
+        let html = `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
+        if (sentence.ja_translation && sentence.ja_translation.trim() !== '') {
+            html += `<div class="diqt-dict-sentence-text">${sentence.ja_translation}</div>`;
+        }
+        return html;
     }
 
     // 例文の翻訳ボタンを表示するかどうか

@@ -6,19 +6,25 @@ const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
 const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
 const userLangNumber = locale == 'ja' ? 44 : 21;
 const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
+// 右横書きの言語番号
+const rtlLanguages = [4, 35, 72, 101];
 
 export class Word {
-
-
 
     // WordのHTMLを作成する
     static createWordHtml(word) {
         //const tags = createTagsHtml(word.tags);
         const wordURL = `${diqtUrl}/words/${word.id}`;
+        const isRtl = rtlLanguages.includes(word.lang_number_of_entry);
+        const rtlClass = isRtl ? 'diqt-dict-entry-rtl' : '';
+
         /* 見出し語 */
-        const entry = `<div class="diqt-dict-entry">
-                            <span>${word.entry}</span><button class="diqt-dict-speech-btn" value="${word.entry_audio_url}"><i class="fas fa-volume-up"></i></button>
-                        </div>`;
+        const entry = `<div class="diqt-dict-entry ${rtlClass}">
+            <span class="diqt-dict-entry-inner">
+                <span class="diqt-dict-entry-text">${word.entry}</span>
+                <button class="diqt-dict-speech-btn" value="${word.entry_audio_url}"><i class="fas fa-volume-up"></i></button>
+            </span>
+        </div>`;
         // 発音記号
         const pronunciation = Word.createPronunciation(word);
         // 品詞
