@@ -261,6 +261,12 @@ $box-border: #c5c3c3;
     font-weight: bold;
     margin: 8px 0 4px 4px;
     text-align: left;
+
+    &.diqt-dict-entry-rtl {
+      direction: rtl;
+      text-align: left; // entryが右寄せだと見にくいので、左寄せにする
+      unicode-bidi: bidi-override;
+    }
   }
 
   /* 見出しの読み上げボタン */
@@ -349,6 +355,12 @@ $box-border: #c5c3c3;
       margin-top: 8px;
       margin-bottom: 8px;
       text-align: left;
+
+      &.diqt-dict-sentence-rtl {
+        direction: rtl;
+        text-align: right;
+        unicode-bidi: bidi-override;
+      }
     }
 
     // 原文と翻訳のwrapper
@@ -680,6 +692,15 @@ $box-border: #c5c3c3;
     }
   }
 
+  .diqt-dict-entry-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
 
+  .diqt-dict-entry-rtl .diqt-dict-entry-inner {
+    direction: rtl;
+    flex-direction: row-reverse;
+  }
 
 }
