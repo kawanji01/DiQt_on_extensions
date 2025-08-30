@@ -1,7 +1,4 @@
-const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
-const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
-const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-const premiumPlanUrl = `${diqtUrl}/plans/premium`;
+import { PREMIUM_PLAN_URL } from './constants.js';
 
 export class Translator {
 
@@ -57,7 +54,7 @@ export class Translator {
                     <p class="diqt-translation-results">${data['translation']}</p>`;
                     googleTranslationForm.innerHTML = translation;
                 } else {
-                    googleTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
+                    googleTranslationForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
                 return true;
             });
@@ -79,7 +76,7 @@ export class Translator {
                     <p class="diqt-translation-results">${data['translation']}</p>`;
                     deeplTranslationForm.innerHTML = translation;
                 } else {
-                    deeplTranslationForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
+                    deeplTranslationForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
                 return true;
             });

@@ -1,8 +1,7 @@
 import { Word } from './word.js';
 import { Translator } from './translator.js';
 import { AISearcher } from './ai_searcher.js';
-
-const entryLimit = 50;
+import { ENTRY_LIMIT } from './constants.js';
 
 export class Searcher {
 
@@ -100,8 +99,8 @@ export class Searcher {
         Searcher.switchLoading();
         // キーワードが50文字以上なら50文字まで縮めてエンコードする。
         let encodedKeyword;
-        if (keyword.length > entryLimit) {
-            encodedKeyword = encodeURIComponent(keyword.slice(0, entryLimit));
+        if (keyword.length > ENTRY_LIMIT) {
+            encodedKeyword = encodeURIComponent(keyword.slice(0, ENTRY_LIMIT));
         } else {
             encodedKeyword = encodeURIComponent(keyword);
         }
@@ -185,7 +184,7 @@ export class Searcher {
             // 検索結果が見つからなかったり、検索文字数をオーバーした場合の処理
             let keyword = document.querySelector('#diqt-dict-search-keyword').textContent;
             keyword = keyword.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            if (keyword.length < entryLimit && keyword.length > 0) {
+            if (keyword.length < ENTRY_LIMIT && keyword.length > 0) {
                 resultForm.insertAdjacentHTML('beforeend', Word.notFoundFormHtml(keyword, dictionary));
             }
         }
