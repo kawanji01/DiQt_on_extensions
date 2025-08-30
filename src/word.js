@@ -1,7 +1,8 @@
 import { Review } from './review.js';
 import { Sentence } from './sentence.js';
 import { Translator } from './translator.js';
-import { LOCALE, USER_LANG_NUMBER, DIQT_URL, RTL_LANGUAGES } from './constants.js';
+import { Pos } from './pos.js';
+import { LOCALE, USER_LANG_NUMBER, DIQT_URL, RTL_LANGUAGES, LANG_CODE_MAP } from './constants.js';
 
 export class Word {
 
@@ -22,17 +23,23 @@ export class Word {
         // 発音記号
         const pronunciation = Word.createPronunciation(word);
         // 品詞
-        const pos = Word.createPos(word);
+        const pos = Pos.createPosHtml(word);
         // 日本語の意味（後方互換性のため両方のプロパティ名に対応）
         let meaningJaHtml = '';
         const meaningJaValue = word.meaning_ja || word.ja_meaning; // 新しいプロパティ名を優先、なければ旧プロパティ名を使用
-        if (meaningJaValue && meaningJaValue.trim() !== '') {
+        if (Word.getMeaningLangCode(word) !== 'ja' && meaningJaValue && meaningJaValue.trim() !== '') {
             meaningJaHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("jaMeaning")}</div><div class="diqt-dict-meaning">${meaningJaValue}</div>`;
+        }
+        // 英語の意味
+        let meaningEnHtml = '';
+        const meaningEnValue = word.meaning_en || word.en_meaning;
+        if (Word.getMeaningLangCode(word) !== 'en' && meaningEnValue && meaningEnValue.trim() !== '') {
+            meaningEnHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("enMeaning")}</div><div class="diqt-dict-meaning">${meaningEnValue}</div>`;
         }
 
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
-                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml;
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml + meaningEnHtml;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
@@ -64,29 +71,31 @@ export class Word {
         }
     }
 
-    // 品詞のhtmlを作成する
-    static createPos(word) {
-        let html = '';
-        // 品詞を追加
-        if (word.pos_tag != null) {
-            html += `<div class="diqt-item-label">${word.pos_tag.name}</div>`;
-        } else if (word.pos != null && word.pos != "") {
-            html += `<div class="diqt-item-label">${word.pos}</div>`;
-        }
-        // タグを追加
-        if (word.senses_tags && word.senses_tags.length > 0) {
-            word.senses_tags.forEach(tag => {
-                html += `<div class="diqt-item-label" style="background-color: #6e6e6e; color: white;">${tag}</div>`;
-            });
-        }
-        return html;
-    }
 
 
     //  意味の翻訳イベントを設定する。
     static setEventsToMeaningTranslation(word) {
         const buttons = document.getElementById(`meaning-translation-buttons-word-${word.id}`);
         Translator.addTranslationButtons(buttons, word.meaning, word.lang_number_of_meaning, USER_LANG_NUMBER);
+    }
+
+    // 言語番号から言語コードを取得する
+    static getLangCodeFromNumber(langNumber) {
+        // LANG_CODE_MAPを逆引きして言語コードを取得
+        for (const [langCode, number] of Object.entries(LANG_CODE_MAP)) {
+            if (number === langNumber) {
+                return langCode;
+            }
+        }
+        return 'undefined'; // 見つからない場合は'undefined'を返す
+    }
+
+    // wordの意味の言語コードを取得する
+    static getMeaningLangCode(word) {
+        if (!word || typeof word.lang_number_of_meaning === 'undefined') {
+            return 'undefined';
+        }
+        return Word.getLangCodeFromNumber(word.lang_number_of_meaning);
     }
 
 

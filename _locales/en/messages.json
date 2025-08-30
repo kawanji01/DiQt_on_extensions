@@ -256,9 +256,169 @@
         "message": "Japanese meaning",
         "description": "Words message"
     },
+    "enMeaning": {
+        "message": "English meaning",
+        "description": "Words message"
+    },
     "searchByWeb": {
         "message": "Search by web",
         "description": "Words message"
+    },
+    "posTag_abbrev": {
+        "message": "abbreviation",
+        "description": "POS tag"
+    },
+    "posTag_adj": {
+        "message": "adjective",
+        "description": "POS tag"
+    },
+    "posTag_adv": {
+        "message": "adverb",
+        "description": "POS tag"
+    },
+    "posTag_affix": {
+        "message": "affix",
+        "description": "POS tag"
+    },
+    "posTag_article": {
+        "message": "article",
+        "description": "POS tag"
+    },
+    "posTag_aux": {
+        "message": "auxiliary",
+        "description": "POS tag"
+    },
+    "posTag_character": {
+        "message": "character",
+        "description": "POS tag"
+    },
+    "posTag_circumfix": {
+        "message": "circumfix",
+        "description": "POS tag"
+    },
+    "posTag_circumpos": {
+        "message": "circumposition",
+        "description": "POS tag"
+    },
+    "posTag_classifier": {
+        "message": "classifier",
+        "description": "POS tag"
+    },
+    "posTag_combining_form": {
+        "message": "combining form",
+        "description": "POS tag"
+    },
+    "posTag_conj": {
+        "message": "conjunction",
+        "description": "POS tag"
+    },
+    "posTag_contraction": {
+        "message": "contraction",
+        "description": "POS tag"
+    },
+    "posTag_counter": {
+        "message": "counter",
+        "description": "POS tag"
+    },
+    "posTag_det": {
+        "message": "determiner",
+        "description": "POS tag"
+    },
+    "posTag_grammar": {
+        "message": "grammar",
+        "description": "POS tag"
+    },
+    "posTag_infix": {
+        "message": "infix",
+        "description": "POS tag"
+    },
+    "posTag_interfix": {
+        "message": "interfix",
+        "description": "POS tag"
+    },
+    "posTag_intj": {
+        "message": "interjection",
+        "description": "POS tag"
+    },
+    "posTag_name": {
+        "message": "proper noun",
+        "description": "POS tag"
+    },
+    "posTag_noun": {
+        "message": "noun",
+        "description": "POS tag"
+    },
+    "posTag_num": {
+        "message": "numeral",
+        "description": "POS tag"
+    },
+    "posTag_particle": {
+        "message": "particle",
+        "description": "POS tag"
+    },
+    "posTag_perp": {
+        "message": "preposition",
+        "description": "POS tag"
+    },
+    "posTag_phrase": {
+        "message": "phrase",
+        "description": "POS tag"
+    },
+    "posTag_postp": {
+        "message": "postposition",
+        "description": "POS tag"
+    },
+    "posTag_prefix": {
+        "message": "prefix",
+        "description": "POS tag"
+    },
+    "posTag_prep": {
+        "message": "preposition",
+        "description": "POS tag"
+    },
+    "posTag_prep_phrase": {
+        "message": "prepositional phrase",
+        "description": "POS tag"
+    },
+    "posTag_preverb": {
+        "message": "preverb",
+        "description": "POS tag"
+    },
+    "posTag_pron": {
+        "message": "pronoun",
+        "description": "POS tag"
+    },
+    "posTag_proverb": {
+        "message": "proverb",
+        "description": "POS tag"
+    },
+    "posTag_punct": {
+        "message": "punctuation",
+        "description": "POS tag"
+    },
+    "posTag_romanization": {
+        "message": "romanization",
+        "description": "POS tag"
+    },
+    "posTag_root": {
+        "message": "root",
+        "description": "POS tag"
+    },
+    "posTag_suffix": {
+        "message": "suffix",
+        "description": "POS tag"
+    },
+    "posTag_syllable": {
+        "message": "syllable",
+        "description": "POS tag"
+    },
+    "posTag_symbol": {
+        "message": "symbol",
+        "description": "POS tag"
+    },
+    "posTag_verb": {
+        "message": "verb",
+        "description": "POS tag"
     },
     "reviews": {
         "message": "Reviews",
