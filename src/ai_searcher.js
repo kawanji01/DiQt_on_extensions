@@ -1,9 +1,4 @@
-const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
-const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
-const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-const premiumPlanUrl = `${diqtUrl}/plans/premium`;
-
-const promptKeys = ['explain_meaning', 'explain_usage', 'explain_example', 'explain_synonym', 'explain_antonym', 'explain_conjugation', 'explain_etymology', 'explain_grammar', 'proofread_sentence'];
+import { PREMIUM_PLAN_URL, PROMPT_KEYS } from './constants.js';
 
 export class AISearcher {
 
@@ -12,8 +7,8 @@ export class AISearcher {
         chrome.storage.local.get(['selectedPromptKey'], function (result) {
             // selectedPromptKey がない場合は、explain_meaning を選択する。
             let selectedPromptKey = result.selectedPromptKey;
-            if (promptKeys.includes(selectedPromptKey) == false) {
-                selectedPromptKey = promptKeys[0];
+            if (PROMPT_KEYS.includes(selectedPromptKey) == false) {
+                selectedPromptKey = PROMPT_KEYS[0];
                 chrome.storage.local.set({ selectedPromptKey: selectedPromptKey });
             }
             const form = AISearcher.createOptionsHtml(selectedPromptKey);
@@ -50,7 +45,7 @@ export class AISearcher {
                     resultsForm.innerHTML = `<div id="diqt-dict-prompt-key">${chrome.i18n.getMessage(camelCaseKey)}:</div>
                                          <div id="diqt-dict-ai-search-results">${formattedResults}</div>`;
                 } else {
-                    resultsForm.innerHTML = `<a href="${premiumPlanUrl}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
+                    resultsForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
 
             });
@@ -59,7 +54,7 @@ export class AISearcher {
 
 
     static createOptionsHtml(selectedPromptKey) {
-        const options = promptKeys.map(key => AISearcher.optionHtml(key, selectedPromptKey)).join('');
+        const options = PROMPT_KEYS.map(key => AISearcher.optionHtml(key, selectedPromptKey)).join('');
         // 
         return `<div class="diqt-dict-select-form cp_sl01">
                     <select id="diqt-dict-prompt-select-form" required>

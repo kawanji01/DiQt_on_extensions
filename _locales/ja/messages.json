@@ -256,9 +256,169 @@
         "message": "日本語の意味",
         "description": "Words message"
     },
+    "enMeaning": {
+        "message": "英語の意味",
+        "description": "Words message"
+    },
     "searchByWeb": {
         "message": "Webで検索する",
         "description": "Words message"
+    },
+    "posTag_abbrev": {
+        "message": "略語",
+        "description": "POS tag"
+    },
+    "posTag_adj": {
+        "message": "形容詞",
+        "description": "POS tag"
+    },
+    "posTag_adv": {
+        "message": "副詞",
+        "description": "POS tag"
+    },
+    "posTag_affix": {
+        "message": "接辞",
+        "description": "POS tag"
+    },
+    "posTag_article": {
+        "message": "冠詞",
+        "description": "POS tag"
+    },
+    "posTag_aux": {
+        "message": "助動詞",
+        "description": "POS tag"
+    },
+    "posTag_character": {
+        "message": "文字",
+        "description": "POS tag"
+    },
+    "posTag_circumfix": {
+        "message": "接周辞",
+        "description": "POS tag"
+    },
+    "posTag_circumpos": {
+        "message": "接置詞",
+        "description": "POS tag"
+    },
+    "posTag_classifier": {
+        "message": "助数詞",
+        "description": "POS tag"
+    },
+    "posTag_combining_form": {
+        "message": "連結形",
+        "description": "POS tag"
+    },
+    "posTag_conj": {
+        "message": "接続詞",
+        "description": "POS tag"
+    },
+    "posTag_contraction": {
+        "message": "短縮形",
+        "description": "POS tag"
+    },
+    "posTag_counter": {
+        "message": "助数詞",
+        "description": "POS tag"
+    },
+    "posTag_det": {
+        "message": "限定詞",
+        "description": "POS tag"
+    },
+    "posTag_grammar": {
+        "message": "文法",
+        "description": "POS tag"
+    },
+    "posTag_infix": {
+        "message": "接中辞",
+        "description": "POS tag"
+    },
+    "posTag_interfix": {
+        "message": "接中辞",
+        "description": "POS tag"
+    },
+    "posTag_intj": {
+        "message": "感動詞",
+        "description": "POS tag"
+    },
+    "posTag_name": {
+        "message": "固有名詞",
+        "description": "POS tag"
+    },
+    "posTag_noun": {
+        "message": "名詞",
+        "description": "POS tag"
+    },
+    "posTag_num": {
+        "message": "数詞",
+        "description": "POS tag"
+    },
+    "posTag_particle": {
+        "message": "助詞",
+        "description": "POS tag"
+    },
+    "posTag_perp": {
+        "message": "前置詞",
+        "description": "POS tag"
+    },
+    "posTag_phrase": {
+        "message": "句",
+        "description": "POS tag"
+    },
+    "posTag_postp": {
+        "message": "後置詞",
+        "description": "POS tag"
+    },
+    "posTag_prefix": {
+        "message": "接頭辞",
+        "description": "POS tag"
+    },
+    "posTag_prep": {
+        "message": "前置詞",
+        "description": "POS tag"
+    },
+    "posTag_prep_phrase": {
+        "message": "前置詞句",
+        "description": "POS tag"
+    },
+    "posTag_preverb": {
+        "message": "動詞前綴",
+        "description": "POS tag"
+    },
+    "posTag_pron": {
+        "message": "代名詞",
+        "description": "POS tag"
+    },
+    "posTag_proverb": {
+        "message": "ことわざ",
+        "description": "POS tag"
+    },
+    "posTag_punct": {
+        "message": "句読点",
+        "description": "POS tag"
+    },
+    "posTag_romanization": {
+        "message": "ローマ字",
+        "description": "POS tag"
+    },
+    "posTag_root": {
+        "message": "語根",
+        "description": "POS tag"
+    },
+    "posTag_suffix": {
+        "message": "接尾辞",
+        "description": "POS tag"
+    },
+    "posTag_syllable": {
+        "message": "音節",
+        "description": "POS tag"
+    },
+    "posTag_symbol": {
+        "message": "記号",
+        "description": "POS tag"
+    },
+    "posTag_verb": {
+        "message": "動詞",
+        "description": "POS tag"
     },
     "reviews": {
         "message": "復習",

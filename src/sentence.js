@@ -1,13 +1,7 @@
 import { Word } from './word.js';
 import { Review } from './review.js';
 import { Translator } from './translator.js';
-
-const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
-const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
-const userLangNumber = locale == 'ja' ? 44 : 21;
-const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-// 右横書きの言語番号
-const rtlLanguages = [4, 35, 72, 101];
+import { USER_LANG_NUMBER, DIQT_URL, RTL_LANGUAGES, LANG_CODE_MAP } from './constants.js';
 
 
 export class Sentence {
@@ -22,7 +16,7 @@ export class Sentence {
         // 例文の復習ボタン
         const reviewBtn = Review.createSentenceReviewButtons(sentence);
         // 例文の編集ボタン
-        const sentenceUrl = `${diqtUrl}/sentences/${sentence.id}`
+        const sentenceUrl = `${DIQT_URL}/sentences/${sentence.id}`
         const linkToEditSentence = Word.liknToEditHtml(sentenceUrl, chrome.i18n.getMessage("editSentence"));
         // 例文のHTML
         const sentenceHtml = '<div class="diqt-dict-sentence-wrapper">' + contentHtml + reviewBtn + linkToEditSentence + '</div>';
@@ -35,11 +29,11 @@ export class Sentence {
             return false;
         }
         const buttons = document.getElementById(`sentence-translation-buttons-sentence-${sentence.id}`);
-        Translator.addTranslationButtons(buttons, sentence.original, sentence.lang_number_of_original, userLangNumber);
+        Translator.addTranslationButtons(buttons, sentence.original, sentence.lang_number_of_original, USER_LANG_NUMBER);
     }
 
     static createContentHtml(sentence) {
-        const isRtl = rtlLanguages.includes(sentence.lang_number_of_original);
+        const isRtl = RTL_LANGUAGES.includes(sentence.lang_number_of_original);
         const rtlClass = isRtl ? 'diqt-dict-sentence-rtl' : '';
 
         // 原文
@@ -76,10 +70,35 @@ export class Sentence {
             return '';
         }
         let html = `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
-        if (sentence.ja_translation && sentence.ja_translation.trim() !== '') {
-            html += `<div class="diqt-dict-sentence-text">${sentence.ja_translation}</div>`;
+        // 後方互換性のため両方のプロパティ名に対応
+        const jaTranslationValue = sentence.translation_ja || sentence.ja_translation; // 新しいプロパティ名を優先、なければ旧プロパティ名を使用
+        if (Sentence.getTranslationLangCode(sentence) !== 'ja' && jaTranslationValue && jaTranslationValue.trim() !== '') {
+            html += `<div class="diqt-dict-sentence-text">${jaTranslationValue}</div>`;
+        }
+        const enTranslationValue = sentence.translation_en || sentence.en_translation;
+        if (Sentence.getTranslationLangCode(sentence) !== 'en' && enTranslationValue && enTranslationValue.trim() !== '') {
+            html += `<div class="diqt-dict-sentence-text">${enTranslationValue}</div>`;
         }
         return html;
+    }
+
+    // 言語番号から言語コードを取得する
+    static getLangCodeFromNumber(langNumber) {
+        // LANG_CODE_MAPを逆引きして言語コードを取得
+        for (const [langCode, number] of Object.entries(LANG_CODE_MAP)) {
+            if (number === langNumber) {
+                return langCode;
+            }
+        }
+        return 'undefined'; // 見つからない場合は'undefined'を返す
+    }
+
+    // sentenceの翻訳の言語コードを取得する
+    static getTranslationLangCode(sentence) {
+        if (!sentence || typeof sentence.lang_number_of_translation === 'undefined') {
+            return 'undefined';
+        }
+        return Sentence.getLangCodeFromNumber(sentence.lang_number_of_translation);
     }
 
     // 例文の翻訳ボタンを表示するかどうか
@@ -87,11 +106,11 @@ export class Sentence {
         if (sentence == null) {
             return false;
         }
-        if (sentence.lang_number_of_original == userLangNumber) {
+        if (sentence.lang_number_of_original == USER_LANG_NUMBER) {
             return false;
         }
         // バイリンガル辞書であり、かつ、翻訳文の言語がユーザーの言語と同じであった場合は、翻訳ボタンを表示しない。
-        if (sentence.lang_number_of_original != sentence.lang_number_of_translation && sentence.lang_number_of_translation == userLangNumber) {
+        if (sentence.lang_number_of_original != sentence.lang_number_of_translation && sentence.lang_number_of_translation == USER_LANG_NUMBER) {
             return false;
         }
         return true;

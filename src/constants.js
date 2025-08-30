@@ -1,0 +1,151 @@
+// ユーザー言語設定
+export const USER_LANGUAGE = chrome.i18n.getUILanguage().split("-")[0];
+export const LOCALE = ['ja', 'en'].includes(USER_LANGUAGE) ? USER_LANGUAGE : 'ja';
+export const USER_LANG_NUMBER = LOCALE === 'ja' ? 44 : 21;
+
+// URL設定
+export const DIQT_URL = `${process.env.ROOT_URL}/${LOCALE}`;
+export const PREMIUM_PLAN_URL = `${DIQT_URL}/plans/premium`;
+
+// API設定（background.jsでのみ使用）
+export const API_KEY = process.env.API_KEY;
+export const SECRET_KEY = process.env.SECRET_KEY;
+export const BASIC_AUTH = "Basic " + btoa(unescape(encodeURIComponent(API_KEY + ":" + SECRET_KEY)));
+
+// 言語設定
+export const RTL_LANGUAGES = [4, 35, 72, 101];
+
+// 検索設定
+export const ENTRY_LIMIT = 50;
+
+// AIプロンプトキー
+export const PROMPT_KEYS = [
+    'explain_meaning',
+    'explain_usage',
+    'explain_example',
+    'explain_synonym',
+    'explain_antonym',
+    'explain_conjugation',
+    'explain_etymology',
+    'explain_grammar',
+    'proofread_sentence'
+];
+
+// 言語コードマップ
+export const LANG_CODE_MAP = {
+    'undefined': 0,
+    'af': 1,
+    'sq': 2,
+    'am': 3,
+    'ar': 4,
+    'hy': 5,
+    'az': 6,
+    'eu': 7,
+    'be': 8,
+    'bn': 9,
+    'bs': 10,
+    'bg': 11,
+    'ca': 12,
+    'ceb': 13,
+    'zh': 110,
+    'zh-CN': 14,
+    'zh-Hans': 14,
+    'zh-TW': 15,
+    'zh-Hant': 15,
+    'co': 16,
+    'hr': 17,
+    'cs': 18,
+    'da': 19,
+    'nl': 20,
+    'en': 21,
+    'eo': 22,
+    'et': 23,
+    'fi': 24,
+    'fr': 25,
+    'fy': 26,
+    'gl': 27,
+    'ka': 28,
+    'de': 29,
+    'el': 30,
+    'gu': 31,
+    'ht': 32,
+    'ha': 33,
+    'haw': 34,
+    'he': 35,
+    'iw': 35,
+    'hi': 36,
+    'hmn': 37,
+    'hu': 38,
+    'is': 39,
+    'ig': 40,
+    'id': 41,
+    'ga': 42,
+    'it': 43,
+    'ja': 44,
+    'jv': 45,
+    'kn': 46,
+    'kk': 47,
+    'km': 48,
+    'rw': 49,
+    'ko': 50,
+    'ku': 51,
+    'ky': 52,
+    'lo': 53,
+    'la': 54,
+    'lv': 55,
+    'lt': 56,
+    'lb': 57,
+    'mk': 58,
+    'mg': 59,
+    'ms': 60,
+    'ml': 61,
+    'mt': 62,
+    'mi': 63,
+    'mr': 64,
+    'mn': 65,
+    'my': 66,
+    'ne': 67,
+    'no': 68,
+    'ny': 69,
+    'or': 70,
+    'ps': 71,
+    'fa': 72,
+    'pl': 73,
+    'pt': 74,
+    'pa': 75,
+    'ro': 76,
+    'ru': 77,
+    'sm': 78,
+    'gd': 79,
+    'sr': 80,
+    'st': 81,
+    'sn': 82,
+    'sd': 83,
+    'si': 84,
+    'sk': 85,
+    'sl': 86,
+    'so': 87,
+    'es': 88,
+    'su': 89,
+    'sw': 90,
+    'sv': 91,
+    'tl': 92,
+    'fil': 92,
+    'tg': 93,
+    'ta': 94,
+    'tt': 95,
+    'te': 96,
+    'th': 97,
+    'tr': 98,
+    'tk': 99,
+    'uk': 100,
+    'ur': 101,
+    'ug': 102,
+    'uz': 103,
+    'vi': 104,
+    'cy': 105,
+    'xh': 106,
+    'yi': 107,
+    'yo': 108,
+    'zu': 109
+};

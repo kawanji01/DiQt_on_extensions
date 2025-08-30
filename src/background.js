@@ -1,11 +1,6 @@
 // diqtのルートURLの設定。ngrokを利用する場合には、こことoptions.jsの定数をngrokのURLに書き換える。
 
-const userLanguage = chrome.i18n.getUILanguage().split("-")[0];
-const locale = ['ja', 'en'].includes(userLanguage) ? userLanguage : 'ja';
-const diqtUrl = `${process.env.ROOT_URL}/${locale}`;
-const apiKey = process.env.API_KEY;
-const secret = process.env.SECRET_KEY;
-const basicAuth = "Basic " + btoa(unescape(encodeURIComponent(apiKey + ":" + secret)));
+import { DIQT_URL, BASIC_AUTH } from './constants.js';
 
 
 // 辞書ウィンドウを開くために、アイコンが押されたことを、現在開いているタブのcontents_scriptsに伝える。（manifest 3では書き方が変わっている）：参照：https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#action-api-unification
@@ -72,7 +67,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 ///////// 現在のユーザーを取得する ///////
 function fetchCurrentUser() {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/users/current`;
+        const url = `${DIQT_URL}/api/v1/extensions/users/current`;
         const params = {
             method: "GET",
             mode: 'cors',
@@ -80,7 +75,7 @@ function fetchCurrentUser() {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -130,7 +125,7 @@ async function inspectCurrentUser(port) {
 /////// 復習設定の新規作成 ///////
 function postCreateReview(quizId) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/reviews`;
+        const url = `${DIQT_URL}/api/v1/extensions/reviews`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -139,7 +134,7 @@ function postCreateReview(quizId) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -166,7 +161,7 @@ async function respondCreateReview(port, quizId) {
 /////// 復習設定の更新 ///////
 function postUpdateReview(reviewId, settingNumber) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
+        const url = `${DIQT_URL}/api/v1/extensions/reviews/${reviewId}`;
         const params = {
             method: "PATCH",
             mode: 'cors',
@@ -175,7 +170,7 @@ function postUpdateReview(reviewId, settingNumber) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -202,7 +197,7 @@ async function respondUpdateReview(port, quizId, settingNumber) {
 ////// 復習設定の削除 ///////
 function requestDestroyReview(reviewId) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/reviews/${reviewId}`;
+        const url = `${DIQT_URL}/api/v1/extensions/reviews/${reviewId}`;
         const params = {
             method: "DELETE",
             mode: 'cors',
@@ -210,7 +205,7 @@ function requestDestroyReview(reviewId) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -239,7 +234,7 @@ async function respondDestroyReview(port, reviewId) {
 // 意味や例文の翻訳を取得する
 function requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/langs/google_translate`;
+        const url = `${DIQT_URL}/api/v1/extensions/langs/google_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -251,7 +246,7 @@ function requestGoogleTranslation(keyword, sourceLangNumber, targetLangNumber) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -281,7 +276,7 @@ async function respondGoogleTranslation(port, keyword, sourceLangNumber, targetL
 // 意味や例文の翻訳を取得する
 function requestDeeplTranslation(keyword, sourceLangNumber, targetLangNumber) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/langs/deepl_translate`;
+        const url = `${DIQT_URL}/api/v1/extensions/langs/deepl_translate`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -293,7 +288,7 @@ function requestDeeplTranslation(keyword, sourceLangNumber, targetLangNumber) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -324,7 +319,7 @@ async function respondAISearch(port, keyword, sourceLangNumber, targetLangNumber
 }
 function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/langs/ai_search`;
+        const url = `${DIQT_URL}/api/v1/extensions/langs/ai_search`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -333,7 +328,7 @@ function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey,
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
@@ -355,7 +350,7 @@ function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey,
 ////// 検索 //////
 function requestSearch(keyword, dictionaryId) {
     return new Promise(resolve => {
-        const url = `${diqtUrl}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
+        const url = `${DIQT_URL}/api/v1/extensions/dictionaries/${dictionaryId}/search`;
         const params = {
             method: "POST",
             mode: 'cors',
@@ -364,7 +359,7 @@ function requestSearch(keyword, dictionaryId) {
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                'authorization': basicAuth,
+                'authorization': BASIC_AUTH,
             }
         };
         fetch(url, params)
