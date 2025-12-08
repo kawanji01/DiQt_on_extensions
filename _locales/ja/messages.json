@@ -272,6 +272,38 @@
         "message": "英語の意味",
         "description": "Words message"
     },
+    "reading": {
+        "message": "読み",
+        "description": "Words message"
+    },
+    "ipa": {
+        "message": "IPA",
+        "description": "Words message"
+    },
+    "hiragana": {
+        "message": "ひらがな",
+        "description": "Words message"
+    },
+    "kanji": {
+        "message": "漢字",
+        "description": "Words message"
+    },
+    "onyomi": {
+        "message": "音読み",
+        "description": "Words message"
+    },
+    "kunyomi": {
+        "message": "訓読み",
+        "description": "Words message"
+    },
+    "pinyin": {
+        "message": "ピンイン",
+        "description": "Words message"
+    },
+    "jyutping": {
+        "message": "粤拼",
+        "description": "Words message"
+    },
     "searchByWeb": {
         "message": "Webで検索する",
         "description": "Words message"

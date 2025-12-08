@@ -272,6 +272,38 @@
         "message": "English meaning",
         "description": "Words message"
     },
+    "reading": {
+        "message": "Reading",
+        "description": "Words message"
+    },
+    "ipa": {
+        "message": "IPA",
+        "description": "Words message"
+    },
+    "hiragana": {
+        "message": "Hiragana",
+        "description": "Words message"
+    },
+    "kanji": {
+        "message": "Kanji",
+        "description": "Words message"
+    },
+    "onyomi": {
+        "message": "Onyomi",
+        "description": "Words message"
+    },
+    "kunyomi": {
+        "message": "Kunyomi",
+        "description": "Words message"
+    },
+    "pinyin": {
+        "message": "Pinyin",
+        "description": "Words message"
+    },
+    "jyutping": {
+        "message": "Jyutping",
+        "description": "Words message"
+    },
     "searchByWeb": {
         "message": "Search by web",
         "description": "Words message"

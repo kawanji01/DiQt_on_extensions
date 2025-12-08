@@ -293,6 +293,20 @@ $box-border: #c5c3c3;
     text-align: left;
   }
 
+  .diqt-dict-reading-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 2px 0 6px 0;
+  }
+
+  .diqt-dict-reading-value {
+    color: $brand-green;
+    font-size: 12px;
+    margin-right: 6px;
+  }
+
   // Posラベル
   .diqt-item-label {
     display: inline-block;

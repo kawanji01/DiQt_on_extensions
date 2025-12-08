@@ -59,16 +59,58 @@ export class Word {
 
     // 発音記号 / 読み
     static createPronunciation(word) {
-        if (word.lang_number_of_entry == 44) {
-            // 日本語なら読みを表示する
-            return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
-        } else {
-            if (word.ipa != null) {
-                return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
-            } else {
-                return '';
+        const langCode = word.lang_code_of_entry || Word.getLangCodeFromNumber(word.lang_number_of_entry);
+        const readingRows = [];
+        const hasContent = (value) => value !== undefined && value !== null && `${value}`.trim() !== '';
+        const labelText = (key, fallback) => chrome.i18n.getMessage(key) || fallback;
+        const appendRow = (items) => {
+            const rowItems = items
+                .filter(item => item && hasContent(item.value))
+                .map(item => `<span class="diqt-item-label">${item.label}</span><span class="diqt-dict-reading-value">${item.value}</span>`);
+            if (rowItems.length > 0) {
+                readingRows.push(`<div class="diqt-dict-reading-row">${rowItems.join('')}</div>`);
             }
+        };
+
+        if (langCode === 'ja') {
+            if (Word.isCharacterPos(word)) {
+                appendRow([
+                    hasContent(word.onyomi) ? { label: labelText('onyomi', 'Onyomi'), value: word.onyomi } : null,
+                    hasContent(word.kunyomi) ? { label: labelText('kunyomi', 'Kunyomi'), value: word.kunyomi } : null
+                ]);
+            } else {
+                appendRow([
+                    hasContent(word.hiragana) && word.entry !== word.hiragana ? { label: labelText('hiragana', 'Hiragana'), value: word.hiragana } : null,
+                    hasContent(word.kanji) && word.entry !== word.kanji ? { label: labelText('kanji', 'Kanji'), value: word.kanji } : null
+                ]);
+            }
+        } else if (hasContent(word.reading) && word.reading !== word.entry) {
+            appendRow([{ label: labelText('reading', 'Reading'), value: word.reading }]);
+        } else if (hasContent(word.ipa)) {
+            appendRow([{ label: labelText('ipa', 'IPA'), value: word.ipa }]);
         }
+
+        if (hasContent(word.pinyin)) {
+            appendRow([{ label: labelText('pinyin', 'Pinyin'), value: word.pinyin }]);
+        }
+        if (hasContent(word.jyutping)) {
+            appendRow([{ label: labelText('jyutping', 'Jyutping'), value: word.jyutping }]);
+        }
+
+        if (readingRows.length === 0) {
+            return '';
+        }
+
+        return `<div class="diqt-dict-pronunciation">${readingRows.join('')}</div>`;
+    }
+
+    static isCharacterPos(word) {
+        if (!word) return false;
+        if (word.pos === 'character') return true;
+        if (word.pos_tag && (word.pos_tag.universal_name === 'character' || word.pos_tag.name === 'character')) {
+            return true;
+        }
+        return false;
     }
 
 
