@@ -159,8 +159,16 @@
         "message": "What does it mean?",
         "description": "AISearch scripts message"
     },
+    "explainPronunciation": {
+        "message": "Please explain the pronunciation.",
+        "description": "AISearch scripts message"
+    },
     "explainUsage": {
         "message": "Please explain the usage.",
+        "description": "AISearch scripts message"
+    },
+    "explainWordForms": {
+        "message": "Please explain the word forms.",
         "description": "AISearch scripts message"
     },
     "explainExample": {
@@ -181,6 +189,10 @@
     },
     "explainEtymology": {
         "message": "Please explain the etymology.",
+        "description": "AISearch scripts message"
+    },
+    "explainInDetail": {
+        "message": "Please explain in detail.",
         "description": "AISearch scripts message"
     },
     "explainGrammar": {

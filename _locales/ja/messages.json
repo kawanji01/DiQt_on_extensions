@@ -159,8 +159,16 @@
         "message": "意味を教えてください",
         "description": "AISearch scripts message"
     },
+    "explainPronunciation": {
+        "message": "発音を教えてください",
+        "description": "AISearch scripts message"
+    },
     "explainUsage": {
         "message": "用法を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainWordForms": {
+        "message": "語形を教えてください",
         "description": "AISearch scripts message"
     },
     "explainExample": {
@@ -181,6 +189,10 @@
     },
     "explainEtymology": {
         "message": "語源を教えてください",
+        "description": "AISearch scripts message"
+    },
+    "explainInDetail": {
+        "message": "詳しく解説してください",
         "description": "AISearch scripts message"
     },
     "explainGrammar": {
