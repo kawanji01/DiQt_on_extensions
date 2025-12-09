@@ -25,6 +25,10 @@ export class Word {
         // 品詞
         const pos = Pos.createPosHtml(word);
         // 日本語の意味（後方互換性のため両方のプロパティ名に対応）
+        let meaningEasyJaHtml = '';
+        if (word.meaning_easy_ja && word.meaning_easy_ja.trim() !== '') {
+            meaningEasyJaHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("easyJaMeaning")}</div><div class="diqt-dict-meaning">${Word.markNotation(word.meaning_easy_ja)}</div>`;
+        }
         let meaningJaHtml = '';
         const meaningJaValue = word.meaning_ja || word.ja_meaning; // 新しいプロパティ名を優先、なければ旧プロパティ名を使用
         if (Word.getMeaningLangCode(word) !== 'ja' && meaningJaValue && meaningJaValue.trim() !== '') {
@@ -39,7 +43,7 @@ export class Word {
 
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
-                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml + meaningEnHtml;
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml + meaningEasyJaHtml + meaningEnHtml;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
@@ -66,7 +70,7 @@ export class Word {
         const appendRow = (items) => {
             const rowItems = items
                 .filter(item => item && hasContent(item.value))
-                .map(item => `<span class="diqt-item-label">${item.label}</span><span class="diqt-dict-reading-value">${item.value}</span>`);
+                .map(item => `<span class="diqt-dict-reading-label">${item.label}</span><span class="diqt-dict-reading-value">${item.value}</span>`);
             if (rowItems.length > 0) {
                 readingRows.push(`<div class="diqt-dict-reading-row">${rowItems.join('')}</div>`);
             }

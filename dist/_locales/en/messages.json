@@ -159,8 +159,16 @@
         "message": "What does it mean?",
         "description": "AISearch scripts message"
     },
+    "explainPronunciation": {
+        "message": "Please explain the pronunciation.",
+        "description": "AISearch scripts message"
+    },
     "explainUsage": {
         "message": "Please explain the usage.",
+        "description": "AISearch scripts message"
+    },
+    "explainWordForms": {
+        "message": "Please explain the word forms.",
         "description": "AISearch scripts message"
     },
     "explainExample": {
@@ -181,6 +189,10 @@
     },
     "explainEtymology": {
         "message": "Please explain the etymology.",
+        "description": "AISearch scripts message"
+    },
+    "explainInDetail": {
+        "message": "Please explain in detail.",
         "description": "AISearch scripts message"
     },
     "explainGrammar": {
@@ -258,6 +270,42 @@
     },
     "enMeaning": {
         "message": "English meaning",
+        "description": "Words message"
+    },
+    "easyJaMeaning": {
+        "message": "Easy Japanese meaning",
+        "description": "Words message"
+    },
+    "reading": {
+        "message": "Reading",
+        "description": "Words message"
+    },
+    "ipa": {
+        "message": "IPA",
+        "description": "Words message"
+    },
+    "hiragana": {
+        "message": "Hiragana",
+        "description": "Words message"
+    },
+    "kanji": {
+        "message": "Kanji",
+        "description": "Words message"
+    },
+    "onyomi": {
+        "message": "Onyomi",
+        "description": "Words message"
+    },
+    "kunyomi": {
+        "message": "Kunyomi",
+        "description": "Words message"
+    },
+    "pinyin": {
+        "message": "Pinyin",
+        "description": "Words message"
+    },
+    "jyutping": {
+        "message": "Jyutping",
         "description": "Words message"
     },
     "searchByWeb": {

@@ -297,13 +297,25 @@ $box-border: #c5c3c3;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     margin: 2px 0 6px 0;
+  }
+
+  .diqt-dict-reading-label {
+    display: inline-block;
+    color: $text-black;
+    font-size: 10px;
+    border: 1px solid #c5c3c3;
+    border-radius: 6px;
+    padding: 2px 6px;
+    background-color: #fff;
+    line-height: 1.2;
   }
 
   .diqt-dict-reading-value {
     color: $brand-green;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
     margin-right: 6px;
   }
 
@@ -369,6 +381,11 @@ $box-border: #c5c3c3;
       margin-top: 8px;
       margin-bottom: 8px;
       text-align: left;
+
+      a {
+        color: $text-black;
+        text-decoration: none;
+      }
 
       &.diqt-dict-sentence-rtl {
         direction: rtl;

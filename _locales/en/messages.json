@@ -272,6 +272,10 @@
         "message": "English meaning",
         "description": "Words message"
     },
+    "easyJaMeaning": {
+        "message": "Easy Japanese meaning",
+        "description": "Words message"
+    },
     "reading": {
         "message": "Reading",
         "description": "Words message"
