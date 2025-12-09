@@ -69,10 +69,13 @@ export class Sentence {
         if (sentence.lang_number_of_original == sentence.lang_number_of_translation) {
             return '';
         }
+        const originalLangCode = Sentence.getLangCodeFromNumber(sentence.lang_number_of_original);
         let html = `<div class="diqt-dict-sentence-text">${sentence.translation}</div>`;
         // 後方互換性のため両方のプロパティ名に対応
         const jaTranslationValue = sentence.translation_ja || sentence.ja_translation; // 新しいプロパティ名を優先、なければ旧プロパティ名を使用
-        if (Sentence.getTranslationLangCode(sentence) !== 'ja' && jaTranslationValue && jaTranslationValue.trim() !== '') {
+        if (Sentence.getTranslationLangCode(sentence) !== 'ja'
+            && originalLangCode !== 'ja'
+            && jaTranslationValue && jaTranslationValue.trim() !== '') {
             html += `<div class="diqt-dict-sentence-text">${jaTranslationValue}</div>`;
         }
         const enTranslationValue = sentence.translation_en || sentence.en_translation;

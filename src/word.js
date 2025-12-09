@@ -25,6 +25,10 @@ export class Word {
         // 品詞
         const pos = Pos.createPosHtml(word);
         // 日本語の意味（後方互換性のため両方のプロパティ名に対応）
+        let meaningEasyJaHtml = '';
+        if (word.meaning_easy_ja && word.meaning_easy_ja.trim() !== '') {
+            meaningEasyJaHtml = `<div class="diqt-item-label" style="margin-top: 8px;">${chrome.i18n.getMessage("easyJaMeaning")}</div><div class="diqt-dict-meaning">${Word.markNotation(word.meaning_easy_ja)}</div>`;
+        }
         let meaningJaHtml = '';
         const meaningJaValue = word.meaning_ja || word.ja_meaning; // 新しいプロパティ名を優先、なければ旧プロパティ名を使用
         if (Word.getMeaningLangCode(word) !== 'ja' && meaningJaValue && meaningJaValue.trim() !== '') {
@@ -39,7 +43,7 @@ export class Word {
 
         /* 意味 */
         const meaning = `<div class="diqt-dict-meaning">${Word.markNotation(word.meaning)}</div>
-                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml + meaningEnHtml;
+                        <div id="meaning-translation-buttons-word-${word.id}"></div>` + meaningJaHtml + meaningEasyJaHtml + meaningEnHtml;
         /* 復習ボタン */
         const reviewButtons = Review.createWordReviewButtons(word);
         /* 例文 */
@@ -59,16 +63,58 @@ export class Word {
 
     // 発音記号 / 読み
     static createPronunciation(word) {
-        if (word.lang_number_of_entry == 44) {
-            // 日本語なら読みを表示する
-            return `<div class="diqt-dict-pronunciation">${word.reading}</div>`;
-        } else {
-            if (word.ipa != null) {
-                return `<div class="diqt-dict-pronunciation">${word.ipa}</div>`;
-            } else {
-                return '';
+        const langCode = word.lang_code_of_entry || Word.getLangCodeFromNumber(word.lang_number_of_entry);
+        const readingRows = [];
+        const hasContent = (value) => value !== undefined && value !== null && `${value}`.trim() !== '';
+        const labelText = (key, fallback) => chrome.i18n.getMessage(key) || fallback;
+        const appendRow = (items) => {
+            const rowItems = items
+                .filter(item => item && hasContent(item.value))
+                .map(item => `<span class="diqt-dict-reading-label">${item.label}</span><span class="diqt-dict-reading-value">${item.value}</span>`);
+            if (rowItems.length > 0) {
+                readingRows.push(`<div class="diqt-dict-reading-row">${rowItems.join('')}</div>`);
             }
+        };
+
+        if (langCode === 'ja') {
+            if (Word.isCharacterPos(word)) {
+                appendRow([
+                    hasContent(word.onyomi) ? { label: labelText('onyomi', 'Onyomi'), value: word.onyomi } : null,
+                    hasContent(word.kunyomi) ? { label: labelText('kunyomi', 'Kunyomi'), value: word.kunyomi } : null
+                ]);
+            } else {
+                appendRow([
+                    hasContent(word.hiragana) && word.entry !== word.hiragana ? { label: labelText('hiragana', 'Hiragana'), value: word.hiragana } : null,
+                    hasContent(word.kanji) && word.entry !== word.kanji ? { label: labelText('kanji', 'Kanji'), value: word.kanji } : null
+                ]);
+            }
+        } else if (hasContent(word.reading) && word.reading !== word.entry) {
+            appendRow([{ label: labelText('reading', 'Reading'), value: word.reading }]);
+        } else if (hasContent(word.ipa)) {
+            appendRow([{ label: labelText('ipa', 'IPA'), value: word.ipa }]);
         }
+
+        if (hasContent(word.pinyin)) {
+            appendRow([{ label: labelText('pinyin', 'Pinyin'), value: word.pinyin }]);
+        }
+        if (hasContent(word.jyutping)) {
+            appendRow([{ label: labelText('jyutping', 'Jyutping'), value: word.jyutping }]);
+        }
+
+        if (readingRows.length === 0) {
+            return '';
+        }
+
+        return `<div class="diqt-dict-pronunciation">${readingRows.join('')}</div>`;
+    }
+
+    static isCharacterPos(word) {
+        if (!word) return false;
+        if (word.pos === 'character') return true;
+        if (word.pos_tag && (word.pos_tag.universal_name === 'character' || word.pos_tag.name === 'character')) {
+            return true;
+        }
+        return false;
     }
 
 
