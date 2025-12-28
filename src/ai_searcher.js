@@ -31,23 +31,66 @@ export class AISearcher {
             const resultsForm = document.querySelector('#diqt-dict-ai-search-results');
             resultsForm.innerHTML = `<div class="center"><div class="lds-ripple-diqt-dict"><div></div><div></div></div></div>`;
             const port = chrome.runtime.connect({ name: "aiSearch" });
-            port.postMessage({ action: "aiSearch", keyword: keyword, sourceLangNumber: dictionary.lang_number_of_entry, targetLangNumber: dictionary.lang_number_of_meaning, promptKey: promptKey, version: 3 });
-            port.onMessage.addListener(function (msg) {
-                // ボタンを有効化
+            port.postMessage({
+                action: "aiSearch",
+                keyword: keyword,
+                sourceLangNumber: dictionary.lang_number_of_entry,
+                targetLangNumber: dictionary.lang_number_of_meaning,
+                promptKey: promptKey,
+                version: 4,
+                streaming: 1
+            });
+
+            let resultsText = '';
+            let resultsBody = null;
+            let finished = false;
+
+            const finishRequest = function () {
+                if (finished) {
+                    return;
+                }
+                finished = true;
                 submitButton.disabled = false;
                 submitButton.textContent = chrome.i18n.getMessage('askAI');
-                const data = msg['data'];
-                if (data['status'] == "200") {
-                    const ai_searcher = data.ai_searcher;
-                    const results = ai_searcher.results;
-                    const formattedResults = results.replace(/\n/g, '<br>');
-                    const camelCaseKey = AISearcher.camelCase(promptKey);
-                    resultsForm.innerHTML = `<div id="diqt-dict-prompt-key">${chrome.i18n.getMessage(camelCaseKey)}:</div>
-                                         <div id="diqt-dict-ai-search-results">${formattedResults}</div>`;
-                } else {
-                    resultsForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
-                }
+                port.disconnect();
+            };
 
+            const ensureResultsBody = function () {
+                if (resultsBody) {
+                    return resultsBody;
+                }
+                resultsBody = AISearcher.renderResultsContainer(resultsForm, promptKey);
+                return resultsBody;
+            };
+
+            const renderStreamedResults = function () {
+                const formattedResults = AISearcher.formatResults(resultsText);
+                ensureResultsBody().innerHTML = formattedResults;
+            };
+
+            port.onMessage.addListener(function (msg) {
+                const data = msg['data'];
+                if (data && Object.prototype.hasOwnProperty.call(data, 'delta')) {
+                    resultsText += String(data.delta);
+                    renderStreamedResults();
+                    return true;
+                }
+                if (data && data.done) {
+                    finishRequest();
+                    return true;
+                }
+                if (data && (data['status'] == "200" || data['status'] == 200)) {
+                    const ai_searcher = data.ai_searcher;
+                    const results = ai_searcher && ai_searcher.results ? ai_searcher.results : '';
+                    resultsText = String(results);
+                    renderStreamedResults();
+                    finishRequest();
+                    return true;
+                }
+                const errorMessage = data && data['message'] ? data['message'] : chrome.i18n.getMessage('statusError');
+                resultsForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${errorMessage}</a>`;
+                finishRequest();
+                return true;
             });
         });
     }
@@ -69,6 +112,28 @@ export class AISearcher {
     static optionHtml(promptKey, selectedPromptKey) {
         const camelCaseKey = AISearcher.camelCase(promptKey);
         return `<option value="${promptKey}" ${selectedPromptKey == promptKey ? 'selected' : ''}>${chrome.i18n.getMessage(camelCaseKey)}</option>`;
+    }
+
+    static renderResultsContainer(resultsForm, promptKey) {
+        const camelCaseKey = AISearcher.camelCase(promptKey);
+        resultsForm.innerHTML = `<div id="diqt-dict-prompt-key">${chrome.i18n.getMessage(camelCaseKey)}:</div>
+                                 <div class="diqt-dict-ai-search-results-text"></div>`;
+        return resultsForm.querySelector('.diqt-dict-ai-search-results-text');
+    }
+
+    static formatResults(results) {
+        const normalized = AISearcher.escapeHtml(String(results));
+        const withBold = normalized.replace(/\*\*(.+?)\*\*/g, '<span class="diqt-dict-ai-search-bold">$1</span>');
+        return withBold.replace(/\n/g, '<br>');
+    }
+
+    static escapeHtml(value) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     static camelCase(promptKey) {

@@ -250,6 +250,14 @@ $box-border: #c5c3c3;
     text-align: left;
     color: $text-black;
     font-size: 14px;
+
+    .diqt-dict-ai-search-results-text {
+      font-weight: normal;
+    }
+
+    .diqt-dict-ai-search-bold {
+      font-weight: bold;
+    }
   }
 
 
