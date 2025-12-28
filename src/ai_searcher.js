@@ -122,7 +122,18 @@ export class AISearcher {
     }
 
     static formatResults(results) {
-        return results.replace(/\n/g, '<br>');
+        const normalized = AISearcher.escapeHtml(String(results));
+        const withBold = normalized.replace(/\*\*(.+?)\*\*/g, '<span class="diqt-dict-ai-search-bold">$1</span>');
+        return withBold.replace(/\n/g, '<br>');
+    }
+
+    static escapeHtml(value) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     static camelCase(promptKey) {
