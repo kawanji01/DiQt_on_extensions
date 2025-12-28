@@ -58,7 +58,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                 respondDeepLTranslation(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber);
                 break;
             case 'aiSearch':
-                respondAISearch(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber, msg.promptKey, msg.version);
+                respondAISearch(port, msg.keyword, msg.sourceLangNumber, msg.targetLangNumber, msg.promptKey, msg.version, msg.streaming);
                 break;
         }
     })
@@ -313,8 +313,14 @@ async function respondDeepLTranslation(port, keyword, sourceLangNumber, targetLa
 ///// Deepl翻訳 /////
 
 ////// AI検索 //////
-async function respondAISearch(port, keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
-    const data = await requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, version);
+async function respondAISearch(port, keyword, sourceLangNumber, targetLangNumber, promptKey, version, streaming) {
+    const versionNumber = Number(version) || 0;
+    const useStreaming = streaming === 1 || streaming === '1' || versionNumber >= 4;
+    if (useStreaming) {
+        await streamAISearch(port, keyword, sourceLangNumber, targetLangNumber, promptKey, versionNumber);
+        return;
+    }
+    const data = await requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, versionNumber);
     port.postMessage({ data: data });
 }
 function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
@@ -345,6 +351,104 @@ function requestAISearch(keyword, sourceLangNumber, targetLangNumber, promptKey,
     });
 }
 
+async function streamAISearch(port, keyword, sourceLangNumber, targetLangNumber, promptKey, version) {
+    const url = `${DIQT_URL}/api/v1/extensions/langs/ai_search`;
+    const params = {
+        method: "POST",
+        mode: 'cors',
+        credentials: 'include',
+        body: JSON.stringify({
+            keyword: keyword,
+            source_lang_number: sourceLangNumber,
+            target_lang_number: targetLangNumber,
+            prompt_key: promptKey,
+            version: version,
+            streaming: 1
+        }),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'authorization': BASIC_AUTH,
+            'Accept': 'text/event-stream'
+        }
+    };
+
+    let response;
+    try {
+        response = await fetch(url, params);
+    } catch (error) {
+        port.postMessage({ data: { status: 500, message: error.message } });
+        return;
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!response.ok || !contentType.includes('text/event-stream')) {
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (error) {
+            data = { status: response.status, message: 'AI search failed' };
+        }
+        port.postMessage({ data: data });
+        return;
+    }
+
+    if (!response.body) {
+        port.postMessage({ data: { status: response.status, message: 'AI search stream unavailable' } });
+        return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let doneSent = false;
+
+    try {
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) {
+                break;
+            }
+            buffer += decoder.decode(value, { stream: true });
+            buffer = buffer.replace(/\r\n/g, '\n');
+            const events = buffer.split('\n\n');
+            buffer = events.pop();
+            events.forEach((eventChunk) => {
+                const lines = eventChunk.split('\n');
+                lines.forEach((line) => {
+                    if (!line.startsWith('data:')) {
+                        return;
+                    }
+                    const dataLine = line.replace(/^data:\s*/, '');
+                    if (!dataLine) {
+                        return;
+                    }
+                    if (dataLine === '[DONE]') {
+                        doneSent = true;
+                        port.postMessage({ data: { done: true } });
+                        return;
+                    }
+                    let payload;
+                    try {
+                        payload = JSON.parse(dataLine);
+                    } catch (error) {
+                        port.postMessage({ data: { delta: dataLine } });
+                        return;
+                    }
+                    if (payload && Object.prototype.hasOwnProperty.call(payload, 'delta')) {
+                        port.postMessage({ data: { delta: payload.delta } });
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        port.postMessage({ data: { status: 500, message: error.message } });
+        return;
+    }
+
+    if (!doneSent) {
+        port.postMessage({ data: { done: true } });
+    }
+}
 
 
 ////// 検索 //////
