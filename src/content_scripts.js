@@ -4,17 +4,24 @@
 import { JSFrame } from 'jsframe.js';
 import { Searcher } from './searcher.js';
 
+const POPUP_ID = 'diqt-dict-popup-to-display-window';
+const POPUP_LOGO_URL = 'https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/diqt_logo.svg';
+
+let popupEnabled = true;
+let popupControllerInitialized = false;
+let popupButton = null;
+let popupUpdateRequestId = null;
+let suppressNextPopupUpdate = false;
+let suppressPopupKeyupUntilCtrlRelease = false;
 
 // Backgroundからタブに送られたメッセージを受信し、タブ内でメッセージに応じた処理を実行する。
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request) {
     switch (request) {
         case "Action":
             // アイコンを押したときに、辞書ウィンドウの表示/非表示を切り替える。/ manifest 3 では書き方に変更があった。参照：https://blog.holyblue.jp/entry/2021/05/03/105010
             toggleFloatingWindow();
             break;
-        case "Updated":
-            // タブが更新されたときにあらかじめ実行する、テキスト選択時などの処理。
-            displayPopupWhenSelected();
+        default:
             break;
     }
     return true;
@@ -26,19 +33,30 @@ document.addEventListener("keydown", event => {
         switch (event.key) {
             // Ctrl + Q でウィンドウを開閉する
             case 'q':
+                if (document.getElementById('diqt-dict-extension-wrapper')) {
+                    suppressPopupKeyupUntilCtrlRelease = true;
+                    cancelScheduledPopupUpdate();
+                    hideSelectionPopup();
+                }
                 toggleFloatingWindow();
+                break;
+            default:
                 break;
         }
     }
 });
 
+initializePopupController();
+
 // 辞書ウィンドウの表示/非表示を切り替える。
 function toggleFloatingWindow() {
     let extensionWrapper = document.getElementById('diqt-dict-extension-wrapper');
     if (extensionWrapper == null) {
+        hideSelectionPopup();
+
         const jsFrame = new JSFrame({
             horizontalAlign: 'right'
-        })
+        });
 
         const formHtml = `
         <div id="diqt-dict-extension-wrapper">
@@ -54,7 +72,7 @@ function toggleFloatingWindow() {
             <div id="diqt-dict-ai-search-wrapper"></div>
         </div>
         <div id="search-diqt-dict-results"></div>
-        </div>`
+        </div>`;
 
         const frame = jsFrame.create({
             name: 'diqt-dict-window',
@@ -98,6 +116,18 @@ function toggleFloatingWindow() {
         });
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
+        frame.on('closeButton', 'mousedown', function () {
+            suppressNextPopupUpdate = true;
+            cancelScheduledPopupUpdate();
+            hideSelectionPopup();
+        });
+        frame.on('closeButton', 'click', function () {
+            suppressNextPopupUpdate = false;
+            Searcher.cleanupSelectionSearch();
+            cancelScheduledPopupUpdate();
+            hideSelectionPopup();
+        });
+
         // ウィンドウをページの最上部に持ってくる。
         extensionWrapper = frame.$('#diqt-dict-extension-wrapper');
         const frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -114,18 +144,13 @@ function toggleFloatingWindow() {
                 renderUserStatus();
             }
         });
-
-
     } else {
+        Searcher.cleanupSelectionSearch();
+        hideSelectionPopup();
         const frameDom = extensionWrapper.parentNode.parentNode.parentNode.parentNode.parentNode;
-        frameDom.remove()
+        frameDom.remove();
     }
-
 }
-
-
-
-
 
 // ユーザーがログインしているか検証し、ログイン済みならユーザー名を、そうでないならログインフォームへのリンクを表示する。
 function renderUserStatus() {
@@ -147,9 +172,9 @@ function renderUserStatus() {
         } else {
             // その他のエラー時の処理
             const userData = document.querySelector('#diqt-dict-logged-in-user');
-            userData.innerHTML = `<i class="fal fa-user"></i> Error`
+            userData.innerHTML = `<i class="fal fa-user"></i> Error`;
             const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
-            dictionaryDate.innerHTML = `<p>${chrome.i18n.getMessage("statusError")}</p>`
+            dictionaryDate.innerHTML = `<p>${chrome.i18n.getMessage("statusError")}</p>`;
         }
         return true;
     });
@@ -165,7 +190,7 @@ function renderUserStatus() {
 function loggedInUser(userName, dictionaries, selectedDictionaryId) {
     // ユーザーステータスを更新
     const userData = document.querySelector('#diqt-dict-logged-in-user');
-    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / ${chrome.i18n.getMessage("settings")}`
+    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / ${chrome.i18n.getMessage("settings")}`;
     // 辞書フォームの作成＆表示
     const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
     dictionaryDate.innerHTML = createDictionarySelectForm(dictionaries, selectedDictionaryId);
@@ -184,8 +209,6 @@ function notLoggedInUser() {
     });
 }
 
-
-
 // 辞書のセレクトフォームを作成
 function createDictionarySelectForm(dictionaries, value) {
     let dictionaryId = value;
@@ -201,8 +224,9 @@ function createDictionarySelectForm(dictionaries, value) {
     const optionsHtml = dictionaryAry.map(item => createOption(item, dictionaryId)).join('');
     return `<select id="diqt-dictionary-select-form">
                 ${optionsHtml}
-            </select>`
+            </select>`;
 }
+
 // 辞書のセレクトフォームのオプションを作成
 function createOption(item, value) {
     // item[0] は配列の最初の要素（value属性のためのもの）として想定されます。
@@ -214,66 +238,253 @@ function createOption(item, value) {
 
 // 辞書の切り替え
 function addEventToSelectForm() {
-    let selectForm = document.getElementById('diqt-dictionary-select-form');
-    let setDictionaryId = function (event) {
-        let selectedDictionaryId = `${event.currentTarget.value}`
+    const selectForm = document.getElementById('diqt-dictionary-select-form');
+    const setDictionaryId = function (event) {
+        const selectedDictionaryId = `${event.currentTarget.value}`;
         chrome.storage.local.set({ diqtSelectedDictionaryId: selectedDictionaryId });
         // 辞書の切り替え時に検索を実行する。
         Searcher.search();
-    }
+    };
     selectForm.addEventListener('change', setDictionaryId);
 }
 
+function initializePopupController() {
+    if (popupControllerInitialized) {
+        return;
+    }
 
-// テキストが選択されたとき、辞書ウィンドウが開いていないなら、辞書ウィンドウを開くためのポップアップを選択されたテキストの近くに表示する。
-function displayPopupWhenSelected() {
+    popupControllerInitialized = true;
+
     chrome.storage.local.get(['diqtPopupDisplayed'], function (result) {
-        // 設定で表示がOFFになっている場合、あるいはユーザーがログインしていない場合は、ポップアップを表示しない
-        if (result.diqtPopupDisplayed === false || result.diqtPopupDisplayed === '') {
+        syncPopupDisplaySetting(result.diqtPopupDisplayed);
+    });
+
+    chrome.storage.onChanged.addListener(function (changes, areaName) {
+        if (areaName !== 'local' || !changes.diqtPopupDisplayed) {
             return;
         }
 
-        const selection = () => {
-            const dictWrapper = document.querySelector('#diqt-dict-extension-wrapper');
-            const sel = window.getSelection();
-            const selText = sel.toString();
-            let popup = document.querySelector('#diqt-dict-popup-to-display-window');
-            if (popup) {
-                popup.remove();
-            }
-            if (dictWrapper == null && selText != '') {
-                const sel = window.getSelection()
-                const range = sel.getRangeAt(0)
-                const textRange = document.createRange()
-
-                // offsetが0だと -1 したときに429496729となりエラーが発生する。
-                if (range.endOffset == 0) {
-                    return;
-                }
-                textRange.setStart(range.endContainer, range.endOffset - 1)
-                textRange.setEnd(range.endContainer, range.endOffset)
-                const textRect = textRange.getBoundingClientRect();
-
-                // テキストエリアでは選択位置の座標が取得できないので、ポップアップも表示しないようにする。
-                if (textRect.top == 0 && textRect.left == 0) {
-                    return;
-                }
-                // ページの上端から要素の上端までの距離（topPX）と、ページの左端から要素の左端までの距離（leftPx）を算出する / 参考: https://lab.syncer.jp/Web/JavaScript/Snippet/10/
-                const topPx = window.pageYOffset + textRect.top + 32;
-                const leftPx = window.pageXOffset + textRect.left;
-                const popupHtml = `<button id="diqt-dict-popup-to-display-window" style="position: absolute; width: 32px; height: 32px; background-color: #273132; top: ${topPx}px; left: ${leftPx}px; z-index: 2147483647; border: 0; border-radius: 4px; padding: 0; margin: 0;">
-                    <img src="https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/diqt_logo.svg" alt="diqt Icon" style="height: 24px;width: 24px; margin: 4px 2px 2px 3px; padding: 0;">
-                    </button>`
-                const bodyElement = document.querySelector('html body');
-                bodyElement.insertAdjacentHTML('beforeend', popupHtml);
-                // popupに辞書ウィンドウを開くイベントを追加
-                popup = document.querySelector('button#diqt-dict-popup-to-display-window');
-                popup.addEventListener('click', function () {
-                    toggleFloatingWindow();
-                    popup.remove();
-                });
-            }
-        }
-        document.addEventListener('selectionchange', selection);
+        syncPopupDisplaySetting(changes.diqtPopupDisplayed.newValue);
     });
+
+    document.addEventListener('mousedown', handleDocumentMouseDown, true);
+    document.addEventListener('mouseup', schedulePopupUpdate, true);
+    document.addEventListener('keyup', handleSelectionKeyup, true);
+}
+
+function handleDocumentMouseDown(event) {
+    if (popupButton && popupButton.contains(event.target)) {
+        return;
+    }
+
+    hideSelectionPopup();
+}
+
+function handleSelectionKeyup(event) {
+    if (suppressPopupKeyupUntilCtrlRelease) {
+        if (!event.ctrlKey) {
+            suppressPopupKeyupUntilCtrlRelease = false;
+        }
+        return;
+    }
+
+    const selection = window.getSelection();
+    if (event.key === 'Escape' || isPopupVisible() || (selection && selection.toString() !== '')) {
+        schedulePopupUpdate();
+    }
+}
+
+function schedulePopupUpdate() {
+    if (suppressNextPopupUpdate) {
+        suppressNextPopupUpdate = false;
+        cancelScheduledPopupUpdate();
+        hideSelectionPopup();
+        return;
+    }
+
+    cancelScheduledPopupUpdate();
+
+    popupUpdateRequestId = window.requestAnimationFrame(function () {
+        popupUpdateRequestId = null;
+        updatePopupForSelection();
+    });
+}
+
+function cancelScheduledPopupUpdate() {
+    if (popupUpdateRequestId != null) {
+        window.cancelAnimationFrame(popupUpdateRequestId);
+        popupUpdateRequestId = null;
+    }
+}
+
+function updatePopupForSelection() {
+    if (!popupEnabled) {
+        hideSelectionPopup();
+        return;
+    }
+
+    if (document.querySelector('#diqt-dict-extension-wrapper')) {
+        hideSelectionPopup();
+        return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        hideSelectionPopup();
+        return;
+    }
+
+    const selectedText = selection.toString().trim();
+    if (selectedText === '') {
+        hideSelectionPopup();
+        return;
+    }
+
+    if (selectionIntersectsElement(selection, document.querySelector('#diqt-dict-extension-wrapper')) || isEditableSelection(selection)) {
+        hideSelectionPopup();
+        return;
+    }
+
+    const range = selection.getRangeAt(0);
+    const textRect = getSelectionRect(range);
+    if (!textRect) {
+        hideSelectionPopup();
+        return;
+    }
+
+    showSelectionPopup(textRect);
+}
+
+function syncPopupDisplaySetting(value) {
+    popupEnabled = value !== false && value !== '';
+
+    if (!popupEnabled) {
+        cancelScheduledPopupUpdate();
+        hideSelectionPopup();
+        return;
+    }
+
+    schedulePopupUpdate();
+}
+
+function getSelectionRect(range) {
+    const clientRects = range.getClientRects();
+    const textRect = clientRects.length > 0 ? clientRects[clientRects.length - 1] : range.getBoundingClientRect();
+
+    if (!textRect || (textRect.width === 0 && textRect.height === 0)) {
+        return null;
+    }
+
+    return textRect;
+}
+
+function isEditableSelection(selection) {
+    if (isEditableElement(document.activeElement)) {
+        return true;
+    }
+
+    return [selection.anchorNode, selection.focusNode].some(function (node) {
+        return isEditableElement(getElementFromNode(node));
+    });
+}
+
+function isEditableElement(element) {
+    if (!element) {
+        return false;
+    }
+
+    return element.matches('input, textarea, [contenteditable], [contenteditable="true"], [contenteditable="plaintext-only"]')
+        || element.closest('input, textarea, [contenteditable], [contenteditable="true"], [contenteditable="plaintext-only"]') != null
+        || element.isContentEditable;
+}
+
+function getElementFromNode(node) {
+    if (!node) {
+        return null;
+    }
+
+    return node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+}
+
+function selectionIntersectsElement(selection, element) {
+    if (!element) {
+        return false;
+    }
+
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    return [selection.anchorNode, selection.focusNode, range ? range.commonAncestorContainer : null].some(function (node) {
+        return element.contains(node);
+    });
+}
+
+function showSelectionPopup(textRect) {
+    const popup = ensurePopupButton();
+    if (!popup) {
+        return;
+    }
+
+    const topPx = window.pageYOffset + textRect.bottom + 8;
+    const leftPx = window.pageXOffset + textRect.left;
+    popup.style.top = `${topPx}px`;
+    popup.style.left = `${leftPx}px`;
+    popup.style.display = 'block';
+}
+
+function ensurePopupButton() {
+    if (popupButton && popupButton.isConnected) {
+        return popupButton;
+    }
+
+    const bodyElement = document.body;
+    if (!bodyElement) {
+        return null;
+    }
+
+    popupButton = document.getElementById(POPUP_ID);
+    if (!popupButton) {
+        popupButton = document.createElement('button');
+        popupButton.id = POPUP_ID;
+        popupButton.type = 'button';
+        popupButton.style.position = 'absolute';
+        popupButton.style.display = 'none';
+        popupButton.style.width = '32px';
+        popupButton.style.height = '32px';
+        popupButton.style.backgroundColor = '#273132';
+        popupButton.style.zIndex = '2147483647';
+        popupButton.style.border = '0';
+        popupButton.style.borderRadius = '4px';
+        popupButton.style.padding = '0';
+        popupButton.style.margin = '0';
+        popupButton.style.cursor = 'pointer';
+
+        const image = document.createElement('img');
+        image.src = POPUP_LOGO_URL;
+        image.alt = 'diqt Icon';
+        image.style.height = '24px';
+        image.style.width = '24px';
+        image.style.margin = '4px 2px 2px 3px';
+        image.style.padding = '0';
+        popupButton.appendChild(image);
+
+        popupButton.addEventListener('click', function () {
+            toggleFloatingWindow();
+            hideSelectionPopup();
+        });
+    }
+
+    if (!popupButton.isConnected) {
+        bodyElement.appendChild(popupButton);
+    }
+
+    return popupButton;
+}
+
+function isPopupVisible() {
+    return popupButton != null && popupButton.style.display !== 'none';
+}
+
+function hideSelectionPopup() {
+    if (popupButton) {
+        popupButton.style.display = 'none';
+    }
 }
