@@ -3,6 +3,7 @@
 // 挫折：mini-css-extract-pluginを使って上記の方法でcssをimportしようとすると、JSframeが呼び出せなくなる。
 import { JSFrame } from 'jsframe.js';
 import { Searcher } from './searcher.js';
+import { Icon } from './icon.js';
 
 const POPUP_ID = 'diqt-dict-popup-to-display-window';
 const POPUP_LOGO_URL = 'https://diqt.s3.ap-northeast-1.amazonaws.com/assets/images/main/diqt_logo.svg';
@@ -172,7 +173,7 @@ function renderUserStatus() {
         } else {
             // その他のエラー時の処理
             const userData = document.querySelector('#diqt-dict-logged-in-user');
-            userData.innerHTML = `<i class="fal fa-user"></i> Error`;
+            userData.innerHTML = `${Icon.user()} Error`;
             const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
             dictionaryDate.innerHTML = `<p>${chrome.i18n.getMessage("statusError")}</p>`;
         }
@@ -190,7 +191,7 @@ function renderUserStatus() {
 function loggedInUser(userName, dictionaries, selectedDictionaryId) {
     // ユーザーステータスを更新
     const userData = document.querySelector('#diqt-dict-logged-in-user');
-    userData.innerHTML = `<i class="fal fa-user"></i> ${userName} / ${chrome.i18n.getMessage("settings")}`;
+    userData.innerHTML = `${Icon.user()} ${userName} / ${chrome.i18n.getMessage("settings")}`;
     // 辞書フォームの作成＆表示
     const dictionaryDate = document.querySelector('#diqt-dict-dictionary-select-form-wrapper');
     dictionaryDate.innerHTML = createDictionarySelectForm(dictionaries, selectedDictionaryId);

@@ -1,6 +1,7 @@
 import { Word } from './word.js';
 import { Review } from './review.js';
 import { Translator } from './translator.js';
+import { Icon } from './icon.js';
 import { USER_LANG_NUMBER, DIQT_URL, RTL_LANGUAGES, LANG_CODE_MAP } from './constants.js';
 
 
@@ -60,7 +61,7 @@ export class Sentence {
         if (sentence.original_audio_url == null || sentence.original_audio_url == '') {
             return '';
         }
-        return `<button class="diqt-dict-speech-btn" value="${sentence.original_audio_url}"><i class="fas fa-volume-up"></i></button>`;
+        return `<button class="diqt-dict-speech-btn" value="${sentence.original_audio_url}">${Icon.volume()}</button>`;
     }
 
 

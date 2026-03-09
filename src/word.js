@@ -2,6 +2,7 @@ import { Review } from './review.js';
 import { Sentence } from './sentence.js';
 import { Translator } from './translator.js';
 import { Pos } from './pos.js';
+import { Icon } from './icon.js';
 import { LOCALE, USER_LANG_NUMBER, DIQT_URL, RTL_LANGUAGES, LANG_CODE_MAP } from './constants.js';
 
 export class Word {
@@ -17,7 +18,7 @@ export class Word {
         const entry = `<div class="diqt-dict-entry ${rtlClass}">
             <span class="diqt-dict-entry-inner">
                 <span class="diqt-dict-entry-text">${word.entry}</span>
-                <button class="diqt-dict-speech-btn" value="${word.entry_audio_url}"><i class="fas fa-volume-up"></i></button>
+                <button class="diqt-dict-speech-btn" value="${word.entry_audio_url}">${Icon.volume()}</button>
             </span>
         </div>`;
         // 発音記号
@@ -203,8 +204,8 @@ export class Word {
     // 「改善ボタン」と「詳細ボタン」のhtmlを生成する（項目と例文に使用）
     static liknToEditHtml(url, label) {
         const html = `<div style="display: flex;">
-                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-edit"></i> ${label}</a>
-                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;"><i class="fal fa-external-link" style="margin-right: 4px;"></i>${chrome.i18n.getMessage("details")}</a>
+                    <a href="${url + '/edit'}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">${Icon.edit()}${label}</a>
+                    <a href="${url}" target="_blank" rel="noopener" class="diqt-dict-link-to-edit" style="margin-left: auto; margin-top: 0; margin-bottom: 8px; padding-top: 0; padding-bottom: 0;">${Icon.externalLink()}${chrome.i18n.getMessage("details")}</a>
                 </div>`;
         return html;
     }
