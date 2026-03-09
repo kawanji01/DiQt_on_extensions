@@ -11,15 +11,6 @@ chrome.action.onClicked.addListener(function (tab) {
     rtnPromise.then((response) => { }).catch((error) => { });
 });
 
-// タブがアップデート（画面遷移など）されたことをcontent_scriptsに伝える。参考：https://developer.chrome.com/docs/extensions/reference/tabs/#event-onUpdated
-chrome.tabs.onUpdated.addListener(function (tabId) {
-    // Could not establish connection. Receiving end does not exist.の解決
-    // ref: https://blog.holyblue.jp/entry/2022/07/11/084839
-    const rtnPromise = chrome.tabs.sendMessage(tabId, "Updated");
-    rtnPromise.then((response) => { }).catch((error) => { });
-});
-
-
 // contents_scriptから送られてきたone-timeメッセージを通じて、オプション画面を開く。参考：参照： https://stackoverflow.com/questions/49192636/how-can-i-open-my-options-html-currently-i-get-cannot-read-property-create-of
 chrome.runtime.onMessage.addListener(function (message) {
     switch (message.action) {

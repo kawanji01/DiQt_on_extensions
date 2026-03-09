@@ -8,6 +8,9 @@ export class Searcher {
     static inilialize() {
         // ログイン情報がローカルストレージにある場合
         const searchForm = document.querySelector('#diqt-dict-search-form');
+        if (!searchForm) {
+            return;
+        }
         // ドラッグしたテキストを辞書で検索できるイベントを付与。
         Searcher.mouseupSearch();
         // 検索フォームに、テキスト入力から検索できるイベントを付与。
@@ -22,20 +25,44 @@ export class Searcher {
 
     // ドラッグした瞬間に、ドラッグしたテキストの検索を走らせるイベントを付与。
     static mouseupSearch() {
-        document.addEventListener('mouseup', function (evt) {
+        if (Searcher.selectionSearchHandler != null) {
+            return;
+        }
+
+        Searcher.selectionSearchHandler = function () {
             Searcher.searchSelectedText();
-            // イベントの予期せぬ伝播を防ぐための記述
-            evt.stopPropagation();
-        }, false);
+        };
+
+        document.addEventListener('mouseup', Searcher.selectionSearchHandler, false);
+    }
+
+    static cleanupSelectionSearch() {
+        if (Searcher.selectionSearchHandler == null) {
+            return;
+        }
+
+        document.removeEventListener('mouseup', Searcher.selectionSearchHandler, false);
+        Searcher.selectionSearchHandler = null;
     }
 
     // ドラッグされているテキストを検索する処理
     static searchSelectedText() {
-        const selTxt = window.getSelection().toString();
+        const searchForm = document.querySelector('#diqt-dict-search-form');
+        const resultForm = document.querySelector('#search-diqt-dict-results');
+        if (!searchForm || !resultForm) {
+            return;
+        }
+
+        const selection = window.getSelection();
+        if (!selection) {
+            return;
+        }
+
+        const selTxt = selection.toString();
 
         // 選択されたテキストが#diqt-dict-extension-wrapper内にあるかどうかを確認
         const wrapperElement = document.querySelector('#diqt-dict-extension-wrapper');
-        if (wrapperElement && wrapperElement.contains(window.getSelection().anchorNode)) {
+        if (wrapperElement && wrapperElement.contains(selection.anchorNode)) {
             return; // #diqt-dict-extension-wrapper内のテキストが選択されている場合、処理を終了
         }
         // 検索を実行する前に、検索できる条件を満たしているか検証する。
@@ -47,16 +74,13 @@ export class Searcher {
             previousKeyword = '';
         }
         if (selTxt.length >= 1000) {
-            document.querySelector('#search-diqt-dict-results').innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`
+            resultForm.innerHTML = `<p style="color: #EE5A5A; font-size: 12px;">${chrome.i18n.getMessage("searchLimit")}</p>`;
             return;
         }
         // 検索フォーム
         if (selTxt != '' && previousKeyword != selTxt && selTxt.length < 1000) {
-            const searchForm = document.querySelector('#diqt-dict-search-form');
-            if (searchForm) {
-                searchForm.value = selTxt;
-                Searcher.searchWord(selTxt);
-            }
+            searchForm.value = selTxt;
+            Searcher.searchWord(selTxt);
         }
     }
 
@@ -205,3 +229,5 @@ export class Searcher {
 
 
 }
+
+Searcher.selectionSearchHandler = null;
