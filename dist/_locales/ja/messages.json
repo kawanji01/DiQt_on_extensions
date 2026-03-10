@@ -223,6 +223,14 @@
         "message": "DeepL翻訳",
         "description": "Translator message"
     },
+    "translationAction": {
+        "message": "翻訳する",
+        "description": "Translator message"
+    },
+    "translationResult": {
+        "message": "翻訳結果",
+        "description": "Translator message"
+    },
     "translating": {
         "message": "翻訳中...",
         "description": "Translator message"

@@ -1,4 +1,4 @@
-import { PREMIUM_PLAN_URL } from './constants.js';
+import { PREMIUM_PLAN_URL, LOCALE, LANG_CODE_MAP } from './constants.js';
 
 export class Translator {
 
@@ -19,15 +19,10 @@ export class Translator {
             return '';
         }
         return `<div class="small-translation-buttons">
-                    <span class="diqt-google-translation-btn-wrapper">
-                        <a class="diqt-google-translation-btn">${chrome.i18n.getMessage("googleTranslation")}</a>
+                    <span class="diqt-translation-btn-wrapper">
+                        <a class="diqt-translation-btn">${chrome.i18n.getMessage("translationAction")}</a>
                     </span>
-                    <span> / </span>
-                    <span class="diqt-deepl-translation-btn-wrapper">
-                        <a class="diqt-deepl-translation-btn">${chrome.i18n.getMessage("deepLTranslation")}</a>
-                    </span>
-                    <div class="diqt-google-translation-form"></div>
-                    <div class="diqt-deepl-translation-form"></div>
+                    <div class="diqt-translation-form"></div>
                 </div>`;
     }
 
@@ -38,49 +33,81 @@ export class Translator {
         if (sourceLangNumber == targetLangNumber) {
             return true;
         }
-        // google翻訳
-        const googleButton = wrapper.querySelector('.diqt-google-translation-btn');
-        const googleWrapper = wrapper.querySelector('.diqt-google-translation-btn-wrapper');
-        const googleTranslationForm = wrapper.querySelector('.diqt-google-translation-form');
-        googleButton.addEventListener('click', function () {
-            googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
+        const translationButton = wrapper.querySelector('.diqt-translation-btn');
+        const translationWrapper = wrapper.querySelector('.diqt-translation-btn-wrapper');
+        const translationForm = wrapper.querySelector('.diqt-translation-form');
+        translationButton.addEventListener('click', function () {
+            translationWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
             const port = chrome.runtime.connect({ name: "googleTranslation" });
             port.postMessage({ action: "googleTranslation", keyword: keyword, sourceLangNumber: sourceLangNumber, targetLangNumber: targetLangNumber });
             port.onMessage.addListener(function (msg) {
                 const data = msg['data'];
-                googleWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
+                translationWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
                 if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("googleTranslation")}：</p>
+                    const translation = `<p class="diqt-translation-service">${Translator.translationResultLabel(sourceLangNumber, targetLangNumber)}</p>
                     <p class="diqt-translation-results">${data['translation']}</p>`;
-                    googleTranslationForm.innerHTML = translation;
+                    translationForm.innerHTML = translation;
                 } else {
-                    googleTranslationForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
+                    translationForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
                 }
                 return true;
             });
+        });
+    }
 
-        });
-        // Deepl翻訳
-        const deeplButton = wrapper.querySelector('.diqt-deepl-translation-btn');
-        const deeplWrapper = wrapper.querySelector('.diqt-deepl-translation-btn-wrapper');
-        const deeplTranslationForm = wrapper.querySelector('.diqt-deepl-translation-form');
-        deeplButton.addEventListener('click', function () {
-            deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translating")}</span>`;
-            const port = chrome.runtime.connect({ name: "deeplTranslation" });
-            port.postMessage({ action: "deeplTranslation", keyword: keyword, sourceLangNumber: sourceLangNumber, targetLangNumber: targetLangNumber });
-            port.onMessage.addListener(function (msg) {
-                const data = msg['data'];
-                deeplWrapper.innerHTML = `<span>${chrome.i18n.getMessage("translated")}</span>`;
-                if (data['status'] == "200") {
-                    const translation = `<p class="diqt-translation-service">${chrome.i18n.getMessage("deepLTranslation")}：</p>
-                    <p class="diqt-translation-results">${data['translation']}</p>`;
-                    deeplTranslationForm.innerHTML = translation;
-                } else {
-                    deeplTranslationForm.innerHTML = `<a href="${PREMIUM_PLAN_URL}" target="_blank" rel="noopener" style="font-size: 14px; color: #27ae60; font-weight: bold;">${data['message']}</a>`;
-                }
-                return true;
-            });
-        });
+    static translationResultLabel(sourceLangNumber, targetLangNumber) {
+        const translationResult = chrome.i18n.getMessage("translationResult");
+        const sourceLanguage = Translator.languageNameFromNumber(sourceLangNumber);
+        const targetLanguage = Translator.languageNameFromNumber(targetLangNumber);
+        const translationInfo = `${sourceLanguage} - ${targetLanguage}`;
+        if (LOCALE === 'ja') {
+            return `${translationResult}（${translationInfo}）`;
+        }
+        return `${translationResult} (${translationInfo})`;
+    }
+
+    static languageNameFromNumber(langNumber) {
+        const langCode = Translator.languageCodeFromNumber(langNumber);
+        const normalizedLangCode = Translator.normalizeLanguageCode(langCode);
+        if (!normalizedLangCode) {
+            return `${langNumber}`;
+        }
+
+        const displayNames = Translator.languageDisplayNames();
+        if (displayNames) {
+            const languageName = displayNames.of(normalizedLangCode);
+            if (languageName) {
+                return languageName;
+            }
+        }
+
+        return normalizedLangCode;
+    }
+
+    static languageCodeFromNumber(langNumber) {
+        for (const [langCode, number] of Object.entries(LANG_CODE_MAP)) {
+            if (number === langNumber) {
+                return langCode;
+            }
+        }
+        return '';
+    }
+
+    static normalizeLanguageCode(langCode) {
+        if (!langCode || langCode === 'undefined') {
+            return '';
+        }
+        if (langCode === 'iw') {
+            return 'he';
+        }
+        return langCode;
+    }
+
+    static languageDisplayNames() {
+        if (typeof Intl === 'undefined' || typeof Intl.DisplayNames !== 'function') {
+            return null;
+        }
+        return new Intl.DisplayNames([LOCALE], { type: 'language' });
     }
 
 
