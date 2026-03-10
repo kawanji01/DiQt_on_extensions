@@ -49,6 +49,33 @@ document.addEventListener("keydown", event => {
 
 initializePopupController();
 
+function getFrameCloseButtonElement(frame) {
+    if (typeof frame.getFrameComponentElement === 'function') {
+        const closeButton = frame.getFrameComponentElement('closeButton');
+        if (closeButton) {
+            return closeButton;
+        }
+    }
+
+    if (frame.htmlElement && typeof frame.htmlElement.querySelector === 'function') {
+        return frame.htmlElement.querySelector('[component-id="closeButton"]');
+    }
+
+    return null;
+}
+
+function hydrateFrameCloseButtonIcon(frame) {
+    const closeButton = getFrameCloseButtonElement(frame);
+    if (!closeButton) {
+        return;
+    }
+
+    closeButton.classList.add('diqt-dict-frame-close-button');
+    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.setAttribute('title', 'Close');
+    closeButton.innerHTML = Icon.close();
+}
+
 // 辞書ウィンドウの表示/非表示を切り替える。
 function toggleFloatingWindow() {
     let extensionWrapper = document.getElementById('diqt-dict-extension-wrapper');
@@ -117,6 +144,7 @@ function toggleFloatingWindow() {
         });
         frame.setPosition(-20, 100, ['RIGHT_TOP']);
         frame.show();
+        hydrateFrameCloseButtonIcon(frame);
         frame.on('closeButton', 'mousedown', function () {
             suppressNextPopupUpdate = true;
             cancelScheduledPopupUpdate();

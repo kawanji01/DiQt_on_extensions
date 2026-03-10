@@ -3,6 +3,15 @@ function wrapIcon(name, svgMarkup) {
 }
 
 export class Icon {
+    static close() {
+        return wrapIcon('close', `
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 4.5L11.5 11.5" />
+                <path d="M11.5 4.5L4.5 11.5" />
+            </svg>
+        `);
+    }
+
     static volume() {
         return wrapIcon('volume', `
             <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
