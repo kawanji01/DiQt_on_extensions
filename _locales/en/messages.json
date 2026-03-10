@@ -223,6 +223,14 @@
         "message": "DeepL translation",
         "description": "Words message"
     },
+    "translationAction": {
+        "message": "Translate",
+        "description": "Words message"
+    },
+    "translationResult": {
+        "message": "Translation Result",
+        "description": "Words message"
+    },
     "translating": {
         "message": "Translating...",
         "description": "Words message"

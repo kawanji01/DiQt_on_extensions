@@ -1,5 +1,7 @@
 //////// 復習に関する処理 START ////////
 
+import { Icon } from './icon.js';
+
 export class Review {
 
     // Wordの復習設定ボタンを生成する
@@ -20,7 +22,7 @@ export class Review {
         const reversedQuizId = reversedQuiz.id;
         const reversedReview = reversedQuiz.review;
         const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuizId}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
-        const helpLink = `<div style="text-align: left; margin-bottom: 16px;"><a href="https://abundant-galliform-71d.notion.site/1e0234a0842b80c4adc4ccc065620438" target="_blank" rel="noopener" class="diqt-dict-review-help-link"><i class="fal fa-question-circle" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewHelpLink')}</a></div>`;
+        const helpLink = `<div style="text-align: left; margin-bottom: 16px;"><a href="https://abundant-galliform-71d.notion.site/1e0234a0842b80c4adc4ccc065620438" target="_blank" rel="noopener" class="diqt-dict-review-help-link">${Icon.questionCircle()}${chrome.i18n.getMessage('reviewHelpLink')}</a></div>`;
         return reviewBtn + reversedReviewBtn + helpLink;
     }
 
@@ -41,7 +43,7 @@ export class Review {
         }
         const reversedReview = reversedQuiz.review;
         const reversedReviewBtn = `<div id="diqt-dict-review-btn-wrapper-${reversedQuiz.id}">${Review.createReviewBtnHtml(reversedQuiz, reversedReview)}</div>`;
-        const helpLink = `<div style="text-align: left; margin-bottom: 8px;"><a href="https://abundant-galliform-71d.notion.site/1e2234a0842b8057a70ec995b5306ec7" target="_blank" rel="noopener" class="diqt-dict-review-help-link"><i class="fal fa-question-circle" style="margin-right: 4px;"></i>このボタンは何？</a></div>`;
+        const helpLink = `<div style="text-align: left; margin-bottom: 8px;"><a href="https://abundant-galliform-71d.notion.site/1e2234a0842b8057a70ec995b5306ec7" target="_blank" rel="noopener" class="diqt-dict-review-help-link">${Icon.questionCircle()}このボタンは何？</a></div>`;
 
         return reviewBtn + reversedReviewBtn + helpLink;
     }
@@ -53,11 +55,11 @@ export class Review {
 
         if (review) {
             // 設定編集ボタン
-            return `<button class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</button>
+            return `<button class="diqt-dict-review-btn diqt-already-set" id="diqt-dict-review-edit-btn-${quizId}" style="font-weight: bold;">${Icon.alarmClock()}${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</button>
             <div class="diqt-dict-review-form" id="diqt-dict-review-form-${quizId}"></div>`
         } else {
             // 新規設定ボタン
-            return `<button class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;"><i class="far fa-alarm-clock" style="margin-right: 4px;"></i>${label}</button>`
+            return `<button class="diqt-dict-review-btn" id="diqt-dict-review-create-btn-${quizId}" style="font-weight: bold;">${Icon.alarmClock()}${label}</button>`
         }
     }
 
@@ -152,7 +154,7 @@ export class Review {
         <div class="boqqs-dict-reminder-status">
         <p>${chrome.i18n.getMessage('reviewScheduledDate')}：${review.scheduled_date}</p>
         <p>${chrome.i18n.getMessage('reviewInterval')}：${chrome.i18n.getMessage('reviewFor', Review.reviewInterval(review.interval_setting))}</p>  
-        <button class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}"><i class="far fa-trash"></i> ${chrome.i18n.getMessage('destroyReview')}</button>
+        <button class="diqt-dict-destroy-review-btn" id="diqt-dict-destroy-review-btn-${quizId}">${Icon.trash()}${chrome.i18n.getMessage('destroyReview')}</button>
         </div>      
 <div class="diqt-dict-select-form cp_sl01">
 <select id="diqt-dict-select-form-${quizId}" required>

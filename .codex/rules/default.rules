@@ -1,0 +1,5 @@
+prefix_rule(pattern=["git", "status"], decision="allow")
+prefix_rule(pattern=["git", "diff"], decision="allow")
+prefix_rule(pattern=["npx", "eslint"], decision="allow")
+prefix_rule(pattern=["npm", "run", "build"], decision="allow")
+prefix_rule(pattern=["terminal-notifier"], decision="allow")
